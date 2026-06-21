@@ -1,0 +1,135 @@
+@{
+    ViewData["Title"] = "Audit Logs";
+}
+
+<div class="page-header">
+    <div class="page-header-main">
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" data-i18n="auditLogs.adminPage.breadcrumbRoot">Quản trị</a>
+            <span aria-hidden="true">/</span>
+            <span data-i18n="auditLogs.adminPage.breadcrumbCurrent">Nhật ký hệ thống</span>
+        </nav>
+        <h1 class="page-title" data-i18n="auditLogs.adminPage.title">Nhật ký hệ thống</h1>
+        <p class="page-muted u-mb-0" data-i18n="auditLogs.adminPage.pageSubtitle">Xem lịch sử hoạt động của người dùng, thay đổi đối tượng và sự kiện thi từ dữ liệu nhật ký mô phỏng.</p>
+    </div>
+    <div class="page-header-actions">
+        <button class="app-button app-button-secondary" type="button" data-audit-action="export" data-i18n="auditLogs.adminPage.export">Xuất dữ liệu</button>
+    </div>
+</div>
+
+<section class="admin-screen-banner app-animate-slide-up">
+    <div class="image-slot image-slot-banner image-slot-admin" data-image-label="Admin audit logs banner 1200x220">
+        <img src="~/images/backgrounds/admin-dashboard-bg.svg" alt="" aria-hidden="true" />
+    </div>
+</section>
+
+<section class="page-grid page-grid-4 u-mb-4 app-animate-stagger" aria-label="Audit summary">
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="auditLogs.adminPage.metricTotalLogs">Tổng số nhật ký</p>
+                <p class="app-metric-value" data-audit-metric="total">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-list-check"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="auditLogs.adminPage.metricUsers">Người dùng</p>
+                <p class="app-metric-value" data-audit-metric="users">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="auditLogs.adminPage.metricActions">Hành động</p>
+                <p class="app-metric-value" data-audit-metric="actions">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-activity"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="auditLogs.adminPage.metricLatest">Mới nhất</p>
+                <p class="app-metric-value" data-audit-metric="latest">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-clock-history"></i></span>
+        </div>
+    </article>
+</section>
+
+<section class="app-card">
+    <div class="app-card-header">
+        <div class="admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="auditLogs.adminPage.cardTitle">Nhật ký hoạt động</h2>
+                <p class="app-card-subtitle" data-i18n="auditLogs.adminPage.cardSubtitle">Lọc, phân trang và kiểm tra các sự kiện nhật ký chỉ đọc.</p>
+            </div>
+            <span class="app-badge app-badge-info" data-audit-result-count>-- bản ghi</span>
+        </div>
+    </div>
+
+    <div class="app-card-body">
+        <div class="app-filter-bar audit-filter-bar">
+            <label class="visually-hidden" for="auditSearch" data-i18n="auditLogs.adminPage.labelSearch">Tìm kiếm nhật ký</label>
+            <input class="app-input" id="auditSearch" type="search" placeholder="Tìm người dùng, hành động, đối tượng, mô tả..." data-audit-filter="search" data-i18n-placeholder="auditLogs.adminPage.placeholderSearch" />
+
+            <label class="visually-hidden" for="auditActionFilter" data-i18n="auditLogs.adminPage.labelFilterAction">Hành động</label>
+            <select class="app-select" id="auditActionFilter" data-audit-filter="action">
+                <option value="" data-i18n="auditLogs.adminPage.optionAllActions">Tất cả hành động</option>
+            </select>
+
+            <label class="visually-hidden" for="auditEntityFilter" data-i18n="auditLogs.adminPage.labelFilterEntity">Đối tượng</label>
+            <select class="app-select" id="auditEntityFilter" data-audit-filter="entity">
+                <option value="" data-i18n="auditLogs.adminPage.optionAllEntities">Tất cả đối tượng</option>
+            </select>
+
+            <label class="visually-hidden" for="auditDateFilter" data-i18n="auditLogs.adminPage.labelFilterDate">Ngày</label>
+            <input class="app-input" id="auditDateFilter" type="date" data-audit-filter="date" />
+
+            <button class="app-button app-button-secondary" type="button" data-audit-action="clear-filters" data-i18n="auditLogs.adminPage.buttonClear">Xóa bộ lọc</button>
+        </div>
+
+        <div class="app-table-wrapper u-mt-4">
+            <table class="app-table table audit-log-table">
+                <thead>
+                    <tr>
+                        <th scope="col" data-i18n="auditLogs.adminPage.colUser">Người dùng</th>
+                        <th scope="col" data-i18n="auditLogs.adminPage.colAction">Hành động</th>
+                        <th scope="col" data-i18n="auditLogs.adminPage.colEntity">Đối tượng</th>
+                        <th scope="col" data-i18n="auditLogs.adminPage.colDescription">Mô tả</th>
+                        <th scope="col" data-i18n="auditLogs.adminPage.colDateTime">Ngày giờ</th>
+                        <th scope="col" class="u-text-right" data-i18n="auditLogs.adminPage.colActions">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="auditLogRows">
+                    <tr>
+                        <td colspan="6">
+                            <div class="app-loading">
+                                <span class="app-spinner" aria-hidden="true"></span>
+                                <span data-i18n="auditLogs.adminPage.loadingLogs">Đang tải nhật ký hệ thống...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-table-footer">
+            <p class="page-muted u-mb-0" data-audit-page-info data-i18n="auditLogs.adminPage.loadingRecords">Đang tải bản ghi nhật ký...</p>
+            <div class="admin-pagination" aria-label="Phân trang nhật ký" data-i18n-aria="auditLogs.adminPage.paginationAria">
+                <button class="app-button app-button-secondary" type="button" data-audit-page="prev" data-i18n="auditLogs.adminPage.buttonPrev">Trước</button>
+                <div class="admin-pagination-pages" id="auditPaginationPages"></div>
+                <button class="app-button app-button-secondary" type="button" data-audit-page="next" data-i18n="auditLogs.adminPage.buttonNext">Tiếp</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/pages/admin-audit-logs.js" asp-append-version="true"></script>
+}

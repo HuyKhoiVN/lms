@@ -1,0 +1,170 @@
+@{
+    ViewData["Title"] = "Bảng điều khiển quản trị";
+}
+
+<div class="page-header">
+    <div class="page-header-main">
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" data-i18n="dashboard.adminPage.breadcrumbRoot">Quản trị</a>
+            <span aria-hidden="true">/</span>
+            <span data-i18n="dashboard.adminPage.breadcrumbCurrent">Bảng điều khiển</span>
+        </nav>
+        <h1 class="page-title" data-i18n="dashboard.adminPage.title">Bảng điều khiển quản trị</h1>
+        <p class="page-muted u-mb-0" data-i18n="dashboard.adminPage.subtitle">Theo dõi hoạt động học tập, thi cử, kết quả và vận hành nền tảng.</p>
+    </div>
+    <div class="page-header-actions">
+        <a class="app-button app-button-secondary" asp-area="" asp-controller="Home" asp-action="Index" data-i18n="dashboard.adminPage.userSite">Trang học viên</a>
+        <button class="app-button app-button-primary" type="button" data-i18n="dashboard.adminPage.createExam">Tạo bài thi</button>
+    </div>
+</div>
+
+<section class="admin-screen-banner app-animate-slide-up">
+    <div class="image-slot image-slot-banner image-slot-admin" data-image-label="Admin dashboard banner 1200x220">
+        <img src="~/images/online-tutor-lesson.jpg" alt="" aria-hidden="true" />
+    </div>
+</section>
+
+<section class="page-grid page-grid-4 app-animate-stagger" aria-label="Chỉ số quản trị" data-i18n-aria="dashboard.adminPage.adminMetrics">
+    <article class="app-card admin-metric-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="dashboard.adminPage.totalUsers">Tổng người dùng</p>
+                <p class="app-metric-value" data-admin-metric="users">...</p>
+                <span class="app-badge app-badge-success" data-i18n="dashboard.adminPage.activeDirectory">Danh bạ hoạt động</span>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+        </div>
+    </article>
+    <article class="app-card admin-metric-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="dashboard.adminPage.totalCourses">Tổng khóa học</p>
+                <p class="app-metric-value" data-admin-metric="courses">...</p>
+                <span class="app-badge app-badge-info" data-i18n="dashboard.adminPage.learning">Học tập</span>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-journal-bookmark"></i></span>
+        </div>
+    </article>
+    <article class="app-card admin-metric-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="dashboard.adminPage.totalQuestions">Tổng câu hỏi</p>
+                <p class="app-metric-value" data-admin-metric="questions">...</p>
+                <span class="app-badge app-badge-muted" data-i18n="dashboard.adminPage.questionBank">Ngân hàng câu hỏi</span>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-patch-question"></i></span>
+        </div>
+    </article>
+    <article class="app-card admin-metric-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="dashboard.adminPage.totalExams">Tổng bài thi</p>
+                <p class="app-metric-value" data-admin-metric="exams">...</p>
+                <span class="app-badge app-badge-warning" data-i18n="dashboard.adminPage.assessment">Đánh giá</span>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-clipboard-check"></i></span>
+        </div>
+    </article>
+</section>
+
+<section class="admin-insight-grid u-mt-4">
+    <article class="app-card">
+        <div class="app-card-header admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="dashboard.adminPage.passRate">Tỷ lệ đạt</h2>
+                <p class="app-card-subtitle" data-i18n="dashboard.adminPage.passRateSubtitle">Tổng quan hiệu suất bài thi hiện tại.</p>
+            </div>
+            <span class="app-badge app-badge-success" data-admin-summary="passRate">...</span>
+        </div>
+        <div class="app-card-body">
+            <div class="admin-donut" style="--donut-value: 82;" aria-label="Biểu đồ tỷ lệ đạt" data-i18n-aria="dashboard.adminPage.passRateChart">
+                <span data-admin-summary-text="passRate">82%</span>
+            </div>
+        </div>
+    </article>
+
+    <article class="app-card">
+        <div class="app-card-header admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="dashboard.adminPage.examActivity">Hoạt động thi</h2>
+                <p class="app-card-subtitle" data-i18n="dashboard.adminPage.examActivitySubtitle">Số lượt làm bài trong những ngày gần đây.</p>
+            </div>
+            <span class="app-badge app-badge-info" data-i18n="dashboard.adminPage.liveMock">Dữ liệu mô phỏng</span>
+        </div>
+        <div class="app-card-body">
+            <div class="admin-bar-chart" id="examActivityChart" aria-label="Biểu đồ hoạt động thi" data-i18n-aria="dashboard.adminPage.examActivityChart"></div>
+        </div>
+    </article>
+
+    <article class="app-card">
+        <div class="app-card-header admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="dashboard.adminPage.scoreDistribution">Phân bổ điểm</h2>
+                <p class="app-card-subtitle" data-i18n="dashboard.adminPage.scoreDistributionSubtitle">Điểm học viên được nhóm theo khoảng.</p>
+            </div>
+            <span class="app-badge app-badge-muted" data-admin-summary="averageScore">...</span>
+        </div>
+        <div class="app-card-body">
+            <div class="admin-distribution" id="scoreDistributionChart" aria-label="Biểu đồ phân bổ điểm" data-i18n-aria="dashboard.adminPage.scoreDistributionChart"></div>
+        </div>
+    </article>
+</section>
+
+<section class="admin-dashboard-grid u-mt-4">
+    <article class="app-card">
+        <div class="app-card-header admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="dashboard.adminPage.recentActivity">Hoạt động gần đây</h2>
+                <p class="app-card-subtitle" data-i18n="dashboard.adminPage.recentActivitySubtitle">Các sự kiện vận hành và thi cử mới nhất.</p>
+            </div>
+            <a class="app-button app-button-secondary" asp-area="Admin" asp-controller="AuditLogs" asp-action="Index" data-i18n="dashboard.adminPage.viewLogs">Xem nhật ký</a>
+        </div>
+        <div class="app-table-wrapper">
+            <table class="app-table table">
+                <thead>
+                    <tr>
+                        <th scope="col" data-i18n="dashboard.adminPage.user">Người dùng</th>
+                        <th scope="col" data-i18n="dashboard.adminPage.action">Hành động</th>
+                        <th scope="col" data-i18n="dashboard.adminPage.entity">Đối tượng</th>
+                        <th scope="col" class="u-text-right" data-i18n="dashboard.adminPage.time">Thời gian</th>
+                    </tr>
+                </thead>
+                <tbody id="recentActivityRows">
+                    <tr>
+                        <td colspan="4">
+                            <div class="app-loading">
+                                <span class="app-spinner" aria-hidden="true"></span>
+                                <span data-i18n="dashboard.adminPage.loadingActivity">Đang tải hoạt động</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </article>
+
+    <aside class="app-card">
+        <div class="app-card-header">
+            <h2 class="app-card-title" data-i18n="dashboard.adminPage.operationalSummary">Tổng quan vận hành</h2>
+            <p class="app-card-subtitle" data-i18n="dashboard.adminPage.operationalSummarySubtitle">Các chỉ số báo cáo chính.</p>
+        </div>
+        <div class="app-card-body u-flex-column u-gap-3">
+            <div class="admin-summary-line">
+                <span data-i18n="dashboard.adminPage.averageScore">Điểm trung bình</span>
+                <strong data-admin-summary-text="averageScore">...</strong>
+            </div>
+            <div class="admin-summary-line">
+                <span data-i18n="dashboard.adminPage.completionRate">Tỷ lệ hoàn thành</span>
+                <strong data-admin-summary-text="completionRate">...</strong>
+            </div>
+            <div class="admin-summary-line">
+                <span data-i18n="dashboard.adminPage.examCount">Số bài thi</span>
+                <strong data-admin-summary-text="examCount">...</strong>
+            </div>
+        </div>
+    </aside>
+</section>
+
+@section Scripts {
+    <script src="~/js/pages/admin-dashboard.js" asp-append-version="true"></script>
+}

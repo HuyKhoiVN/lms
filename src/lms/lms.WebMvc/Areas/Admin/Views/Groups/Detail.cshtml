@@ -1,0 +1,147 @@
+@{
+    ViewData["Title"] = "Chi tiết nhóm";
+    var groupId = ViewData["GroupId"] ?? 0;
+}
+
+<div class="page-header" data-group-detail-id="@groupId">
+    <div class="page-header-main">
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" data-i18n="groups.detailPage.breadcrumbRoot">Quản trị</a>
+            <span>/</span>
+            <a asp-area="Admin" asp-controller="Groups" asp-action="Index" data-i18n="groups.detailPage.breadcrumbGroups">Quản lý nhóm</a>
+            <span>/</span>
+            <span data-i18n="groups.detailPage.breadcrumbCurrent">Chi tiết</span>
+        </nav>
+        <h1 class="page-title" data-group-detail-name data-i18n="groups.detailPage.heading">Chi tiết nhóm</h1>
+        <p class="page-muted u-mb-0" data-group-detail-summary data-i18n="groups.detailPage.loadingSummary">Đang tải chi tiết nhóm...</p>
+    </div>
+    <div class="page-header-actions">
+        <a class="app-button app-button-secondary" asp-area="Admin" asp-controller="Groups" asp-action="Index" data-i18n="groups.detailPage.backToGroups">Quay lại nhóm</a>
+    </div>
+</div>
+
+<section class="admin-screen-banner app-animate-slide-up">
+    <div class="image-slot image-slot-banner image-slot-admin" data-image-label="Group cohort banner 1200x220">
+        <img src="~/images/study-collaboration.jpg" alt="" aria-hidden="true" />
+    </div>
+</section>
+
+<section class="page-grid page-grid-4 u-mb-4 app-animate-stagger" aria-label="Tổng quan chi tiết nhóm" data-i18n-aria="groups.detailPage.summary">
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="groups.detailPage.members">Thành viên</p>
+                <p class="app-metric-value" data-group-detail-metric="members">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="groups.detailPage.courses">Khóa học</p>
+                <p class="app-metric-value" data-group-detail-metric="courses">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-journal-bookmark"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="groups.detailPage.exams">Bài thi</p>
+                <p class="app-metric-value" data-group-detail-metric="exams">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-clipboard-check"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="groups.detailPage.mockState">Trạng thái mô phỏng</p>
+                <p class="app-metric-value">UI</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-stars"></i></span>
+        </div>
+    </article>
+</section>
+
+<section class="group-detail-grid">
+    <article class="app-card">
+        <div class="app-card-header">
+            <div class="admin-card-header-row">
+                <div>
+                    <h2 class="app-card-title" data-i18n="groups.detailPage.members">Thành viên</h2>
+                    <p class="app-card-subtitle" data-i18n="groups.detailPage.membersSubtitle">Thêm hoặc xóa người dùng khỏi nhóm trong bộ nhớ.</p>
+                </div>
+                <span class="app-badge app-badge-info" data-group-detail-count="members">-- members</span>
+            </div>
+        </div>
+        <div class="app-card-body">
+            <div class="group-detail-add-row">
+                <label class="visually-hidden" for="memberSelect" data-i18n="groups.detailPage.addMember">Thêm thành viên</label>
+                <select class="app-select" id="memberSelect" data-group-detail-select="member"></select>
+                <button class="app-button app-button-primary" type="button" data-group-detail-add="member" data-i18n="groups.detailPage.addMember">Thêm thành viên</button>
+            </div>
+            <div class="group-detail-list u-mt-4" id="groupMemberList">
+                <div class="app-loading">
+                    <span class="app-spinner" aria-hidden="true"></span>
+                    <span data-i18n="groups.detailPage.loadingMembers">Đang tải thành viên...</span>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <article class="app-card">
+        <div class="app-card-header">
+            <div class="admin-card-header-row">
+                <div>
+                    <h2 class="app-card-title" data-i18n="groups.detailPage.coursesTitle">Khóa học được giao</h2>
+                    <p class="app-card-subtitle" data-i18n="groups.detailPage.coursesSubtitle">Giao khóa học mô phỏng cho nhóm này.</p>
+                </div>
+                <span class="app-badge app-badge-success" data-group-detail-count="courses">-- courses</span>
+            </div>
+        </div>
+        <div class="app-card-body">
+            <div class="group-detail-add-row">
+                <label class="visually-hidden" for="courseSelect" data-i18n="groups.detailPage.assignCourse">Giao khóa học</label>
+                <select class="app-select" id="courseSelect" data-group-detail-select="course"></select>
+                <button class="app-button app-button-primary" type="button" data-group-detail-add="course" data-i18n="groups.detailPage.assignCourse">Giao khóa học</button>
+            </div>
+            <div class="group-detail-list u-mt-4" id="groupCourseList">
+                <div class="app-loading">
+                    <span class="app-spinner" aria-hidden="true"></span>
+                    <span data-i18n="groups.detailPage.loadingCourses">Đang tải khóa học...</span>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    <article class="app-card">
+        <div class="app-card-header">
+            <div class="admin-card-header-row">
+                <div>
+                    <h2 class="app-card-title" data-i18n="groups.detailPage.examsTitle">Bài thi được giao</h2>
+                    <p class="app-card-subtitle" data-i18n="groups.detailPage.examsSubtitle">Giao bài thi mô phỏng cho nhóm này.</p>
+                </div>
+                <span class="app-badge app-badge-warning" data-group-detail-count="exams">-- exams</span>
+            </div>
+        </div>
+        <div class="app-card-body">
+            <div class="group-detail-add-row">
+                <label class="visually-hidden" for="examSelect" data-i18n="groups.detailPage.assignExam">Giao bài thi</label>
+                <select class="app-select" id="examSelect" data-group-detail-select="exam"></select>
+                <button class="app-button app-button-primary" type="button" data-group-detail-add="exam" data-i18n="groups.detailPage.assignExam">Giao bài thi</button>
+            </div>
+            <div class="group-detail-list u-mt-4" id="groupExamList">
+                <div class="app-loading">
+                    <span class="app-spinner" aria-hidden="true"></span>
+                    <span data-i18n="groups.detailPage.loadingExams">Đang tải bài thi...</span>
+                </div>
+            </div>
+        </div>
+    </article>
+</section>
+
+@section Scripts {
+    <script src="~/js/pages/group-detail.js" asp-append-version="true"></script>
+}

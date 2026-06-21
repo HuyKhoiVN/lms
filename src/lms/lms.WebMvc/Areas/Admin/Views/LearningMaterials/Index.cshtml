@@ -1,0 +1,144 @@
+@{
+    ViewData["Title"] = "Tài liệu học tập";
+}
+
+<div class="page-header">
+    <div class="page-header-main">
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" data-i18n="materials.adminListPage.breadcrumbRoot">Quản trị</a>
+            <span>/</span>
+            <span data-i18n="materials.adminListPage.breadcrumbCurrent">Tài liệu học tập</span>
+        </nav>
+        <h1 class="page-title" data-i18n="materials.adminListPage.title">Tài liệu học tập</h1>
+        <p class="page-muted u-mb-0" data-i18n="materials.adminListPage.subtitle">Quản lý tài liệu học tập dạng văn bản, PDF, tệp và liên kết cho các khóa học bằng dữ liệu mô phỏng.</p>
+    </div>
+    <div class="page-header-actions">
+        <button class="app-button app-button-secondary" type="button" data-material-action="export" data-i18n="materials.adminListPage.export">Xuất dữ liệu</button>
+        <button class="app-button app-button-primary" type="button" data-material-action="create" data-i18n="materials.adminListPage.createMaterial">Tạo tài liệu</button>
+    </div>
+</div>
+
+<section class="admin-screen-banner app-animate-slide-up">
+    <div class="image-slot image-slot-banner image-slot-admin" data-image-label="Admin materials banner 1200x220">
+        <img src="~/images/reading-library.jpg" alt="" aria-hidden="true" />
+    </div>
+</section>
+
+<section class="page-grid page-grid-4 u-mb-4 app-animate-stagger" aria-label="Tổng quan tài liệu học tập" data-i18n-aria="materials.adminListPage.summary">
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="materials.adminListPage.totalMaterials">Tổng tài liệu</p>
+                <p class="app-metric-value" data-material-metric="total">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-file-earmark-text"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="materials.adminListPage.published">Đã xuất bản</p>
+                <p class="app-metric-value" data-material-metric="published">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-filetype-pdf"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="materials.adminListPage.duration">Thời lượng</p>
+                <p class="app-metric-value" data-material-metric="duration">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-fonts"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="materials.adminListPage.types">Thể loại</p>
+                <p class="app-metric-value" data-material-metric="types">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-paperclip"></i></span>
+        </div>
+    </article>
+</section>
+
+<section class="app-card">
+    <div class="app-card-header">
+        <div class="admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="materials.adminListPage.materials">Tài liệu</h2>
+                <p class="app-card-subtitle" data-i18n="materials.adminListPage.tableSubtitle">Tìm kiếm, lọc, tạo, sửa và xóa tài liệu học tập trong bộ nhớ.</p>
+            </div>
+            <span class="app-badge app-badge-info" data-material-result-count>-- bản ghi</span>
+        </div>
+    </div>
+
+    <div class="app-card-body">
+        <div class="app-filter-bar admin-user-filter">
+            <label class="visually-hidden" for="materialSearch" data-i18n="materials.adminListPage.searchMaterials">Tìm kiếm tài liệu</label>
+            <input class="app-input" id="materialSearch" type="search" placeholder="Tìm tiêu đề..." data-material-filter="search" data-i18n-placeholder="materials.adminListPage.searchPlaceholder" />
+
+            <label class="visually-hidden" for="materialCourseFilter" data-i18n="materials.adminListPage.course">Khóa học</label>
+            <select class="app-select" id="materialCourseFilter" data-material-filter="course">
+                <option value="" data-i18n="materials.adminListPage.allCourses">Tất cả khóa học</option>
+            </select>
+
+            <label class="visually-hidden" for="materialTypeFilter" data-i18n="materials.adminListPage.type">Thể loại</label>
+            <select class="app-select" id="materialTypeFilter" data-material-filter="type">
+                <option value="" data-i18n="materials.adminListPage.allTypes">Tất cả thể loại</option>
+                <option value="Text" data-i18n="materials.adminListPage.typeOptionText">Văn bản</option>
+                <option value="Pdf" data-i18n="materials.adminListPage.typeOptionPdf">PDF</option>
+                <option value="File" data-i18n="materials.adminListPage.typeOptionFile">Tệp</option>
+                <option value="Link" data-i18n="materials.adminListPage.typeOptionLink">Liên kết</option>
+            </select>
+
+            <label class="visually-hidden" for="materialStatusFilter" data-i18n="materials.adminListPage.status">Trạng thái</label>
+            <select class="app-select" id="materialStatusFilter" data-material-filter="status">
+                <option value="" data-i18n="materials.adminListPage.allStatuses">Tất cả trạng thái</option>
+                <option value="Published" data-i18n="materials.adminListPage.published">Đã xuất bản</option>
+                <option value="Draft" data-i18n="materials.adminListPage.draft">Bản nháp</option>
+            </select>
+
+            <button class="app-button app-button-secondary" type="button" data-material-action="clear-filters" data-i18n="materials.adminListPage.clear">Xóa bộ lọc</button>
+        </div>
+
+        <div class="app-table-wrapper u-mt-4">
+            <table class="app-table table admin-material-table">
+                <thead>
+                    <tr>
+                        <th scope="col" data-i18n="materials.adminListPage.tableHeaderMaterial">Tài liệu</th>
+                        <th scope="col" data-i18n="materials.adminListPage.tableHeaderCourse">Khóa học</th>
+                        <th scope="col" data-i18n="materials.adminListPage.tableHeaderType">Thể loại</th>
+                        <th scope="col" data-i18n="materials.adminListPage.tableHeaderDuration">Thời lượng</th>
+                        <th scope="col" data-i18n="materials.adminListPage.tableHeaderStatus">Trạng thái</th>
+                        <th scope="col" class="u-text-right" data-i18n="materials.adminListPage.tableHeaderActions">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="materialTableRows">
+                    <tr>
+                        <td colspan="6">
+                            <div class="app-loading">
+                                <span class="app-spinner" aria-hidden="true"></span>
+                                <span data-i18n="materials.adminListPage.loadingMaterials">Đang tải tài liệu...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-table-footer">
+            <p class="page-muted u-mb-0" data-material-page-info>Đang tải bản ghi tài liệu...</p>
+            <div class="admin-pagination" aria-label="Phân trang tài liệu" data-i18n-aria="materials.adminListPage.pagination">
+                <button class="app-button app-button-secondary" type="button" data-material-page="prev" data-i18n="materials.adminListPage.previous">Trước</button>
+                <div class="admin-pagination-pages" id="materialPaginationPages"></div>
+                <button class="app-button app-button-secondary" type="button" data-material-page="next" data-i18n="materials.adminListPage.next">Tiếp</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/pages/learning-material-list.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
+  <title id="title">Learning material placeholder</title>
+  <desc id="desc">Replace this placeholder with a material preview image.</desc>
+  <rect width="640" height="360" rx="28" fill="#f9fafb"/>
+  <rect x="78" y="62" width="484" height="236" rx="30" fill="#fff" stroke="#e6e8f0" stroke-width="3"/>
+  <rect x="126" y="112" width="116" height="154" rx="22" fill="#eef1ff"/>
+  <rect x="268" y="112" width="116" height="154" rx="22" fill="#d8fbf4"/>
+  <rect x="410" y="112" width="116" height="154" rx="22" fill="#fef3c7"/>
+  <path d="M158 184h52M158 214h36" stroke="#635bff" stroke-width="12" stroke-linecap="round"/>
+  <path d="M326 160l36 42h-72z" fill="#00a7a7"/>
+  <circle cx="468" cy="190" r="34" fill="#ffb020"/>
+  <path d="M454 190h28" stroke="#fff" stroke-width="10" stroke-linecap="round"/>
+</svg>

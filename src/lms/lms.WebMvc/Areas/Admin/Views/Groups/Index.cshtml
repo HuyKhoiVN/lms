@@ -1,0 +1,137 @@
+@{
+    ViewData["Title"] = "Quản lý nhóm";
+}
+
+<div class="page-header">
+    <div class="page-header-main">
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" data-i18n="groups.listPage.breadcrumbRoot">Quản trị</a>
+            <span>/</span>
+            <span data-i18n="groups.listPage.breadcrumbCurrent">Quản lý nhóm</span>
+        </nav>
+        <h1 class="page-title" data-i18n="groups.listPage.title">Quản lý nhóm</h1>
+        <p class="page-muted u-mb-0" data-i18n="groups.listPage.subtitle">Tổ chức học viên vào nhóm để giao khóa học và bài thi.</p>
+    </div>
+    <div class="page-header-actions">
+        <button class="app-button app-button-secondary" type="button" data-group-action="export" data-i18n="groups.listPage.export">Xuất dữ liệu</button>
+        <button class="app-button app-button-primary" type="button" data-group-action="create" data-i18n="groups.listPage.createGroup">Tạo nhóm</button>
+    </div>
+</div>
+
+<section class="admin-screen-banner app-animate-slide-up">
+    <div class="image-slot image-slot-banner image-slot-admin" data-image-label="Admin groups banner 1200x220">
+        <img src="~/images/study-collaboration.jpg" alt="" aria-hidden="true" />
+    </div>
+</section>
+
+<section class="page-grid page-grid-4 u-mb-4 app-animate-stagger" aria-label="Tổng quan nhóm" data-i18n-aria="groups.listPage.summary">
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="groups.listPage.totalGroups">Tổng nhóm</p>
+                <p class="app-metric-value" data-group-metric="total">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-collection"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="groups.listPage.members">Thành viên</p>
+                <p class="app-metric-value" data-group-metric="members">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="groups.listPage.courseAssigns">Lượt giao khóa học</p>
+                <p class="app-metric-value" data-group-metric="courses">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-journal-bookmark"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="groups.listPage.examAssigns">Lượt giao bài thi</p>
+                <p class="app-metric-value" data-group-metric="exams">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-clipboard-check"></i></span>
+        </div>
+    </article>
+</section>
+
+<section class="app-card">
+    <div class="app-card-header">
+        <div class="admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="groups.listPage.groups">Nhóm</h2>
+                <p class="app-card-subtitle" data-i18n="groups.listPage.tableSubtitle">Tìm kiếm, lọc và chỉnh sửa nhóm học viên bằng dữ liệu mô phỏng.</p>
+            </div>
+            <span class="app-badge app-badge-info" data-group-result-count>-- bản ghi</span>
+        </div>
+    </div>
+
+    <div class="app-card-body">
+        <div class="app-filter-bar admin-user-filter">
+            <label class="visually-hidden" for="groupSearch" data-i18n="groups.listPage.searchGroups">Tìm nhóm</label>
+            <input class="app-input" id="groupSearch" type="search" placeholder="Tìm tên nhóm..." data-group-filter="search" data-i18n-placeholder="groups.listPage.searchPlaceholder" />
+
+            <label class="visually-hidden" for="groupAssignmentFilter" data-i18n="groups.listPage.assignment">Giao nhiệm vụ</label>
+            <select class="app-select" id="groupAssignmentFilter" data-group-filter="assignment">
+                <option value="" data-i18n="groups.listPage.allAssignments">Tất cả giao nhiệm vụ</option>
+                <option value="courses" data-i18n="groups.listPage.hasCourses">Có khóa học</option>
+                <option value="exams" data-i18n="groups.listPage.hasExams">Có bài thi</option>
+                <option value="empty" data-i18n="groups.listPage.noAssignments">Chưa giao</option>
+            </select>
+
+            <label class="visually-hidden" for="groupSizeFilter" data-i18n="groups.listPage.size">Quy mô</label>
+            <select class="app-select" id="groupSizeFilter" data-group-filter="size">
+                <option value="" data-i18n="groups.listPage.allSizes">Tất cả quy mô</option>
+                <option value="small" data-i18n="groups.listPage.under20">Dưới 20 thành viên</option>
+                <option value="large" data-i18n="groups.listPage.over20">Từ 20 thành viên</option>
+            </select>
+
+            <button class="app-button app-button-secondary" type="button" data-group-action="clear-filters" data-i18n="groups.listPage.clear">Xóa bộ lọc</button>
+        </div>
+
+        <div class="app-table-wrapper u-mt-4">
+            <table class="app-table table admin-group-table">
+                <thead>
+                    <tr>
+                        <th scope="col" data-i18n="groups.listPage.group">Nhóm</th>
+                        <th scope="col" data-i18n="groups.listPage.members">Thành viên</th>
+                        <th scope="col" data-i18n="groups.listPage.courses">Khóa học</th>
+                        <th scope="col" data-i18n="groups.listPage.exams">Bài thi</th>
+                        <th scope="col" class="u-text-right" data-i18n="groups.listPage.actions">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="groupTableRows">
+                    <tr>
+                        <td colspan="5">
+                            <div class="app-loading">
+                                <span class="app-spinner" aria-hidden="true"></span>
+                                <span data-i18n="groups.listPage.loadingGroups">Đang tải nhóm...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-table-footer">
+            <p class="page-muted u-mb-0" data-group-page-info>Đang tải bản ghi nhóm...</p>
+            <div class="admin-pagination" aria-label="Phân trang nhóm" data-i18n-aria="groups.listPage.pagination">
+                <button class="app-button app-button-secondary" type="button" data-group-page="prev" data-i18n="groups.listPage.previous">Trước</button>
+                <div class="admin-pagination-pages" id="groupPaginationPages"></div>
+                <button class="app-button app-button-secondary" type="button" data-group-page="next" data-i18n="groups.listPage.next">Tiếp</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/pages/group-list.js" asp-append-version="true"></script>
+}

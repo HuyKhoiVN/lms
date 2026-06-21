@@ -1,0 +1,16 @@
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": 1,
+        "certificateCode": "LMS-CERT-2026-0001",
+        "studentName": "Student One",
+        "examName": "Safety Certification Exam",
+        "issueDate": "2026-06-17",
+        "downloadUrl": "#"
+      }
+    ],
+    "total": 1
+  }
+}

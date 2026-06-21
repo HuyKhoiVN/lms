@@ -1,0 +1,35 @@
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": 1,
+        "userName": "admin",
+        "fullName": "Administrator",
+        "email": "admin@lms.local",
+        "role": "Admin",
+        "status": "Active",
+        "lastLoginAt": "2026-06-17T08:30:00"
+      },
+      {
+        "id": 2,
+        "userName": "student01",
+        "fullName": "Student One",
+        "email": "student01@lms.local",
+        "role": "Student",
+        "status": "Active",
+        "lastLoginAt": "2026-06-16T15:12:00"
+      },
+      {
+        "id": 3,
+        "userName": "student02",
+        "fullName": "Student Two",
+        "email": "student02@lms.local",
+        "role": "Student",
+        "status": "Locked",
+        "lastLoginAt": null
+      }
+    ],
+    "total": 3
+  }
+}

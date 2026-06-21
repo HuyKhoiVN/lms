@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540" viewBox="0 0 960 540" role="img" aria-labelledby="title desc">
+  <title id="title">Learning material library illustration</title>
+  <desc id="desc">Generated demo illustration for material cards.</desc>
+  <rect width="960" height="540" rx="42" fill="#f6f7fb"/>
+  <rect x="128" y="110" width="704" height="330" rx="38" fill="#fff"/>
+  <rect x="184" y="166" width="180" height="230" rx="24" fill="#eef1ff"/>
+  <rect x="392" y="166" width="180" height="230" rx="24" fill="#d8fbf4"/>
+  <rect x="600" y="166" width="180" height="230" rx="24" fill="#fef3c7"/>
+  <rect x="218" y="208" width="112" height="16" rx="8" fill="#635bff"/>
+  <rect x="218" y="246" width="92" height="16" rx="8" fill="#667085"/>
+  <path d="M452 214h60v116h-60z" fill="#00a7a7"/>
+  <path d="M452 214l60 116" stroke="#fff" stroke-width="14" stroke-linecap="round"/>
+  <circle cx="690" cy="274" r="58" fill="#ffb020"/>
+  <path d="M668 274l18 18 34-46" fill="none" stroke="#fff" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

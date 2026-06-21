@@ -1,0 +1,159 @@
+@{
+    ViewData["Title"] = "Khóa học";
+}
+
+<div class="page-header">
+    <div class="page-header-main">
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" data-i18n="courses.listPage.breadcrumbRoot">Quản trị</a>
+            <span>/</span>
+            <span data-i18n="courses.listPage.breadcrumbCurrent">Khóa học</span>
+        </nav>
+        <h1 class="page-title" data-i18n="courses.listPage.title">Khóa học</h1>
+        <p class="page-muted u-mb-0" data-i18n="courses.listPage.subtitle">Quản lý danh mục khóa học, trạng thái xuất bản và giao nhiệm vụ mô phỏng.</p>
+    </div>
+    <div class="page-header-actions">
+        <button class="app-button app-button-secondary" type="button" data-course-action="export" data-i18n="courses.listPage.export">Xuất dữ liệu</button>
+        <button class="app-button app-button-primary" type="button" data-course-action="create" data-i18n="courses.listPage.createCourse">Tạo khóa học</button>
+    </div>
+</div>
+
+<section class="admin-screen-banner app-animate-slide-up">
+    <div class="image-slot image-slot-banner image-slot-admin" data-image-label="Admin courses banner 1200x220">
+        <img src="~/images/course-programming.jpg" alt="" aria-hidden="true" />
+    </div>
+</section>
+
+<section class="page-grid page-grid-4 u-mb-4 app-animate-stagger" aria-label="Tổng quan khóa học" data-i18n-aria="courses.listPage.summary">
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="courses.listPage.totalCourses">Tổng khóa học</p>
+                <p class="app-metric-value" data-course-metric="total">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-journal-bookmark"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="courses.listPage.published">Đã xuất bản</p>
+                <p class="app-metric-value" data-course-metric="published">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-cloud-check"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="courses.listPage.materials">Tài liệu</p>
+                <p class="app-metric-value" data-course-metric="materials">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-file-earmark-text"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="courses.listPage.avgCompletion">Hoàn thành TB</p>
+                <p class="app-metric-value" data-course-metric="completion">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
+        </div>
+    </article>
+</section>
+
+<section class="app-card u-mb-4">
+    <div class="app-card-header">
+        <div class="admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="courses.listPage.catalogTitle">Danh mục khóa học</h2>
+                <p class="app-card-subtitle" data-i18n="courses.listPage.catalogSubtitle">Tìm kiếm và lọc thẻ khóa học trước khi chỉnh sửa giao nhiệm vụ.</p>
+            </div>
+            <span class="app-badge app-badge-info" data-course-result-count>-- bản ghi</span>
+        </div>
+    </div>
+    <div class="app-card-body">
+        <div class="app-filter-bar admin-user-filter">
+            <label class="visually-hidden" for="courseSearch" data-i18n="courses.listPage.searchCourses">Tìm khóa học</label>
+            <input class="app-input" id="courseSearch" type="search" placeholder="Tìm tên hoặc mô tả khóa học..." data-course-filter="search" data-i18n-placeholder="courses.listPage.searchPlaceholder" />
+
+            <label class="visually-hidden" for="courseStatusFilter" data-i18n="courses.listPage.status">Trạng thái</label>
+            <select class="app-select" id="courseStatusFilter" data-course-filter="status">
+                <option value="" data-i18n="courses.listPage.allStatuses">Tất cả trạng thái</option>
+                <option value="Published" data-i18n="courses.listPage.published">Đã xuất bản</option>
+                <option value="Draft" data-i18n="courses.listPage.draft">Bản nháp</option>
+            </select>
+
+            <label class="visually-hidden" for="courseProgressFilter" data-i18n="courses.listPage.completion">Hoàn thành</label>
+            <select class="app-select" id="courseProgressFilter" data-course-filter="completion">
+                <option value="" data-i18n="courses.listPage.allCompletion">Tất cả mức hoàn thành</option>
+                <option value="high" data-i18n="courses.listPage.completionHigh">Từ 70% trở lên</option>
+                <option value="low" data-i18n="courses.listPage.completionLow">Dưới 70%</option>
+            </select>
+
+            <button class="app-button app-button-secondary" type="button" data-course-action="clear-filters" data-i18n="courses.listPage.clear">Xóa bộ lọc</button>
+        </div>
+
+        <div class="admin-course-grid u-mt-4" id="courseCardGrid">
+            <article class="app-card app-skeleton-card">
+                <div class="app-card-body">
+                    <span class="app-skeleton app-skeleton-image u-mb-4"></span>
+                    <span class="app-skeleton u-mb-4"></span>
+                    <span class="app-skeleton u-mb-4"></span>
+                    <span class="app-skeleton"></span>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+<section class="app-card">
+    <div class="app-card-header">
+        <div class="admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="courses.listPage.tableTitle">Bảng khóa học</h2>
+                <p class="app-card-subtitle" data-i18n="courses.listPage.tableSubtitle">Góc nhìn vận hành cho sửa, giao và xem chi tiết.</p>
+            </div>
+        </div>
+    </div>
+    <div class="app-card-body">
+        <div class="app-table-wrapper">
+            <table class="app-table table admin-course-table">
+                <thead>
+                    <tr>
+                        <th scope="col" data-i18n="courses.listPage.course">Khóa học</th>
+                        <th scope="col" data-i18n="courses.listPage.status">Trạng thái</th>
+                        <th scope="col" data-i18n="courses.listPage.materials">Tài liệu</th>
+                        <th scope="col" data-i18n="courses.listPage.assigned">Đã giao</th>
+                        <th scope="col" data-i18n="courses.listPage.completion">Hoàn thành</th>
+                        <th scope="col" class="u-text-right" data-i18n="courses.listPage.actions">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="courseTableRows">
+                    <tr>
+                        <td colspan="6">
+                            <div class="app-loading">
+                                <span class="app-spinner" aria-hidden="true"></span>
+                                <span data-i18n="courses.listPage.loadingCourses">Đang tải khóa học...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-table-footer">
+            <p class="page-muted u-mb-0" data-course-page-info>Đang tải bản ghi khóa học...</p>
+            <div class="admin-pagination" aria-label="Phân trang khóa học" data-i18n-aria="courses.listPage.pagination">
+                <button class="app-button app-button-secondary" type="button" data-course-page="prev" data-i18n="courses.listPage.previous">Trước</button>
+                <div class="admin-pagination-pages" id="coursePaginationPages"></div>
+                <button class="app-button app-button-secondary" type="button" data-course-page="next" data-i18n="courses.listPage.next">Tiếp</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/pages/course-list.js" asp-append-version="true"></script>
+}

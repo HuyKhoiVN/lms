@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": 1,
+        "name": "Workplace Safety Training",
+        "description": "Core safety policies and emergency response procedures.",
+        "status": "Published",
+        "materialCount": 5,
+        "assignedCount": 42,
+        "completionRate": 76
+      },
+      {
+        "id": 2,
+        "name": "Customer Service Basics",
+        "description": "Communication standards for frontline teams.",
+        "status": "Draft",
+        "materialCount": 3,
+        "assignedCount": 18,
+        "completionRate": 41
+      }
+    ],
+    "total": 2
+  }
+}

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - lms</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pages.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/utilities.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lms.WebMvc.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="auth-language-control">
+        <label class="visually-hidden" for="authLanguageSwitcher" data-i18n="common.language">Ngôn ngữ</label>
+        <select class="app-select app-language-switcher" id="authLanguageSwitcher" data-i18n-language aria-label="Ngôn ngữ" data-i18n-aria="common.language">
+            <option value="vi">VI</option>
+            <option value="en">EN</option>
+        </select>
+    </div>
+
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/core/config.js" asp-append-version="true"></script>
+    <script src="~/js/core/storage.js" asp-append-version="true"></script>
+    <script src="~/js/core/i18n.js" asp-append-version="true"></script>
+    <script src="~/js/core/auth.js" asp-append-version="true"></script>
+    <script src="~/js/core/api-client.js" asp-append-version="true"></script>
+    <script src="~/js/core/dropdown.js" asp-append-version="true"></script>
+    <script src="~/js/core/toast.js" asp-append-version="true"></script>
+    <script src="~/js/core/modal.js" asp-append-version="true"></script>
+    <script src="~/js/core/ui.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

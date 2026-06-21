@@ -1,0 +1,22 @@
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": 1,
+        "name": "Sales Team",
+        "memberCount": 24,
+        "assignedCourseCount": 3,
+        "assignedExamCount": 2
+      },
+      {
+        "id": 2,
+        "name": "Operations Team",
+        "memberCount": 18,
+        "assignedCourseCount": 4,
+        "assignedExamCount": 1
+      }
+    ],
+    "total": 2
+  }
+}

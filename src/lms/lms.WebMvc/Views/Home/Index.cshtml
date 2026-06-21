@@ -1,0 +1,140 @@
+@{
+    ViewData["Title"] = "Bảng điều khiển học tập";
+}
+
+<section class="learning-hero student-dashboard-hero">
+    <div>
+        <span class="learning-eyebrow" data-i18n="dashboard.studentPage.eyebrow">Học tập + Thi cử</span>
+        <h1 class="learning-hero-title" data-i18n="dashboard.studentPage.heroTitle">Xây kỹ năng. Hoàn thành bài thi. Luôn sẵn chứng chỉ.</h1>
+        <p class="learning-hero-copy" data-i18n="dashboard.studentPage.heroCopy">
+            Theo dõi khóa học được giao, bài thi cần làm, điểm gần nhất và chứng chỉ trong một không gian học tập tập trung.
+        </p>
+        <div class="learning-hero-actions">
+            <button class="app-button app-button-primary" type="button" data-student-action="continue-learning" data-i18n="dashboard.studentPage.continueLearning">Tiếp tục học</button>
+            <a class="app-button app-button-secondary" asp-area="" asp-controller="Exams" asp-action="Index" data-i18n="dashboard.studentPage.viewExams">Xem bài thi</a>
+        </div>
+    </div>
+
+    <div class="learning-visual student-progress-visual" aria-label="Xem nhanh tiến độ học viên" data-i18n-aria="dashboard.studentPage.progressPreview">
+        <div class="image-slot image-slot-hero image-slot-dashboard student-hero-image" data-image-label="Hero 16:9">
+            <img src="~/images/online-learning-banner.jpg" alt="" aria-hidden="true" />
+        </div>
+        <div class="student-progress-score" aria-hidden="true">
+            <span data-student-hero-score>--</span>
+            <small data-i18n="dashboard.studentPage.score">điểm</small>
+        </div>
+        <div class="learning-visual-card">
+            <p class="app-metric-label" data-i18n="dashboard.studentPage.latestResult">Kết quả gần nhất</p>
+            <h2 class="section-title u-mb-0" data-student-latest-exam data-i18n="dashboard.studentPage.loadingResult">Đang tải kết quả...</h2>
+            <div class="progress-track u-mt-4">
+                <div class="progress-fill" data-student-latest-progress></div>
+            </div>
+            <p class="page-muted u-mt-4 u-mb-0" data-student-latest-copy data-i18n="dashboard.studentPage.loadingMockData">Đang tải dữ liệu mô phỏng...</p>
+        </div>
+    </div>
+</section>
+
+<section class="page-grid page-grid-4 app-animate-stagger" aria-label="Tổng quan học viên" data-i18n-aria="dashboard.studentPage.studentSummary">
+    <article class="app-card">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="dashboard.studentPage.assignedCourses">Khóa học được giao</p>
+                <p class="app-metric-value" data-student-metric="courses">--</p>
+                <span class="app-badge app-badge-info" data-i18n="dashboard.studentPage.learning">Học tập</span>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-journal-bookmark"></i></span>
+        </div>
+    </article>
+    <article class="app-card">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="dashboard.studentPage.pendingExams">Bài thi cần làm</p>
+                <p class="app-metric-value" data-student-metric="pendingExams">--</p>
+                <span class="app-badge app-badge-warning" data-i18n="dashboard.studentPage.toDo">Cần làm</span>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-clipboard-check"></i></span>
+        </div>
+    </article>
+    <article class="app-card">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="dashboard.studentPage.averageScore">Điểm trung bình</p>
+                <p class="app-metric-value" data-student-metric="averageScore">--</p>
+                <span class="app-badge app-badge-success" data-i18n="dashboard.studentPage.progress">Tiến độ</span>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
+        </div>
+    </article>
+    <article class="app-card">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="dashboard.studentPage.certificates">Chứng chỉ</p>
+                <p class="app-metric-value" data-student-metric="certificates">--</p>
+                <span class="app-badge app-badge-muted" data-i18n="dashboard.studentPage.available">Có sẵn</span>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-award"></i></span>
+        </div>
+    </article>
+</section>
+
+<div class="learning-section-header">
+    <div>
+        <h2 class="learning-section-title" data-i18n="dashboard.studentPage.continueCoursesTitle">Tiếp tục khóa học</h2>
+        <p class="page-muted u-mb-0" data-i18n="dashboard.studentPage.continueCoursesCopy">Khóa học được giao và tiến độ học tập từ dữ liệu mô phỏng.</p>
+    </div>
+    <a class="app-button app-button-secondary" asp-area="" asp-controller="Courses" asp-action="Index" data-i18n="dashboard.studentPage.allCourses">Tất cả khóa học</a>
+</div>
+
+<section class="learning-course-grid" aria-label="Thẻ khóa học" data-i18n-aria="dashboard.studentPage.courseCards" id="studentCourseCards">
+    <article class="app-card">
+        <div class="app-card-body">
+            <span class="app-skeleton app-skeleton-card u-mb-4"></span>
+            <span class="app-skeleton u-mb-4"></span>
+            <span class="app-skeleton u-mb-4"></span>
+            <span class="app-skeleton"></span>
+        </div>
+    </article>
+</section>
+
+<div class="learning-section-header">
+    <div>
+        <h2 class="learning-section-title" data-i18n="dashboard.studentPage.upcomingTitle">Bài thi sắp tới và kết quả</h2>
+        <p class="page-muted u-mb-0" data-i18n="dashboard.studentPage.upcomingCopy">Nhiệm vụ thi luôn hiển thị bên cạnh tiến độ khóa học.</p>
+    </div>
+</div>
+
+<section class="learning-panel-grid">
+    <article class="app-card">
+        <div class="app-card-header admin-card-header-row">
+            <div>
+                <h3 class="app-card-title" data-i18n="dashboard.studentPage.pendingExams">Bài thi cần làm</h3>
+                <p class="app-card-subtitle" data-i18n="dashboard.studentPage.pendingExamsSubtitle">Các bài đánh giá đã xuất bản được giao theo lộ trình học.</p>
+            </div>
+            <span class="app-badge app-badge-warning" data-student-exam-count>-- cần làm</span>
+        </div>
+        <div class="app-card-body student-exam-list" id="studentPendingExams">
+            <div class="app-loading">
+                <span class="app-spinner" aria-hidden="true"></span>
+                <span data-i18n="dashboard.studentPage.loadingExams">Đang tải bài thi...</span>
+            </div>
+        </div>
+    </article>
+
+    <article class="app-card">
+        <div class="app-card-header">
+            <h3 class="app-card-title" data-i18n="dashboard.studentPage.certificates">Chứng chỉ</h3>
+            <p class="app-card-subtitle" data-i18n="dashboard.studentPage.noCertificatesCopy">Chứng chỉ sẽ được cấp sau khi vượt qua bài thi.</p>
+        </div>
+        <div class="app-card-body" id="studentCertificateSummary">
+            <div class="app-empty-state">
+                <div class="app-empty-icon" aria-hidden="true">PDF</div>
+                <h3 class="app-empty-title" data-i18n="dashboard.studentPage.loadingCertificates">Đang tải chứng chỉ</h3>
+                <p class="app-empty-copy" data-i18n="dashboard.studentPage.checkingCertificates">Đang kiểm tra dữ liệu chứng chỉ mô phỏng...</p>
+            </div>
+        </div>
+    </article>
+</section>
+
+@section Scripts {
+    <script src="~/js/pages/student-dashboard.js" asp-append-version="true"></script>
+}

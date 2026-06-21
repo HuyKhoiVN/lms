@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - lms Admin</title>
+    <script type="importmap"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pages.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/utilities.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lms.WebMvc.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="app-shell app-shell-admin">
+        <aside class="app-sidebar" aria-label="Điều hướng quản trị" data-i18n-aria="layout.adminNavigation">
+            <div class="app-brand">
+                <a class="app-brand-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <span class="app-brand-mark">L</span>
+                    <span class="app-brand-text">lms</span>
+                </a>
+            </div>
+
+            <nav class="app-nav">
+                <div class="app-nav-section">
+                    <a class="app-nav-link active" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-speedometer2"></i></span>
+                        <span data-i18n="nav.dashboard">Bảng điều khiển</span>
+                    </a>
+                </div>
+
+                <div class="app-nav-section">
+                    <div class="app-nav-label" data-i18n="nav.management">Quản lý</div>
+                    <a class="app-nav-link" asp-area="Admin" asp-controller="Users" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+                        <span data-i18n="nav.userManagement">Quản lý người dùng</span>
+                    </a>
+                    <a class="app-nav-link" asp-area="Admin" asp-controller="Groups" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-diagram-3"></i></span>
+                        <span data-i18n="nav.groupManagement">Quản lý nhóm</span>
+                    </a>
+                    <a class="app-nav-link" asp-area="Admin" asp-controller="Courses" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-journal-bookmark"></i></span>
+                        <span data-i18n="nav.courses">Khóa học</span>
+                    </a>
+                    <a class="app-nav-link" asp-area="Admin" asp-controller="LearningMaterials" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-collection-play"></i></span>
+                        <span data-i18n="nav.learningMaterials">Tài liệu học tập</span>
+                    </a>
+                </div>
+
+                <div class="app-nav-section">
+                    <div class="app-nav-label" data-i18n="nav.examination">Thi cử</div>
+                    <a class="app-nav-link" asp-area="Admin" asp-controller="Questions" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-patch-question"></i></span>
+                        <span data-i18n="nav.questionBank">Ngân hàng câu hỏi</span>
+                    </a>
+                    <a class="app-nav-link" asp-area="Admin" asp-controller="Exams" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-clipboard-check"></i></span>
+                        <span data-i18n="nav.examManagement">Quản lý bài thi</span>
+                    </a>
+                    <a class="app-nav-link" asp-area="Admin" asp-controller="Exams" asp-action="Assignment">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-send-check"></i></span>
+                        <span data-i18n="nav.examAssignment">Giao bài thi</span>
+                    </a>
+                    <a class="app-nav-link" asp-area="Admin" asp-controller="Results" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
+                        <span data-i18n="nav.results">Kết quả</span>
+                    </a>
+                    <a class="app-nav-link" asp-area="Admin" asp-controller="Certificates" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-award"></i></span>
+                        <span data-i18n="nav.certificates">Chứng chỉ</span>
+                    </a>
+                </div>
+
+                <div class="app-nav-section">
+                    <div class="app-nav-label" data-i18n="nav.insights">Phân tích</div>
+                    <a class="app-nav-link" asp-area="Admin" asp-controller="Reports" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-bar-chart-line"></i></span>
+                        <span data-i18n="nav.reports">Báo cáo</span>
+                    </a>
+                    <a class="app-nav-link" asp-area="Admin" asp-controller="AuditLogs" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-clock-history"></i></span>
+                        <span data-i18n="nav.auditLogs">Nhật ký hệ thống</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <div class="app-main">
+            <header class="app-header">
+                <button class="app-sidebar-toggle" type="button" aria-label="Thu gọn menu">
+                    <i class="bi bi-layout-sidebar-inset" aria-hidden="true"></i>
+                </button>
+
+                <form class="app-search" role="search">
+                    <label class="visually-hidden" for="appSearch" data-i18n="common.search">Tìm kiếm</label>
+                    <input id="appSearch" type="search" placeholder="Tìm khóa học, bài thi, người dùng..." data-i18n-placeholder="layout.searchAdmin" />
+                </form>
+
+                <div class="app-header-actions">
+                    <label class="visually-hidden" for="adminLanguageSwitcher" data-i18n="common.language">Ngôn ngữ</label>
+                    <select class="app-select app-language-switcher" id="adminLanguageSwitcher" data-i18n-language aria-label="Ngôn ngữ" data-i18n-aria="common.language">
+                        <option value="vi">VI</option>
+                        <option value="en">EN</option>
+                    </select>
+                    <a class="app-button app-button-secondary" asp-area="" asp-controller="Auth" asp-action="ChangePassword" data-i18n="layout.changePassword">Mật khẩu</a>
+                    <button class="app-button app-button-secondary" type="button" data-auth-action="logout" data-i18n="layout.logout">Đăng xuất</button>
+                    <button class="app-icon-button" type="button" aria-label="Thông báo" data-i18n-aria="layout.notifications">
+                        <i class="bi bi-bell" aria-hidden="true"></i>
+                    </button>
+                    <div class="app-user-menu" data-dropdown>
+                        <button class="app-user-trigger" type="button" data-dropdown-toggle aria-haspopup="true" aria-expanded="false">
+                            <span class="app-avatar" aria-hidden="true">A</span>
+                            <span class="app-user-copy">
+                                <span class="app-user-name" data-i18n="layout.currentAdmin">Quản trị viên</span>
+                                <span class="app-user-role" data-i18n="common.admin">Quản trị</span>
+                            </span>
+                            <i class="bi bi-chevron-down" aria-hidden="true"></i>
+                        </button>
+                        <div class="app-dropdown-menu" data-dropdown-menu>
+                            <a class="app-dropdown-item" asp-area="" asp-controller="Auth" asp-action="ChangePassword" data-dropdown-close>
+                                <i class="bi bi-key" aria-hidden="true"></i>
+                                <span data-i18n="layout.changePassword">Mật khẩu</span>
+                            </a>
+                            <a class="app-dropdown-item" asp-area="" asp-controller="Home" asp-action="Index" data-dropdown-close>
+                                <i class="bi bi-mortarboard" aria-hidden="true"></i>
+                                <span data-i18n="nav.userSite">Trang học viên</span>
+                            </a>
+                            <div class="app-dropdown-divider"></div>
+                            <button class="app-dropdown-item" type="button" data-auth-action="logout" data-dropdown-close>
+                                <i class="bi bi-box-arrow-right" aria-hidden="true"></i>
+                                <span data-i18n="layout.logout">Đăng xuất</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="app-content" role="main">
+                @RenderBody()
+            </main>
+
+            <footer class="app-footer">
+                <span data-i18n="layout.adminFooter">&copy; 2026 lms Quản trị</span>
+                <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="nav.userSite">Trang học viên</a>
+            </footer>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/core/config.js" asp-append-version="true"></script>
+    <script src="~/js/core/storage.js" asp-append-version="true"></script>
+    <script src="~/js/core/i18n.js" asp-append-version="true"></script>
+    <script src="~/js/core/auth.js" asp-append-version="true"></script>
+    <script src="~/js/core/api-client.js" asp-append-version="true"></script>
+    <script src="~/js/core/dropdown.js" asp-append-version="true"></script>
+    <script src="~/js/core/toast.js" asp-append-version="true"></script>
+    <script src="~/js/core/modal.js" asp-append-version="true"></script>
+    <script src="~/js/core/ui.js" asp-append-version="true"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="~/js/components/charts.js" asp-append-version="true"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

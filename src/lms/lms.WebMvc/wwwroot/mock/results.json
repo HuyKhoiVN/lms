@@ -1,0 +1,26 @@
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": 1,
+        "examName": "Safety Certification Exam",
+        "studentName": "Student One",
+        "score": 86,
+        "passed": true,
+        "durationMinutes": 37,
+        "submittedAt": "2026-06-17T09:37:00"
+      },
+      {
+        "id": 2,
+        "examName": "Customer Service Assessment",
+        "studentName": "Student Two",
+        "score": 68,
+        "passed": false,
+        "durationMinutes": 28,
+        "submittedAt": "2026-06-16T14:10:00"
+      }
+    ],
+    "total": 2
+  }
+}

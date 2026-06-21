@@ -1,0 +1,190 @@
+(function (window, $) {
+  "use strict";
+
+  const Lms = window.Lms || {};
+
+  function getCurrentPath() {
+    return window.location.pathname.toLowerCase().replace(/\/$/, "") || "/";
+  }
+
+  function isMobileSidebar() {
+    return window.matchMedia("(max-width: 991.98px)").matches;
+  }
+
+  function setActiveSidebarLink() {
+    const currentPath = getCurrentPath();
+
+    $(".app-nav-link").each(function () {
+      const link = $(this);
+      const href = (link.attr("href") || "").toLowerCase().replace(/\/$/, "") || "/";
+      const isActive = href === currentPath || (href !== "/" && currentPath.startsWith(href));
+      link.toggleClass("active", isActive);
+      if (isActive) {
+        link.attr("aria-current", "page");
+      } else {
+        link.removeAttr("aria-current");
+      }
+    });
+
+    $(".learning-menu-link").each(function () {
+      const link = $(this);
+      const href = (link.attr("href") || "").toLowerCase().replace(/\/$/, "") || "/";
+      const isActive = href === currentPath || (href !== "/" && currentPath.startsWith(href));
+      link.toggleClass("active", isActive);
+      if (isActive) {
+        link.attr("aria-current", "page");
+      } else {
+        link.removeAttr("aria-current");
+      }
+    });
+  }
+
+  function restoreSidebarState() {
+    if (!Lms.storage || !Lms.config || !Lms.config.ui) {
+      return;
+    }
+
+    const collapsed = Lms.storage.get(Lms.config.ui.sidebarStateKey, false);
+    $(".app-shell-admin").toggleClass("is-sidebar-collapsed", Boolean(collapsed) && !isMobileSidebar());
+  }
+
+  function ensureSidebarBackdrop() {
+    let $backdrop = $(".app-sidebar-backdrop");
+
+    if (!$backdrop.length) {
+      $backdrop = $('<button class="app-sidebar-backdrop" type="button" aria-label="Close menu"></button>');
+      $(".app-shell-admin").append($backdrop);
+    }
+
+    return $backdrop;
+  }
+
+  function closeMobileSidebar() {
+    $(".app-shell-admin").removeClass("is-sidebar-open");
+  }
+
+  function bindSidebarToggle() {
+    ensureSidebarBackdrop();
+
+    $(".app-sidebar-toggle").off("click.lmsSidebar").on("click.lmsSidebar", function () {
+      const $shell = $(".app-shell-admin");
+
+      if (isMobileSidebar()) {
+        $shell.toggleClass("is-sidebar-open");
+        return;
+      }
+
+      const nextState = !$shell.hasClass("is-sidebar-collapsed");
+      $shell.toggleClass("is-sidebar-collapsed", nextState);
+      if (Lms.storage && Lms.config && Lms.config.ui) {
+        Lms.storage.set(Lms.config.ui.sidebarStateKey, nextState);
+      }
+    });
+
+    $(document)
+      .off("click.lmsSidebarBackdrop")
+      .on("click.lmsSidebarBackdrop", ".app-sidebar-backdrop, .app-nav-link", function () {
+        if (isMobileSidebar()) {
+          closeMobileSidebar();
+        }
+      });
+
+    $(window).off("resize.lmsSidebar").on("resize.lmsSidebar", function () {
+      closeMobileSidebar();
+      restoreSidebarState();
+    });
+  }
+
+  function setButtonLoading(button, loadingText) {
+    const target = $(button);
+
+    if (!target.data("original-text")) {
+      target.data("original-text", target.html());
+    }
+
+    target.prop("disabled", true);
+    target.html('<span class="app-spinner" aria-hidden="true"></span><span>' + (loadingText || "Loading") + "</span>");
+  }
+
+  function clearButtonLoading(button) {
+    const target = $(button);
+    const originalText = target.data("original-text");
+
+    if (originalText) {
+      target.html(originalText);
+    }
+
+    target.prop("disabled", false);
+  }
+
+  function showToast(options) {
+    if (Lms.toast && Lms.toast.show) {
+      return Lms.toast.show(options);
+    }
+
+    return $();
+  }
+
+  function showModal(content, options) {
+    if (Lms.modal && Lms.modal.open) {
+      return Lms.modal.open(content, options);
+    }
+
+    return $();
+  }
+
+  function closeModal() {
+    if (Lms.modal && Lms.modal.close) {
+      Lms.modal.close();
+    }
+  }
+
+  function init() {
+    if (Lms.auth && Lms.auth.guardRoute && !Lms.auth.guardRoute()) {
+      return;
+    }
+
+    if (Lms.dropdown && Lms.dropdown.init) {
+      Lms.dropdown.init();
+    }
+
+    if (Lms.modal && Lms.modal.init) {
+      Lms.modal.init();
+    }
+
+    restoreSidebarState();
+    bindSidebarToggle();
+    setActiveSidebarLink();
+
+    if (Lms.auth && Lms.auth.renderCurrentUser) {
+      Lms.auth.renderCurrentUser();
+    }
+
+    $(document)
+      .off("keydown.lmsUi")
+      .on("keydown.lmsUi", function (event) {
+        if (event.key === "Escape") {
+          closeMobileSidebar();
+        }
+      })
+      .off("click.lmsLogout")
+      .on("click.lmsLogout", "[data-auth-action='logout']", function () {
+        if (Lms.auth && Lms.auth.logout) {
+          Lms.auth.logout();
+        }
+      });
+  }
+
+  Lms.ui = {
+    init,
+    setActiveSidebarLink,
+    showToast,
+    showModal,
+    closeModal,
+    setButtonLoading,
+    clearButtonLoading
+  };
+
+  $(init);
+  window.Lms = Lms;
+})(window, jQuery);

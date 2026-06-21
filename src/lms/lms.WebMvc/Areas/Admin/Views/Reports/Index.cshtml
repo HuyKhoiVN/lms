@@ -1,0 +1,179 @@
+@{
+    ViewData["Title"] = "Báo cáo";
+}
+
+<div class="page-header">
+    <div class="page-header-main">
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" data-i18n="reports.adminPage.breadcrumbRoot">Quản trị</a>
+            <span aria-hidden="true">/</span>
+            <span data-i18n="reports.adminPage.breadcrumbCurrent">Báo cáo</span>
+        </nav>
+        <h1 class="page-title" data-i18n="reports.adminPage.title">Bảng phân tích báo cáo</h1>
+        <p class="page-muted u-mb-0" data-i18n="reports.adminPage.pageSubtitle">Phân tích hiệu suất đánh giá, xu hướng hoàn thành và phân bổ điểm số.</p>
+    </div>
+    <div class="page-header-actions">
+        <button class="app-button app-button-secondary" type="button" data-report-action="export-excel" data-i18n="reports.adminPage.exportExcel">Xuất Excel</button>
+        <button class="app-button app-button-primary" type="button" data-report-action="export-pdf" data-i18n="reports.adminPage.exportPdf">Xuất PDF</button>
+    </div>
+</div>
+
+<section class="admin-screen-banner app-animate-slide-up">
+    <div class="image-slot image-slot-banner image-slot-admin" data-image-label="Admin reports banner 1200x220">
+        <img src="~/images/graduation-success.jpg" alt="" aria-hidden="true" />
+    </div>
+</section>
+
+<section class="app-card u-mb-4 app-animate-slide-up">
+    <div class="app-card-header">
+        <div class="admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="reports.adminPage.cardTitleFilters">Bộ lọc</h2>
+                <p class="app-card-subtitle" data-i18n="reports.adminPage.cardSubtitleFilters">Các bộ lọc mô phỏng cập nhật ngữ cảnh báo cáo mà không gọi API backend.</p>
+            </div>
+            <span class="app-badge app-badge-info" data-report-filter-state>Tất cả dữ liệu</span>
+        </div>
+    </div>
+    <div class="app-card-body">
+        <div class="report-filter-grid">
+            <label class="app-field">
+                <span data-i18n="reports.adminPage.labelDateFrom">Từ ngày</span>
+                <input class="app-input" type="date" data-report-filter="dateFrom" />
+            </label>
+            <label class="app-field">
+                <span data-i18n="reports.adminPage.labelDateTo">Đến ngày</span>
+                <input class="app-input" type="date" data-report-filter="dateTo" />
+            </label>
+            <label class="app-field">
+                <span data-i18n="reports.adminPage.labelExam">Bài thi</span>
+                <select class="app-select" data-report-filter="exam">
+                    <option value="" data-i18n="reports.adminPage.optionAllExams">Tất cả bài thi</option>
+                </select>
+            </label>
+            <label class="app-field">
+                <span data-i18n="reports.adminPage.labelCourse">Khóa học</span>
+                <select class="app-select" data-report-filter="course">
+                    <option value="" data-i18n="reports.adminPage.optionAllCourses">Tất cả khóa học</option>
+                </select>
+            </label>
+            <label class="app-field">
+                <span data-i18n="reports.adminPage.labelGroup">Học viên/nhóm</span>
+                <select class="app-select" data-report-filter="group">
+                    <option value="" data-i18n="reports.adminPage.optionAllGroups">Tất cả học viên và nhóm</option>
+                </select>
+            </label>
+            <div class="report-filter-actions">
+                <button class="app-button app-button-secondary" type="button" data-report-action="reset-filters" data-i18n="reports.adminPage.buttonReset">Đặt lại</button>
+                <button class="app-button app-button-primary" type="button" data-report-action="apply-filters" data-i18n="reports.adminPage.buttonApply">Áp dụng</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="page-grid page-grid-4 app-animate-stagger" aria-label="Report metrics">
+    <article class="app-card admin-metric-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="reports.adminPage.metricPassRate">Tỉ lệ đạt</p>
+                <p class="app-metric-value" data-report-summary="passRate">...</p>
+                <span class="app-badge app-badge-success" data-i18n="reports.adminPage.subPassRate">Lượt thi đạt</span>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-percent"></i></span>
+        </div>
+    </article>
+    <article class="app-card admin-metric-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="reports.adminPage.metricAverageScore">Điểm trung bình</p>
+                <p class="app-metric-value" data-report-summary="averageScore">...</p>
+                <span class="app-badge app-badge-info" data-i18n="reports.adminPage.subAverageScore">Chất lượng đánh giá</span>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
+        </div>
+    </article>
+    <article class="app-card admin-metric-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="reports.adminPage.metricExamCount">Số lượng bài thi</p>
+                <p class="app-metric-value" data-report-summary="examCount">...</p>
+                <span class="app-badge app-badge-muted" data-i18n="reports.adminPage.subExamCount">Đã xuất bản và nháp</span>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-clipboard-check"></i></span>
+        </div>
+    </article>
+    <article class="app-card admin-metric-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="reports.adminPage.metricCompletionRate">Tỉ lệ hoàn thành</p>
+                <p class="app-metric-value" data-report-summary="completionRate">...</p>
+                <span class="app-badge app-badge-warning" data-i18n="reports.adminPage.subCompletionRate">Học viên được giao</span>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-check2-circle"></i></span>
+        </div>
+    </article>
+</section>
+
+<section class="report-chart-grid u-mt-4">
+    <article class="app-card">
+        <div class="app-card-header admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="reports.adminPage.chartPassRateTitle">Tỉ lệ đạt</h2>
+                <p class="app-card-subtitle" data-i18n="reports.adminPage.chartPassRateSubtitle">Tỷ lệ thi đạt tổng quan cho ngữ cảnh đã chọn.</p>
+            </div>
+            <span class="app-badge app-badge-success" data-report-badge="passRate">...</span>
+        </div>
+        <div class="app-card-body">
+            <div class="admin-donut report-donut" style="--donut-value: 0;" aria-label="Biểu đồ tỉ lệ đạt">
+                <span data-report-chart-text="passRate">...</span>
+            </div>
+        </div>
+    </article>
+
+    <article class="app-card">
+        <div class="app-card-header admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="reports.adminPage.chartActivityTitle">Hoạt động thi cử</h2>
+                <p class="app-card-subtitle" data-i18n="reports.adminPage.chartActivitySubtitle">Số lượt thi theo ngày.</p>
+            </div>
+            <span class="app-badge app-badge-info" data-i18n="reports.adminPage.chartActivityBadge">Biểu đồ cột</span>
+        </div>
+        <div class="app-card-body">
+            <div class="admin-bar-chart" id="reportActivityChart" aria-label="Biểu đồ hoạt động thi cử"></div>
+        </div>
+    </article>
+
+    <article class="app-card">
+        <div class="app-card-header admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="reports.adminPage.chartDistributionTitle">Phân bổ điểm số</h2>
+                <p class="app-card-subtitle" data-i18n="reports.adminPage.chartDistributionSubtitle">Khoảng điểm số trên các lượt thi.</p>
+            </div>
+            <span class="app-badge app-badge-muted" data-i18n="reports.adminPage.chartDistributionBadge">Phân bổ</span>
+        </div>
+        <div class="app-card-body">
+            <div class="admin-distribution" id="reportScoreDistribution" aria-label="Biểu đồ phân bổ điểm số"></div>
+        </div>
+    </article>
+</section>
+
+<section class="app-card u-mt-4">
+    <div class="app-card-header admin-card-header-row">
+        <div>
+            <h2 class="app-card-title" data-i18n="reports.adminPage.snapshotTitle">Tóm tắt báo cáo</h2>
+            <p class="app-card-subtitle" data-i18n="reports.adminPage.snapshotSubtitle">Tóm tắt ngắn gọn để xem xét nhanh hoạt động vận hành.</p>
+        </div>
+        <span class="app-badge app-badge-info" data-report-generated-at data-i18n="reports.adminPage.generatedAtText">Được tạo ngày --</span>
+    </div>
+    <div class="app-card-body">
+        <div class="report-summary-list" id="reportSummaryList">
+            <div class="app-loading">
+                <span class="app-spinner" aria-hidden="true"></span>
+                <span data-i18n="reports.adminPage.loadingSnapshot">Đang tải tóm tắt báo cáo...</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/pages/admin-reports.js" asp-append-version="true"></script>
+}

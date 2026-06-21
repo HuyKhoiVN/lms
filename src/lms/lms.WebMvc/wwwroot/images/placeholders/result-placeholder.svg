@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
+  <title id="title">Result placeholder</title>
+  <desc id="desc">Replace this placeholder with a result visual.</desc>
+  <rect width="640" height="360" rx="28" fill="#eef1ff"/>
+  <rect x="86" y="72" width="468" height="216" rx="30" fill="#fff"/>
+  <circle cx="202" cy="180" r="70" fill="none" stroke="#edf0f7" stroke-width="20"/>
+  <path d="M202 110a70 70 0 0168 86" fill="none" stroke="#16a34a" stroke-width="20" stroke-linecap="round"/>
+  <rect x="324" y="126" width="148" height="20" rx="10" fill="#161b2f"/>
+  <rect x="324" y="178" width="178" height="16" rx="8" fill="#cfd6e6"/>
+  <rect x="324" y="218" width="132" height="16" rx="8" fill="#cfd6e6"/>
+</svg>

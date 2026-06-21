@@ -1,0 +1,32 @@
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": 1,
+        "courseId": 1,
+        "title": "Safety Policy Overview",
+        "contentType": "Text",
+        "durationMinutes": 12,
+        "status": "Published"
+      },
+      {
+        "id": 2,
+        "courseId": 1,
+        "title": "Emergency Response PDF",
+        "contentType": "Pdf",
+        "durationMinutes": 20,
+        "status": "Published"
+      },
+      {
+        "id": 3,
+        "courseId": 2,
+        "title": "Service Standards Checklist",
+        "contentType": "File",
+        "durationMinutes": 8,
+        "status": "Draft"
+      }
+    ],
+    "total": 3
+  }
+}

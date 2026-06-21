@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <!-- Background -->
+  <rect width="200" height="200" rx="40" fill="#E8F0FE" />
+  <!-- Hair (Back) -->
+  <path d="M60 90c0-30 20-50 40-50s40 20 40 50v20H60V90z" fill="#2D3748" />
+  <!-- Ears -->
+  <circle cx="55" cy="100" r="10" fill="#FBD38D" />
+  <circle cx="145" cy="100" r="10" fill="#FBD38D" />
+  <!-- Face -->
+  <rect x="60" y="65" width="80" height="80" rx="30" fill="#FEEBC8" />
+  <rect x="60" y="60" width="80" height="40" rx="15" fill="#FBD38D" />
+  <!-- Hair (Front) -->
+  <path d="M58 75c5-10 20-20 42-20s37 10 42 20c-5-5-20-10-42-10S63 70 58 75z" fill="#2D3748" />
+  <path d="M60 60c10-15 30-20 40-20s30 5 40 20c-10-5-30-8-40-8s-30 3-40 8z" fill="#1A202C" />
+  <!-- Eyes -->
+  <circle cx="85" cy="95" r="5" fill="#2D3748" />
+  <circle cx="115" cy="95" r="5" fill="#2D3748" />
+  <!-- Smile -->
+  <path d="M90 115c5 5 15 5 20 0" stroke="#2D3748" stroke-width="4" stroke-linecap="round" fill="none" />
+  <!-- Neck -->
+  <rect x="90" y="135" width="20" height="25" fill="#FBD38D" />
+  <!-- Clothes -->
+  <path d="M60 160c0-15 15-20 40-20s40 5 40 20v25H60v-25z" fill="#3182CE" />
+  <path d="M100 140l-15 20h30z" fill="#2B6CB0" />
+</svg>

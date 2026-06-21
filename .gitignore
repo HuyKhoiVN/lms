@@ -1,0 +1,121 @@
+## Ignore Visual Studio temporary files, build results, and user-specific files
+
+# User-specific files
+*.rsuser
+*.suo
+*.user
+*.user-servicing
+*.userosscache
+*.sln.docstates
+
+# User-specific files (MonoDevelop/ActiveState ActiveGo)
+*.userprefs
+
+# Mono auto generated files
+mono_crash.*
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+x64/
+x86/
+[Aa]rm/
+[Aa]rm64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Log]/
+[Logs]/
+
+# Visual Studio 2015/2017/2019/2022 cache directory
+.vs/
+# Generated user settings files can be ignored too:
+# (but keep launchSettings.json which is usually shared under Properties/)
+
+# Visual Studio Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Rider / IntelliJ WebStorm
+.idea/
+
+# Tooling
+_ReSharper*/
+*.[Re]Sharper.user
+*.DotSettings.user
+
+# MSBuild Security Code Analysis (FxCop)
+*.FxCop
+
+# Team City is a build loop tool
+_TeamCity*
+
+# DotCover is a Code Coverage Tool
+*.dotCover
+
+# AxoCover is a Code Coverage Tool
+.axoCover/*
+!.axoCover/settings.json
+
+# Coverlet is a Code Coverage Tool
+coverage/*.json
+coverage/*.xml
+coverage/*.info
+
+# Visual Studio Unit Test Metadata
+TestResults/
+*.vsmdi
+
+# NUnit
+*.visualstate
+
+# JetBrains Rider
+*.sln.iml
+
+# Compiled source
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# NuGet Packages
+*.nupkg
+# The packages folder can be ignored because of Package Restore
+**/[Pp]ackages/*
+# except build/, which is used as an MSBuild target.
+!**/[Pp]ackages/build/
+# If using NuGet legacy project.json, ignore project.lock.json
+project.lock.json
+# If using Paket, ignore paket.resources files
+paket.resources
+
+# AppSettings secrets / environment-specific files (uncomment if you want to keep them local-only)
+# appsettings.json
+# appsettings.Development.json
+
+# Operating System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Node.js / Frontend
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*

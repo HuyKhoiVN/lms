@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
+  <title id="title">Group placeholder</title>
+  <desc id="desc">Replace this placeholder with a group or cohort image.</desc>
+  <rect width="640" height="360" rx="28" fill="#d8fbf4"/>
+  <circle cx="320" cy="150" r="54" fill="#00a7a7"/>
+  <circle cx="232" cy="172" r="42" fill="#635bff" opacity=".82"/>
+  <circle cx="408" cy="172" r="42" fill="#ffb020" opacity=".9"/>
+  <path d="M174 278c18-52 72-78 146-78s128 26 146 78" fill="#fff" opacity=".9"/>
+  <path d="M122 292c14-40 52-62 110-62M408 230c58 0 96 22 110 62" fill="none" stroke="#fff" stroke-width="30" stroke-linecap="round" opacity=".72"/>
+</svg>

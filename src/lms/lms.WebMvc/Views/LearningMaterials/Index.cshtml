@@ -1,0 +1,68 @@
+@{
+    ViewData["Title"] = "Tài liệu học tập";
+}
+
+<div class="page-header">
+    <div class="page-header-main">
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+            <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="materials.studentListPage.breadcrumbHome">Trang chủ</a>
+            <span>/</span>
+            <span data-i18n="materials.studentListPage.breadcrumbMaterials">Tài liệu</span>
+        </nav>
+        <h1 class="page-title" data-i18n="materials.studentListPage.title">Tài liệu học tập</h1>
+        <p class="page-muted u-mb-0" data-i18n="materials.studentListPage.subtitle">Mở các tài liệu dạng văn bản, PDF, tệp tin và liên kết được giao trong không gian học tập của bạn.</p>
+    </div>
+</div>
+
+<section class="image-slot image-slot-banner image-slot-material student-material-banner u-mb-4" data-image-label="Materials banner 16:5">
+    <img src="~/images/reading-library.jpg" alt="" aria-hidden="true" />
+</section>
+
+<section class="app-card">
+    <div class="app-card-header">
+        <div class="admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="materials.studentListPage.assignedMaterials">Tài liệu được giao</h2>
+                <p class="app-card-subtitle" data-i18n="materials.studentListPage.progressNotice">Tiến trình học tập được lưu cục bộ trong giai đoạn thử nghiệm này.</p>
+            </div>
+            <span class="app-badge app-badge-info" data-student-material-count data-i18n="materials.studentListPage.records">-- tài liệu</span>
+        </div>
+    </div>
+    <div class="app-card-body">
+        <div class="app-filter-bar admin-user-filter">
+            <label class="visually-hidden" for="studentMaterialSearch" data-i18n="materials.studentListPage.searchLabel">Tìm kiếm tài liệu</label>
+            <input class="app-input" id="studentMaterialSearch" type="search" placeholder="Tìm kiếm tài liệu..." data-student-material-filter="search" data-i18n-placeholder="materials.studentListPage.searchPlaceholder" />
+
+            <label class="visually-hidden" for="studentMaterialCourseFilter" data-i18n="materials.studentListPage.courseLabel">Khóa học</label>
+            <select class="app-select" id="studentMaterialCourseFilter" data-student-material-filter="course">
+                <option value="" data-i18n="materials.studentListPage.allCourses">Tất cả khóa học</option>
+            </select>
+
+            <label class="visually-hidden" for="studentMaterialTypeFilter" data-i18n="materials.studentListPage.typeLabel">Loại tài liệu</label>
+            <select class="app-select" id="studentMaterialTypeFilter" data-student-material-filter="type">
+                <option value="" data-i18n="materials.studentListPage.allTypes">Tất cả các loại</option>
+                <option value="Text" data-i18n="materials.studentListPage.typeText">Văn bản</option>
+                <option value="Pdf" data-i18n="materials.studentListPage.typePdf">PDF</option>
+                <option value="File" data-i18n="materials.studentListPage.typeFile">Tệp tin</option>
+                <option value="Link" data-i18n="materials.studentListPage.typeLink">Liên kết</option>
+            </select>
+
+            <button class="app-button app-button-secondary" type="button" data-student-material-action="clear-filters" data-i18n="materials.studentListPage.clearFilters">Xóa bộ lọc</button>
+        </div>
+
+        <div class="student-material-grid u-mt-4" id="studentMaterialGrid">
+            <article class="app-card">
+                <div class="app-card-body">
+                    <span class="app-skeleton app-skeleton-card u-mb-4"></span>
+                    <span class="app-skeleton u-mb-4"></span>
+                    <span class="app-skeleton u-mb-4"></span>
+                    <span class="app-skeleton"></span>
+                </div>
+            </article>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/pages/student-material-list.js" asp-append-version="true"></script>
+}

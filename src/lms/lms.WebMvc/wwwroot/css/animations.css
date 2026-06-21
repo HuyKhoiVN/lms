@@ -1,0 +1,203 @@
+@keyframes app-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes app-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes app-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes app-slide-right {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes app-slide-left {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes app-drop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes app-soft-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(229, 72, 77, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px rgba(229, 72, 77, 0.12);
+  }
+}
+
+@keyframes app-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes app-toast-out {
+  to {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+}
+
+@keyframes app-modal-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes app-modal-out {
+  to {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+}
+
+@keyframes app-progress-grow {
+  from {
+    width: 0;
+  }
+
+  to {
+    width: var(--progress-width, 100%);
+  }
+}
+
+@keyframes app-skeleton {
+  0% {
+    background-position: 100% 50%;
+  }
+
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+@keyframes app-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.app-animate-fade-in {
+  animation: app-fade-in 180ms ease both;
+}
+
+.app-animate-slide-up {
+  animation: app-slide-up 220ms ease both;
+}
+
+.app-animate-slide-right {
+  animation: app-slide-right 220ms ease both;
+}
+
+.app-animate-slide-left {
+  animation: app-slide-left 220ms ease both;
+}
+
+.app-animate-scale-in {
+  animation: app-scale-in 180ms ease both;
+}
+
+.app-animate-stagger > * {
+  animation: app-slide-up 220ms ease both;
+}
+
+.app-animate-stagger > *:nth-child(2) {
+  animation-delay: 35ms;
+}
+
+.app-animate-stagger > *:nth-child(3) {
+  animation-delay: 70ms;
+}
+
+.app-animate-stagger > *:nth-child(4) {
+  animation-delay: 105ms;
+}
+
+.app-animate-stagger > *:nth-child(5) {
+  animation-delay: 140ms;
+}
+
+.app-animate-stagger > *:nth-child(6) {
+  animation-delay: 175ms;
+}
+
+.app-pulse-warning {
+  animation: app-soft-pulse 1300ms ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 1ms !important;
+  }
+}

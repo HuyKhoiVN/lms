@@ -1,0 +1,34 @@
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": 1,
+        "category": "Safety",
+        "difficulty": "Easy",
+        "questionType": "SingleChoice",
+        "content": "What should employees do first during a fire alarm?",
+        "score": 1,
+        "answers": [
+          { "id": 1, "content": "Evacuate by the nearest safe exit", "isCorrect": true },
+          { "id": 2, "content": "Finish current work", "isCorrect": false },
+          { "id": 3, "content": "Use the elevator", "isCorrect": false }
+        ]
+      },
+      {
+        "id": 2,
+        "category": "Compliance",
+        "difficulty": "Medium",
+        "questionType": "MultipleChoice",
+        "content": "Which records should be protected as confidential?",
+        "score": 2,
+        "answers": [
+          { "id": 4, "content": "Employee personal data", "isCorrect": true },
+          { "id": 5, "content": "Customer contracts", "isCorrect": true },
+          { "id": 6, "content": "Public holiday calendar", "isCorrect": false }
+        ]
+      }
+    ],
+    "total": 2
+  }
+}

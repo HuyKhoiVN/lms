@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="360" viewBox="0 0 640 360" role="img" aria-labelledby="title desc">
+  <title id="title">Exam image placeholder</title>
+  <desc id="desc">Replace this placeholder with an exam image.</desc>
+  <rect width="640" height="360" rx="28" fill="#11172b"/>
+  <circle cx="518" cy="98" r="74" fill="#635bff" opacity=".32"/>
+  <circle cx="122" cy="302" r="84" fill="#ffb020" opacity=".2"/>
+  <rect x="106" y="72" width="300" height="224" rx="28" fill="#fff"/>
+  <rect x="150" y="118" width="150" height="20" rx="10" fill="#161b2f"/>
+  <rect x="150" y="168" width="204" height="14" rx="7" fill="#cfd6e6"/>
+  <rect x="150" y="206" width="176" height="14" rx="7" fill="#cfd6e6"/>
+  <path d="M454 154h86v118h-86z" fill="#635bff"/>
+  <path d="M474 202l18 18 34-48" fill="none" stroke="#fff" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

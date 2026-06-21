@@ -1,0 +1,136 @@
+@{
+    ViewData["Title"] = "Quản lý người dùng";
+}
+
+<div class="page-header">
+    <div class="page-header-main">
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" data-i18n="users.listPage.breadcrumbRoot">Quản trị</a>
+            <span>/</span>
+            <span data-i18n="users.listPage.breadcrumbCurrent">Quản lý người dùng</span>
+        </nav>
+        <h1 class="page-title" data-i18n="users.listPage.title">Quản lý người dùng</h1>
+        <p class="page-muted u-mb-0" data-i18n="users.listPage.subtitle">Quản lý tài khoản học viên và quản trị viên bằng thao tác mô phỏng.</p>
+    </div>
+    <div class="page-header-actions">
+        <button class="app-button app-button-secondary" type="button" data-user-action="export" data-i18n="users.listPage.export">Xuất dữ liệu</button>
+        <button class="app-button app-button-primary" type="button" data-user-action="create" data-i18n="users.listPage.createUser">Tạo người dùng</button>
+    </div>
+</div>
+
+<section class="admin-screen-banner app-animate-slide-up">
+    <div class="image-slot image-slot-banner image-slot-admin" data-image-label="Admin users banner 1200x220">
+        <img src="~/images/student-classroom.jpg" alt="" aria-hidden="true" />
+    </div>
+</section>
+
+<section class="page-grid page-grid-4 u-mb-4 app-animate-stagger" aria-label="Tổng quan người dùng" data-i18n-aria="users.listPage.summary">
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="users.listPage.totalUsers">Tổng người dùng</p>
+                <p class="app-metric-value" data-user-metric="total">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="users.listPage.active">Hoạt động</p>
+                <p class="app-metric-value" data-user-metric="active">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-person-check"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="users.listPage.locked">Đã khóa</p>
+                <p class="app-metric-value" data-user-metric="locked">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-lock"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="users.listPage.admins">Quản trị viên</p>
+                <p class="app-metric-value" data-user-metric="admins">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-shield-lock"></i></span>
+        </div>
+    </article>
+</section>
+
+<section class="app-card">
+    <div class="app-card-header">
+        <div class="admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="users.listPage.users">Người dùng</h2>
+                <p class="app-card-subtitle" data-i18n="users.listPage.tableSubtitle">Tìm kiếm, lọc, phân trang và thực hiện thao tác tài khoản mô phỏng.</p>
+            </div>
+            <span class="app-badge app-badge-info" data-user-result-count>-- bản ghi</span>
+        </div>
+    </div>
+
+    <div class="app-card-body">
+        <div class="app-filter-bar admin-user-filter">
+            <label class="visually-hidden" for="userSearch" data-i18n="users.listPage.searchUsers">Tìm người dùng</label>
+            <input class="app-input" id="userSearch" type="search" placeholder="Tìm tên, tài khoản, email..." data-user-filter="search" data-i18n-placeholder="users.listPage.searchPlaceholder" />
+
+            <label class="visually-hidden" for="userRoleFilter" data-i18n="users.listPage.role">Vai trò</label>
+            <select class="app-select" id="userRoleFilter" data-user-filter="role">
+                <option value="" data-i18n="users.listPage.allRoles">Tất cả vai trò</option>
+                <option value="Admin" data-i18n="users.listPage.admin">Quản trị</option>
+                <option value="Student" data-i18n="users.listPage.student">Học viên</option>
+            </select>
+
+            <label class="visually-hidden" for="userStatusFilter" data-i18n="users.listPage.status">Trạng thái</label>
+            <select class="app-select" id="userStatusFilter" data-user-filter="status">
+                <option value="" data-i18n="users.listPage.allStatuses">Tất cả trạng thái</option>
+                <option value="Active" data-i18n="users.listPage.active">Hoạt động</option>
+                <option value="Locked" data-i18n="users.listPage.locked">Đã khóa</option>
+            </select>
+
+            <button class="app-button app-button-secondary" type="button" data-user-action="clear-filters" data-i18n="users.listPage.clear">Xóa bộ lọc</button>
+        </div>
+
+        <div class="app-table-wrapper u-mt-4">
+            <table class="app-table table admin-user-table">
+                <thead>
+                    <tr>
+                        <th scope="col" data-i18n="users.listPage.user">Người dùng</th>
+                        <th scope="col" data-i18n="users.listPage.role">Vai trò</th>
+                        <th scope="col" data-i18n="users.listPage.status">Trạng thái</th>
+                        <th scope="col" data-i18n="users.listPage.lastLogin">Đăng nhập cuối</th>
+                        <th scope="col" class="u-text-right" data-i18n="users.listPage.actions">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableRows">
+                    <tr>
+                        <td colspan="5">
+                            <div class="app-loading">
+                                <span class="app-spinner" aria-hidden="true"></span>
+                                <span data-i18n="users.listPage.loadingUsers">Đang tải người dùng...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-table-footer">
+            <p class="page-muted u-mb-0" data-user-page-info>Đang tải bản ghi người dùng...</p>
+            <div class="admin-pagination" aria-label="Phân trang người dùng" data-i18n-aria="users.listPage.pagination">
+                <button class="app-button app-button-secondary" type="button" data-user-page="prev" data-i18n="users.listPage.previous">Trước</button>
+                <div class="admin-pagination-pages" id="userPaginationPages"></div>
+                <button class="app-button app-button-secondary" type="button" data-user-page="next" data-i18n="users.listPage.next">Tiếp</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/pages/user-list.js" asp-append-version="true"></script>
+}

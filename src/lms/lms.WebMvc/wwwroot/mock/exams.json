@@ -1,0 +1,28 @@
+{
+  "success": true,
+  "data": {
+    "items": [
+      {
+        "id": 1,
+        "name": "Safety Certification Exam",
+        "durationMinutes": 45,
+        "passScore": 80,
+        "reviewMode": "FULL_REVIEW",
+        "status": "Published",
+        "assignedCount": 42,
+        "questionCount": 20
+      },
+      {
+        "id": 2,
+        "name": "Customer Service Assessment",
+        "durationMinutes": 30,
+        "passScore": 75,
+        "reviewMode": "RESULT_ONLY",
+        "status": "Draft",
+        "assignedCount": 18,
+        "questionCount": 15
+      }
+    ],
+    "total": 2
+  }
+}

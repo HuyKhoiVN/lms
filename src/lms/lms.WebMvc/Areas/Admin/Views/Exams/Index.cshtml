@@ -1,0 +1,148 @@
+@{
+    ViewData["Title"] = "Quản lý bài thi";
+}
+
+<div class="page-header">
+    <div class="page-header-main">
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" data-i18n="exams.adminListPage.breadcrumbRoot">Quản trị</a>
+            <span>/</span>
+            <span data-i18n="exams.adminListPage.breadcrumbCurrent">Quản lý bài thi</span>
+        </nav>
+        <h1 class="page-title" data-i18n="exams.adminListPage.title">Quản lý bài thi</h1>
+        <p class="page-muted u-mb-0" data-i18n="exams.adminListPage.subtitle">Quản lý bài thi nháp và đã xuất bản bằng dữ liệu mô phỏng trước khi vào giai đoạn thiết kế.</p>
+    </div>
+    <div class="page-header-actions">
+        <button class="app-button app-button-secondary" type="button" data-exam-action="export" data-i18n="exams.adminListPage.export">Xuất dữ liệu</button>
+        <button class="app-button app-button-primary" type="button" data-exam-action="create" data-i18n="exams.adminListPage.createExam">Tạo bài thi</button>
+    </div>
+</div>
+
+<section class="admin-screen-banner app-animate-slide-up">
+    <div class="image-slot image-slot-banner image-slot-admin" data-image-label="Admin exams banner 1200x220">
+        <img src="~/images/online-exam.jpg" alt="" aria-hidden="true" />
+    </div>
+</section>
+
+<section class="page-grid page-grid-4 u-mb-4 app-animate-stagger" aria-label="Tổng quan bài thi" data-i18n-aria="exams.adminListPage.summary">
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="exams.adminListPage.totalExams">Tổng bài thi</p>
+                <p class="app-metric-value" data-exam-metric="total">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-clipboard-check"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="exams.adminListPage.published">Đã xuất bản</p>
+                <p class="app-metric-value" data-exam-metric="published">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-cloud-check"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="exams.adminListPage.assigned">Đã giao</p>
+                <p class="app-metric-value" data-exam-metric="assigned">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-person-check"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="exams.adminListPage.questionsCount">Câu hỏi</p>
+                <p class="app-metric-value" data-exam-metric="questions">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-patch-question"></i></span>
+        </div>
+    </article>
+</section>
+
+<section class="app-card">
+    <div class="app-card-header">
+        <div class="admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="exams.adminListPage.exams">Bài thi</h2>
+                <p class="app-card-subtitle" data-i18n="exams.adminListPage.tableSubtitle">Lọc bài thi theo trạng thái, thời lượng và chính sách xem lại.</p>
+            </div>
+            <span class="app-badge app-badge-info" data-exam-result-count>-- bản ghi</span>
+        </div>
+    </div>
+
+    <div class="app-card-body">
+        <div class="app-filter-bar admin-user-filter">
+            <label class="visually-hidden" for="examSearch" data-i18n="exams.adminListPage.searchExams">Tìm bài thi</label>
+            <input class="app-input" id="examSearch" type="search" placeholder="Tìm tên bài thi..." data-exam-filter="search" data-i18n-placeholder="exams.adminListPage.searchPlaceholder" />
+
+            <label class="visually-hidden" for="examStatusFilter" data-i18n="exams.adminListPage.status">Trạng thái</label>
+            <select class="app-select" id="examStatusFilter" data-exam-filter="status">
+                <option value="" data-i18n="exams.adminListPage.allStatuses">Tất cả trạng thái</option>
+                <option value="Published" data-i18n="exams.adminListPage.published">Đã xuất bản</option>
+                <option value="Draft" data-i18n="exams.adminListPage.draft">Bản nháp</option>
+            </select>
+
+            <label class="visually-hidden" for="examDurationFilter" data-i18n="exams.adminListPage.duration">Thời lượng</label>
+            <select class="app-select" id="examDurationFilter" data-exam-filter="duration">
+                <option value="" data-i18n="exams.adminListPage.allDurations">Tất cả thời lượng</option>
+                <option value="short" data-i18n="exams.adminListPage.durationShort">30 phút hoặc ít hơn</option>
+                <option value="long" data-i18n="exams.adminListPage.durationLong">Trên 30 phút</option>
+            </select>
+
+            <label class="visually-hidden" for="examReviewFilter" data-i18n="exams.adminListPage.reviewPolicy">Chính sách xem lại</label>
+            <select class="app-select" id="examReviewFilter" data-exam-filter="review">
+                <option value="" data-i18n="exams.adminListPage.allReviewPolicies">Tất cả chính sách</option>
+                <option value="FULL_REVIEW" data-i18n="exams.adminListPage.reviewFull">Xem toàn bộ</option>
+                <option value="RESULT_ONLY" data-i18n="exams.adminListPage.reviewResultOnly">Chỉ xem kết quả</option>
+                <option value="ANSWER_ONLY" data-i18n="exams.adminListPage.reviewAnswerOnly">Chỉ xem đáp án</option>
+                <option value="NO_REVIEW" data-i18n="exams.adminListPage.reviewNo">Không cho xem lại</option>
+            </select>
+
+            <button class="app-button app-button-secondary" type="button" data-exam-action="clear-filters" data-i18n="exams.adminListPage.clear">Xóa bộ lọc</button>
+        </div>
+
+        <div class="app-table-wrapper u-mt-4">
+            <table class="app-table table admin-exam-table">
+                <thead>
+                    <tr>
+                        <th scope="col" data-i18n="exams.adminListPage.tableHeaderExam">Bài thi</th>
+                        <th scope="col" data-i18n="exams.adminListPage.tableHeaderStatus">Trạng thái</th>
+                        <th scope="col" data-i18n="exams.adminListPage.tableHeaderDuration">Thời lượng</th>
+                        <th scope="col" data-i18n="exams.adminListPage.tableHeaderPassScore">Điểm đạt</th>
+                        <th scope="col" data-i18n="exams.adminListPage.tableHeaderQuestions">Câu hỏi</th>
+                        <th scope="col" data-i18n="exams.adminListPage.tableHeaderAssigned">Đã giao</th>
+                        <th scope="col" data-i18n="exams.adminListPage.tableHeaderReview">Xem lại</th>
+                        <th scope="col" class="u-text-right" data-i18n="exams.adminListPage.tableHeaderActions">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="examTableRows">
+                    <tr>
+                        <td colspan="8">
+                            <div class="app-loading">
+                                <span class="app-spinner" aria-hidden="true"></span>
+                                <span data-i18n="exams.adminListPage.loadingExams">Đang tải bài thi...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-table-footer">
+            <p class="page-muted u-mb-0" data-exam-page-info>Đang tải bản ghi bài thi...</p>
+            <div class="admin-pagination" aria-label="Phân trang bài thi" data-i18n-aria="exams.adminListPage.pagination">
+                <button class="app-button app-button-secondary" type="button" data-exam-page="prev" data-i18n="exams.adminListPage.previous">Trước</button>
+                <div class="admin-pagination-pages" id="examPaginationPages"></div>
+                <button class="app-button app-button-secondary" type="button" data-exam-page="next" data-i18n="exams.adminListPage.next">Tiếp</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/pages/exam-list.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,144 @@
+@{
+    ViewData["Title"] = "Ngân hàng câu hỏi";
+}
+
+<div class="page-header">
+    <div class="page-header-main">
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" data-i18n="questions.listPage.breadcrumbRoot">Quản trị</a>
+            <span>/</span>
+            <span data-i18n="questions.listPage.breadcrumbCurrent">Ngân hàng câu hỏi</span>
+        </nav>
+        <h1 class="page-title" data-i18n="questions.listPage.title">Ngân hàng câu hỏi</h1>
+        <p class="page-muted u-mb-0" data-i18n="questions.listPage.subtitle">Quản lý danh sách câu hỏi kiểm tra tái sử dụng bằng dữ liệu mô phỏng trước khi vào giai đoạn tích hợp.</p>
+    </div>
+    <div class="page-header-actions">
+        <button class="app-button app-button-secondary" type="button" data-question-action="import" data-i18n="questions.listPage.import">Nhập dữ liệu</button>
+        <button class="app-button app-button-primary" type="button" data-question-action="create" data-i18n="questions.listPage.createQuestion">Tạo câu hỏi</button>
+    </div>
+</div>
+
+<section class="admin-screen-banner app-animate-slide-up">
+    <div class="image-slot image-slot-banner image-slot-admin" data-image-label="Question bank banner 1200x220">
+        <img src="~/images/online-learning-banner.jpg" alt="" aria-hidden="true" />
+    </div>
+</section>
+
+<section class="page-grid page-grid-4 u-mb-4 app-animate-stagger" aria-label="Tổng quan câu hỏi" data-i18n-aria="questions.listPage.summary">
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="questions.listPage.totalQuestions">Tổng câu hỏi</p>
+                <p class="app-metric-value" data-question-metric="total">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-patch-question"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="questions.listPage.categories">Danh mục</p>
+                <p class="app-metric-value" data-question-metric="categories">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-tags"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="questions.listPage.totalScore">Tổng điểm</p>
+                <p class="app-metric-value" data-question-metric="score">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-check2-square"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="questions.listPage.answerOptions">Số đáp án</p>
+                <p class="app-metric-value" data-question-metric="answers">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-layers"></i></span>
+        </div>
+    </article>
+</section>
+
+<section class="app-card">
+    <div class="app-card-header">
+        <div class="admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="questions.listPage.questions">Câu hỏi</h2>
+                <p class="app-card-subtitle" data-i18n="questions.listPage.tableSubtitle">Tìm kiếm và lọc câu hỏi theo danh mục, độ khó và thể loại.</p>
+            </div>
+            <span class="app-badge app-badge-info" data-question-result-count>-- bản ghi</span>
+        </div>
+    </div>
+
+    <div class="app-card-body">
+        <div class="app-filter-bar admin-user-filter">
+            <label class="visually-hidden" for="questionSearch" data-i18n="questions.listPage.searchQuestions">Tìm câu hỏi</label>
+            <input class="app-input" id="questionSearch" type="search" placeholder="Tìm nội dung câu hỏi..." data-question-filter="search" data-i18n-placeholder="questions.listPage.searchPlaceholder" />
+
+            <label class="visually-hidden" for="questionCategoryFilter" data-i18n="questions.listPage.category">Danh mục</label>
+            <select class="app-select" id="questionCategoryFilter" data-question-filter="category">
+                <option value="" data-i18n="questions.listPage.allCategories">Tất cả danh mục</option>
+            </select>
+
+            <label class="visually-hidden" for="questionDifficultyFilter" data-i18n="questions.listPage.difficulty">Độ khó</label>
+            <select class="app-select" id="questionDifficultyFilter" data-question-filter="difficulty">
+                <option value="" data-i18n="questions.listPage.allDifficulty">Tất cả độ khó</option>
+                <option value="Easy" data-i18n="questions.listPage.difficultyEasy">Dễ</option>
+                <option value="Medium" data-i18n="questions.listPage.difficultyMedium">Trung bình</option>
+                <option value="Hard" data-i18n="questions.listPage.difficultyHard">Khó</option>
+            </select>
+
+            <label class="visually-hidden" for="questionTypeFilter" data-i18n="questions.listPage.type">Thể loại</label>
+            <select class="app-select" id="questionTypeFilter" data-question-filter="type">
+                <option value="" data-i18n="questions.listPage.allTypes">Tất cả thể loại</option>
+                <option value="SingleChoice" data-i18n="questions.listPage.typeSingle">Một lựa chọn</option>
+                <option value="MultipleChoice" data-i18n="questions.listPage.typeMultiple">Nhiều lựa chọn</option>
+            </select>
+
+            <button class="app-button app-button-secondary" type="button" data-question-action="clear-filters" data-i18n="questions.listPage.clear">Xóa bộ lọc</button>
+        </div>
+
+        <div class="app-table-wrapper u-mt-4">
+            <table class="app-table table admin-question-table">
+                <thead>
+                    <tr>
+                        <th scope="col" data-i18n="questions.listPage.tableHeaderQuestion">Câu hỏi</th>
+                        <th scope="col" data-i18n="questions.listPage.tableHeaderCategory">Danh mục</th>
+                        <th scope="col" data-i18n="questions.listPage.tableHeaderDifficulty">Độ khó</th>
+                        <th scope="col" data-i18n="questions.listPage.tableHeaderType">Thể loại</th>
+                        <th scope="col" data-i18n="questions.listPage.tableHeaderScore">Điểm</th>
+                        <th scope="col" data-i18n="questions.listPage.tableHeaderAnswers">Đáp án</th>
+                        <th scope="col" class="u-text-right" data-i18n="questions.listPage.tableHeaderActions">Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="questionTableRows">
+                    <tr>
+                        <td colspan="7">
+                            <div class="app-loading">
+                                <span class="app-spinner" aria-hidden="true"></span>
+                                <span data-i18n="questions.listPage.loadingQuestions">Đang tải câu hỏi...</span>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-table-footer">
+            <p class="page-muted u-mb-0" data-question-page-info>Đang tải bản ghi câu hỏi...</p>
+            <div class="admin-pagination" aria-label="Phân trang câu hỏi" data-i18n-aria="questions.listPage.pagination">
+                <button class="app-button app-button-secondary" type="button" data-question-page="prev" data-i18n="questions.listPage.previous">Trước</button>
+                <div class="admin-pagination-pages" id="questionPaginationPages"></div>
+                <button class="app-button app-button-secondary" type="button" data-question-page="next" data-i18n="questions.listPage.next">Tiếp</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script src="~/js/pages/question-list.js" asp-append-version="true"></script>
+}
