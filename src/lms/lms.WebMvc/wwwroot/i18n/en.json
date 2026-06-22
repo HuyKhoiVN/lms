@@ -61,11 +61,13 @@
     "changePassword": "Password",
     "logout": "Logout",
     "notifications": "Notifications",
-    "privacy": "Privacy",
+    "privacy": "Privacy Policy",
     "adminFooter": "© 2026 lms Admin",
     "studentFooter": "© 2026 lms",
     "currentStudent": "Student One",
-    "currentAdmin": "Administrator"
+    "currentAdmin": "Administrator",
+    "terms": "Terms of Service",
+    "support": "Support"
   },
   "auth": {
     "login": "Login",
@@ -184,8 +186,8 @@
     "studentPage": {
       "title": "Learning Dashboard",
       "eyebrow": "Learning + Examination",
-      "heroTitle": "Build skills. Finish exams. Keep proof ready.",
-      "heroCopy": "Track assigned courses, pending exams, latest score, and certificates from a focused learner workspace.",
+      "heroTitle": "Welcome Student One",
+      "heroCopy": "You have 1 pending exam and 2 courses in progress.",
       "continueLearning": "Continue Learning",
       "viewExams": "View Exams",
       "progressPreview": "Student progress preview",

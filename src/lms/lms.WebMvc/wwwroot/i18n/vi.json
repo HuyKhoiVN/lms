@@ -61,11 +61,13 @@
     "changePassword": "Mật khẩu",
     "logout": "Đăng xuất",
     "notifications": "Thông báo",
-    "privacy": "Quyền riêng tư",
+    "privacy": "Chính sách",
     "adminFooter": "© 2026 lms Quản trị",
     "studentFooter": "© 2026 lms",
     "currentStudent": "Học viên Một",
-    "currentAdmin": "Quản trị viên"
+    "currentAdmin": "Quản trị viên",
+    "terms": "Điều khoản",
+    "support": "Hỗ trợ"
   },
   "auth": {
     "login": "Đăng nhập",
@@ -184,8 +186,8 @@
     "studentPage": {
       "title": "Bảng điều khiển học tập",
       "eyebrow": "Học tập + Thi cử",
-      "heroTitle": "Xây kỹ năng. Hoàn thành bài thi. Luôn sẵn chứng chỉ.",
-      "heroCopy": "Theo dõi khóa học được giao, bài thi cần làm, điểm gần nhất và chứng chỉ trong một không gian học tập tập trung.",
+      "heroTitle": "Chào Học viên Một",
+      "heroCopy": "Bạn có 1 bài thi cần hoàn thành và 2 khóa học đang học.",
       "continueLearning": "Tiếp tục học",
       "viewExams": "Xem bài thi",
       "progressPreview": "Xem nhanh tiến độ học viên",
