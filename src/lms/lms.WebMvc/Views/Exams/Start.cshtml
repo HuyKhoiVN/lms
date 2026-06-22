@@ -3,7 +3,7 @@
     var examId = ViewData["ExamId"] ?? 0;
 }
 
-<div class="page-header" data-student-start-exam-id="@examId">
+<div class="page-header linear-start-exam-header start-exam-reveal" data-student-start-exam-id="@examId" data-start-exam-reveal>
     <div class="page-header-main">
         <nav class="page-breadcrumb" aria-label="Breadcrumb">
             <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="exams.startPage.breadcrumbHome">Trang chủ</a>
@@ -21,8 +21,8 @@
     </div>
 </div>
 
-<section class="start-exam-layout">
-    <article class="app-card start-exam-card">
+<section class="start-exam-layout linear-start-exam-layout">
+    <article class="app-card start-exam-card linear-start-exam-card start-exam-reveal" data-start-exam-reveal>
         <div class="app-card-header">
             <div class="admin-card-header-row">
                 <div>
@@ -33,9 +33,9 @@
             </div>
         </div>
         <div class="app-card-body">
-            <div class="start-exam-banner app-animate-fade">
-                <div class="image-slot image-slot-banner image-slot-exam" data-image-label="Exam start banner 1200x240">
-                    <img src="~/images/student-focus-male.jpg" alt="" aria-hidden="true" />
+            <div class="start-exam-banner linear-start-exam-banner app-animate-fade start-exam-reveal" data-start-exam-reveal>
+                <div class="image-slot image-slot-banner image-slot-exam" data-image-label="Exam start banner 1600x420">
+                    <img src="~/images/placeholders/exam-placeholder.svg" alt="" aria-hidden="true" />
                 </div>
             </div>
             <div class="start-exam-summary-grid">
@@ -64,8 +64,8 @@
         </div>
     </article>
 
-    <aside class="start-exam-side">
-        <article class="app-card">
+    <aside class="start-exam-side linear-start-exam-side">
+        <article class="app-card linear-start-exam-rules start-exam-reveal" data-start-exam-reveal>
             <div class="app-card-header">
                 <h2 class="app-card-title" data-i18n="exams.startPage.rulesTitle">Quy định</h2>
                 <p class="app-card-subtitle" data-i18n="exams.startPage.rulesSubtitle">Tuân thủ các quy định sau trong quá trình làm bài.</p>

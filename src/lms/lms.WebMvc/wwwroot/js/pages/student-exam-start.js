@@ -53,13 +53,14 @@
     $("#startExamRules").html(rules.map(function (rule, index) {
       const icons = ["bi-wifi-off", "bi-hourglass-split", "bi-eye", "bi-play-circle"];
       return (
-        '<div class="start-exam-rule app-animate-slide-up">' +
+        '<div class="start-exam-rule linear-start-exam-rule start-exam-reveal" data-start-exam-reveal>' +
           '<span class="start-exam-rule-icon" aria-hidden="true"><i class="bi ' + icons[index % icons.length] + '"></i></span>' +
           '<span class="app-badge app-badge-info">' + t("exams.startPage.badgeRule", null, "Quy định") + '</span>' +
           '<span>' + escapeHtml(rule) + '</span>' +
         '</div>'
       );
     }).join(""));
+    initStartExamReveal();
   }
 
   function escapeHtml(value) {
@@ -77,8 +78,8 @@
       $("[data-start-exam-subtitle]").text(t("exams.startPage.notFoundDesc", null, "Bài thi yêu cầu không tồn tại trong dữ liệu mô phỏng."));
       $("[data-start-exam-action='start']").prop("disabled", true);
       $("#startExamRules").html(
-        '<div class="app-empty-state">' +
-          '<div class="app-empty-icon" aria-hidden="true">!</div>' +
+        '<div class="app-empty-state start-exam-empty start-exam-reveal is-visible" data-start-exam-reveal>' +
+          '<div class="image-slot image-slot-md image-slot-exam u-mb-4" data-image-label="Exam not found"><img src="/images/placeholders/exam-placeholder.svg" alt="" aria-hidden="true"></div>' +
           '<h3 class="app-empty-title">' + t("exams.startPage.notFoundTitle", null, "Không tìm thấy bài thi") + '</h3>' +
           '<p class="app-empty-copy">' + t("exams.startPage.notFoundCopy", null, "Quay lại danh sách bài thi và chọn bài thi khác.") + '</p>' +
         '</div>'
@@ -97,6 +98,40 @@
     $("[data-start-exam-summary='review']").text(getReviewLabel(state.exam.reviewMode));
     $("[data-start-exam-action='start']").prop("disabled", !canStart);
     renderRules();
+    initStartExamReveal();
+  }
+
+  function initStartExamReveal() {
+    const $items = $("[data-start-exam-reveal]").not("[data-start-exam-reveal-ready]");
+
+    if (!$items.length) {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      $items.addClass("is-visible").attr("data-start-exam-reveal-ready", "true");
+      return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        $(entry.target).addClass("is-visible");
+        observer.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: "0px 0px -8% 0px"
+    });
+
+    $items.each(function (index) {
+      this.style.setProperty("--reveal-delay", Math.min(index * 60, 300) + "ms");
+      $(this).attr("data-start-exam-reveal-ready", "true");
+      observer.observe(this);
+    });
   }
 
   function bindEvents() {
@@ -134,6 +169,7 @@
   function init() {
     state.examId = Number($("[data-student-start-exam-id]").data("student-start-exam-id"));
     bindEvents();
+    initStartExamReveal();
 
     if (Lms.i18n && Lms.i18n.ready) {
       Lms.i18n.ready.always(loadPageData);

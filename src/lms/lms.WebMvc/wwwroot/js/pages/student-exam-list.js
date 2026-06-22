@@ -31,13 +31,7 @@
   }
 
   function getExamImage(index) {
-    const images = [
-      "/images/online-exam.jpg",
-      "/images/exam-stress.jpg",
-      "/images/graduation-success.jpg"
-    ];
-
-    return images[index % images.length];
+    return "/images/placeholders/exam-placeholder.svg";
   }
 
   function getReviewLabel(reviewMode) {
@@ -65,8 +59,8 @@
 
     if (!exams.length) {
       $grid.append(
-        '<div class="app-empty-state">' +
-          '<div class="image-slot image-slot-md image-slot-exam u-mb-4" data-image-label="Empty exams illustration 320x180">' +
+        '<div class="app-empty-state exam-list-empty exam-list-reveal is-visible" data-exam-list-reveal>' +
+          '<div class="image-slot image-slot-md image-slot-exam u-mb-4" data-image-label="Empty exams 640x360">' +
             '<img src="/images/placeholders/exam-placeholder.svg" alt="" aria-hidden="true" />' +
           '</div>' +
           '<h3 class="app-empty-title">' + t("exams.studentListPage.noExamsTitle", null, "Không có bài thi được giao") + '</h3>' +
@@ -79,12 +73,13 @@
     exams.forEach(function (exam, index) {
       const canStart = exam.status === "Published";
       const cardClass = ["learning-card-safety", "learning-card-service", "learning-card-exam"][index % 3];
+      const stateClass = canStart ? "is-actionable" : "is-muted";
 
       $grid.append(
-        '<article class="app-card learning-card student-exam-card app-card-clickable app-animate-slide-up ' + cardClass + '">' +
+        '<article class="app-card learning-card student-exam-card linear-exam-card exam-list-reveal ' + cardClass + " " + stateClass + '" data-exam-list-reveal>' +
           '<div class="app-card-body">' +
-            '<div class="image-slot image-slot-md image-slot-exam student-exam-image" data-image-label="Exam card image 320x180">' +
-              '<img src="' + getExamImage(index) + '" alt="" aria-hidden="true" />' +
+            '<div class="image-slot image-slot-md image-slot-exam student-exam-image" data-image-label="Exam card 640x360">' +
+              '<img src="' + escapeHtml(getExamImage(index)) + '" alt="" aria-hidden="true" />' +
             '</div>' +
             '<div class="course-thumb">' +
               '<span class="course-thumb-code">EX</span>' +
@@ -109,9 +104,45 @@
         '</article>'
       );
     });
+    initExamListReveal();
+  }
+
+  function initExamListReveal() {
+    const $items = $("[data-exam-list-reveal]").not("[data-exam-list-reveal-ready]");
+
+    if (!$items.length) {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      $items.addClass("is-visible").attr("data-exam-list-reveal-ready", "true");
+      return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        $(entry.target).addClass("is-visible");
+        observer.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: "0px 0px -8% 0px"
+    });
+
+    $items.each(function (index) {
+      this.style.setProperty("--reveal-delay", Math.min(index * 45, 240) + "ms");
+      $(this).attr("data-exam-list-reveal-ready", "true");
+      observer.observe(this);
+    });
   }
 
   function init() {
+    initExamListReveal();
+
     $(document).on("lms:i18n:changed", function () {
       renderExams(cachedExams);
     });
@@ -129,14 +160,15 @@
       renderExams(cachedExams);
     }).fail(function () {
       $("#studentExamGrid").html(
-        '<div class="app-empty-state">' +
-          '<div class="image-slot image-slot-md image-slot-exam u-mb-4" data-image-label="Exam load error illustration 320x180">' +
+        '<div class="app-empty-state exam-list-empty exam-list-reveal is-visible" data-exam-list-reveal>' +
+          '<div class="image-slot image-slot-md image-slot-exam u-mb-4" data-image-label="Exam load error 640x360">' +
             '<img src="/images/placeholders/exam-placeholder.svg" alt="" aria-hidden="true" />' +
           '</div>' +
           '<h3 class="app-empty-title">' + t("exams.studentListPage.loadErrorTitle", null, "Không thể tải bài thi") + '</h3>' +
           '<p class="app-empty-copy">' + t("exams.studentListPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/exams.json.") + '</p>' +
         '</div>'
       );
+      initExamListReveal();
     });
   }
 

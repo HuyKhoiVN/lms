@@ -165,7 +165,7 @@
         : Number(selected) === answer.id;
 
       $answers.append(
-        '<label class="exam-answer-option' + (checked ? " selected" : "") + '">' +
+        '<label class="exam-answer-option linear-exam-answer-option' + (checked ? " selected" : "") + '">' +
           '<input type="' + inputType + '" name="examAnswer" value="' + answer.id + '"' + (checked ? " checked" : "") + ' />' +
           '<span>' + escapeHtml(answer.content) + '</span>' +
         '</label>'
@@ -176,6 +176,11 @@
     $("[data-exam-taking-action='next']").prop("disabled", state.currentIndex >= state.questions.length - 1).text(t("exams.takePage.buttonNext", null, "Câu sau"));
     $("[data-exam-taking-action='submit']").text(t("exams.takePage.buttonSubmit", null, "Nộp bài"));
     $("[data-exam-taking-action='mark']").toggleClass("active", state.marked.includes(question.id)).text(t("exams.takePage.buttonMark", null, "Đánh dấu"));
+  }
+
+  function initQuestionReadyState() {
+    $(".linear-exam-question-panel").addClass("is-question-ready");
+    initExamTakingReveal();
   }
 
   function getUnansweredQuestions() {
@@ -269,7 +274,7 @@
 
     const unanswered = getUnansweredQuestions();
     const modal = $(
-      '<div>' +
+      '<div class="linear-exam-submit-modal">' +
         '<div class="app-modal-header">' +
           '<h2 class="app-modal-title" data-i18n="exams.takePage.modalSubmitTitle">' + t("exams.takePage.modalSubmitTitle", null, "Nộp bài thi") + '</h2>' +
           '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="exams.takePage.buttonClose">' + t("exams.takePage.buttonClose", null, "Đóng") + '</button>' +
@@ -294,6 +299,39 @@
     });
 
     Lms.ui.showModal(modal);
+  }
+
+  function initExamTakingReveal() {
+    const $items = $("[data-exam-taking-reveal]").not("[data-exam-taking-reveal-ready]");
+
+    if (!$items.length) {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      $items.addClass("is-visible").attr("data-exam-taking-reveal-ready", "true");
+      return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        $(entry.target).addClass("is-visible");
+        observer.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: "0px 0px -8% 0px"
+    });
+
+    $items.each(function (index) {
+      this.style.setProperty("--reveal-delay", Math.min(index * 45, 180) + "ms");
+      $(this).attr("data-exam-taking-reveal-ready", "true");
+      observer.observe(this);
+    });
   }
 
   function startAutosave() {
@@ -325,6 +363,7 @@
     renderTimer();
     renderNavigator();
     renderQuestion();
+    initQuestionReadyState();
   }
 
   function bindEvents() {
@@ -400,6 +439,7 @@
   function init() {
     state.examId = Number($("[data-exam-taking-id]").data("exam-taking-id"));
     bindEvents();
+    initExamTakingReveal();
 
     if (Lms.i18n && Lms.i18n.ready) {
       Lms.i18n.ready.always(loadPageData);

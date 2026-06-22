@@ -2,7 +2,7 @@
     ViewData["Title"] = "Kết quả học tập";
 }
 
-<div class="page-header">
+<div class="page-header linear-result-list-header result-list-reveal" data-result-list-reveal>
     <div class="page-header-main">
         <nav class="page-breadcrumb" aria-label="Breadcrumb">
             <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="results.listPage.breadcrumbHome">Trang chủ</a>
@@ -14,14 +14,14 @@
     </div>
 </div>
 
-<section class="student-result-banner app-animate-slide-up">
-    <div class="image-slot image-slot-banner image-slot-result" data-image-label="Results banner 1200x220">
-        <img src="~/images/graduation-success.jpg" alt="" aria-hidden="true" />
+<section class="student-result-banner linear-result-banner app-animate-slide-up result-list-reveal" data-result-list-reveal>
+    <div class="image-slot image-slot-banner image-slot-result" data-image-label="Results banner 1600x420">
+        <img src="~/images/placeholders/result-placeholder.svg" alt="" aria-hidden="true" />
     </div>
 </section>
 
-<section class="page-grid page-grid-4 u-mb-4 app-animate-stagger" aria-label="Result summary">
-    <article class="app-card app-card-clickable">
+<section class="page-grid page-grid-4 u-mb-4 app-animate-stagger linear-result-metrics" aria-label="Result summary">
+    <article class="app-card app-card-clickable linear-result-metric result-list-reveal" data-result-list-reveal>
         <div class="app-card-body app-metric">
             <div>
                 <p class="app-metric-label" data-i18n="results.listPage.metricTotal">Tổng số lượt làm</p>
@@ -30,7 +30,7 @@
             <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-clipboard2-data"></i></span>
         </div>
     </article>
-    <article class="app-card app-card-clickable">
+    <article class="app-card app-card-clickable linear-result-metric result-list-reveal" data-result-list-reveal>
         <div class="app-card-body app-metric">
             <div>
                 <p class="app-metric-label" data-i18n="results.listPage.metricPassed">Đạt</p>
@@ -39,7 +39,7 @@
             <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-check2-circle"></i></span>
         </div>
     </article>
-    <article class="app-card app-card-clickable">
+    <article class="app-card app-card-clickable linear-result-metric result-list-reveal" data-result-list-reveal>
         <div class="app-card-body app-metric">
             <div>
                 <p class="app-metric-label" data-i18n="results.listPage.metricAverage">Điểm trung bình</p>
@@ -48,7 +48,7 @@
             <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
         </div>
     </article>
-    <article class="app-card app-card-clickable">
+    <article class="app-card app-card-clickable linear-result-metric result-list-reveal" data-result-list-reveal>
         <div class="app-card-body app-metric">
             <div>
                 <p class="app-metric-label" data-i18n="results.listPage.metricLatest">Điểm gần nhất</p>
@@ -59,7 +59,7 @@
     </article>
 </section>
 
-<section class="app-card">
+<section class="app-card linear-result-history-card result-list-reveal" data-result-list-reveal>
     <div class="app-card-header">
         <div class="admin-card-header-row">
             <div>
@@ -71,7 +71,7 @@
     </div>
 
     <div class="app-card-body">
-        <div class="app-filter-bar admin-user-filter">
+        <div class="app-filter-bar admin-user-filter linear-result-filter-bar">
             <label class="visually-hidden" for="resultSearch" data-i18n="results.listPage.searchLabel">Tìm kiếm kết quả</label>
             <input class="app-input" id="resultSearch" type="search" placeholder="Tìm tên bài thi..." data-result-filter="search" data-i18n-placeholder="results.listPage.searchPlaceholder" />
 
@@ -85,7 +85,7 @@
             <button class="app-button app-button-secondary" type="button" data-result-action="clear-filters" data-i18n="results.listPage.clearFilters">Xóa bộ lọc</button>
         </div>
 
-        <div class="app-table-wrapper u-mt-4">
+        <div class="app-table-wrapper linear-result-table-wrapper u-mt-4">
             <table class="app-table table student-result-table">
                 <thead>
                     <tr>

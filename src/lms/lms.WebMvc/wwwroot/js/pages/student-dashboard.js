@@ -27,6 +27,14 @@
     $(selector).text(value);
   }
 
+  function escapeHtml(value) {
+    return $("<div>").text(value == null ? "" : value).html();
+  }
+
+  function attr(value) {
+    return escapeHtml(value).replace(/"/g, "&quot;");
+  }
+
   function setProgress($element, value) {
     const safeValue = Math.max(0, Math.min(100, Number(value) || 0));
     $element.css("--progress-width", safeValue + "%").css("width", safeValue + "%");
@@ -128,10 +136,10 @@
 
     if (!courses.length) {
       $container.html(
-        '<div class="app-empty-state">' +
-          '<div class="app-empty-icon" aria-hidden="true">C</div>' +
-          '<h3 class="app-empty-title">' + t("dashboard.studentPage.noCoursesTitle", null, "Chưa có khóa học được giao") + '</h3>' +
-          '<p class="app-empty-copy">' + t("dashboard.studentPage.noCoursesCopy", null, "Các khóa học được giao sẽ xuất hiện tại đây.") + '</p>' +
+        '<div class="app-empty-state student-dashboard-empty student-dashboard-reveal is-visible" data-dashboard-reveal>' +
+          '<div class="image-slot image-slot-md image-slot-course u-mb-4" data-image-label="Course mock 320x180"><img src="/images/placeholders/course-placeholder.svg" alt="" aria-hidden="true"></div>' +
+          '<h3 class="app-empty-title">' + escapeHtml(t("dashboard.studentPage.noCoursesTitle", null, "Chưa có khóa học được giao")) + '</h3>' +
+          '<p class="app-empty-copy">' + escapeHtml(t("dashboard.studentPage.noCoursesCopy", null, "Các khóa học được giao sẽ xuất hiện tại đây.")) + '</p>' +
         '</div>'
       );
       return;
@@ -140,34 +148,35 @@
     const cards = courses.map(function (course, index) {
       const progress = Number(course.completionRate || 0);
       const cardClass = ["learning-card-safety", "learning-card-service", "learning-card-exam"][index % 3];
+      const featuredClass = index === 0 ? " is-featured" : "";
       const actionText = progress > 0
         ? t("dashboard.studentPage.resume", null, "Tiếp tục")
         : t("dashboard.studentPage.start", null, "Bắt đầu");
 
       return (
-        '<article class="app-card learning-card ' + cardClass + '">' +
+        '<article class="app-card learning-card student-dashboard-course-card student-dashboard-reveal ' + cardClass + featuredClass + '" data-dashboard-reveal>' +
           '<div class="app-card-body">' +
-            '<div class="image-slot image-slot-md image-slot-course student-course-image" data-image-label="Course image">' +
-              '<img src="' + getCourseImage(index) + '" alt="" aria-hidden="true">' +
+            '<div class="image-slot image-slot-md image-slot-course student-course-image" data-image-label="Course image 320x180">' +
+              '<img src="' + attr(getCourseImage(index)) + '" alt="" aria-hidden="true">' +
             '</div>' +
             '<div class="course-thumb student-course-thumb-compact">' +
-              '<span class="course-thumb-code">' + getInitials(course.name) + '</span>' +
+              '<span class="course-thumb-code">' + escapeHtml(getInitials(course.name)) + '</span>' +
               '<span class="app-badge app-badge-info">' + progress + '%</span>' +
             '</div>' +
-            '<h3 class="app-card-title">' + course.name + '</h3>' +
+            '<h3 class="app-card-title">' + escapeHtml(course.name) + '</h3>' +
             '<p class="app-card-subtitle">' +
-              t(
+              escapeHtml(t(
                 "dashboard.studentPage.courseMeta",
                 { materials: course.materialCount, learners: course.assignedCount },
                 course.materialCount + " tài liệu, " + course.assignedCount + " học viên được giao"
-              ) +
+              )) +
             '</p>' +
             '<div class="progress-track u-mt-4">' +
               '<div class="progress-fill" data-course-progress="' + progress + '"></div>' +
             '</div>' +
           '</div>' +
           '<div class="app-card-footer">' +
-            '<button class="app-button app-button-primary" type="button" data-student-action="continue-learning">' + actionText + '</button>' +
+            '<button class="app-button app-button-primary" type="button" data-student-action="continue-learning">' + escapeHtml(actionText) + '</button>' +
           '</div>' +
         '</article>'
       );
@@ -177,6 +186,7 @@
     $container.find("[data-course-progress]").each(function () {
       setProgress($(this), $(this).data("course-progress"));
     });
+    initDashboardReveal();
   }
 
   function renderExams(exams) {
@@ -187,10 +197,10 @@
 
     if (!publishedExams.length) {
       $container.html(
-        '<div class="app-empty-state">' +
-          '<div class="image-slot image-slot-sm image-slot-exam u-mb-4" data-image-label="Exam"></div>' +
-          '<h3 class="app-empty-title">' + t("dashboard.studentPage.noPendingExamsTitle", null, "Không có bài thi cần làm") + '</h3>' +
-          '<p class="app-empty-copy">' + t("dashboard.studentPage.noPendingExamsCopy", null, "Bài thi đã xuất bản được giao sẽ xuất hiện tại đây.") + '</p>' +
+        '<div class="app-empty-state student-dashboard-empty student-dashboard-reveal is-visible" data-dashboard-reveal>' +
+          '<div class="image-slot image-slot-sm image-slot-exam u-mb-4" data-image-label="Exam mock"><img src="/images/placeholders/exam-placeholder.svg" alt="" aria-hidden="true"></div>' +
+          '<h3 class="app-empty-title">' + escapeHtml(t("dashboard.studentPage.noPendingExamsTitle", null, "Không có bài thi cần làm")) + '</h3>' +
+          '<p class="app-empty-copy">' + escapeHtml(t("dashboard.studentPage.noPendingExamsCopy", null, "Bài thi đã xuất bản được giao sẽ xuất hiện tại đây.")) + '</p>' +
         '</div>'
       );
       return;
@@ -198,26 +208,27 @@
 
     const rows = publishedExams.map(function (exam) {
       return (
-        '<div class="student-exam-item">' +
+        '<div class="student-exam-item student-dashboard-reveal" data-dashboard-reveal>' +
           '<div>' +
-            '<h4>' + exam.name + '</h4>' +
+            '<h4>' + escapeHtml(exam.name) + '</h4>' +
             '<p>' +
-              t(
+              escapeHtml(t(
                 "dashboard.studentPage.examMeta",
                 { minutes: exam.durationMinutes, passScore: exam.passScore, questions: exam.questionCount },
                 exam.durationMinutes + " phút, điểm đạt " + exam.passScore + ", " + exam.questionCount + " câu hỏi"
-              ) +
+              )) +
             '</p>' +
           '</div>' +
           '<div class="student-exam-actions">' +
-            '<span class="app-badge ' + getBadgeClass(exam.status) + '">' + t("dashboard.studentPage.status." + exam.status, null, exam.status) + '</span>' +
-            '<button class="app-button app-button-secondary" type="button">' + t("dashboard.studentPage.reviewRules", null, "Xem quy định") + '</button>' +
+            '<span class="app-badge ' + getBadgeClass(exam.status) + '">' + escapeHtml(t("dashboard.studentPage.status." + exam.status, null, exam.status)) + '</span>' +
+            '<button class="app-button app-button-secondary" type="button">' + escapeHtml(t("dashboard.studentPage.reviewRules", null, "Xem quy định")) + '</button>' +
           '</div>' +
         '</div>'
       );
     });
 
     $container.html(rows.join(""));
+    initDashboardReveal();
   }
 
   function renderCertificates(certificates) {
@@ -225,10 +236,10 @@
 
     if (!certificates.length) {
       $container.html(
-        '<div class="app-empty-state">' +
-          '<div class="image-slot image-slot-sm image-slot-certificate u-mb-4" data-image-label="Certificate"></div>' +
-          '<h3 class="app-empty-title">' + t("dashboard.studentPage.noCertificatesTitle", null, "Chưa có chứng chỉ") + '</h3>' +
-          '<p class="app-empty-copy">' + t("dashboard.studentPage.noCertificatesCopy", null, "Chứng chỉ sẽ được cấp sau khi vượt qua bài thi.") + '</p>' +
+        '<div class="app-empty-state student-dashboard-empty student-dashboard-reveal is-visible" data-dashboard-reveal>' +
+          '<div class="image-slot image-slot-sm image-slot-certificate u-mb-4" data-image-label="Certificate mock"><img src="/images/placeholders/certificate-placeholder.svg" alt="" aria-hidden="true"></div>' +
+          '<h3 class="app-empty-title">' + escapeHtml(t("dashboard.studentPage.noCertificatesTitle", null, "Chưa có chứng chỉ")) + '</h3>' +
+          '<p class="app-empty-copy">' + escapeHtml(t("dashboard.studentPage.noCertificatesCopy", null, "Chứng chỉ sẽ được cấp sau khi vượt qua bài thi.")) + '</p>' +
         '</div>'
       );
       return;
@@ -236,17 +247,51 @@
 
     const latest = certificates[0];
     $container.html(
-      '<div class="student-certificate-card">' +
-        '<div class="app-empty-icon" aria-hidden="true">PDF</div>' +
-        '<h3>' + latest.examName + '</h3>' +
-        '<p>' + latest.certificateCode + '</p>' +
+      '<div class="student-certificate-card student-dashboard-reveal is-visible" data-dashboard-reveal>' +
+        '<div class="image-slot image-slot-sm image-slot-certificate u-mb-4" data-image-label="Certificate mock"><img src="/images/placeholders/certificate-placeholder.svg" alt="" aria-hidden="true"></div>' +
+        '<h3>' + escapeHtml(latest.examName) + '</h3>' +
+        '<p>' + escapeHtml(latest.certificateCode) + '</p>' +
         '<div class="admin-summary-line u-mt-4">' +
-          '<span>' + t("dashboard.studentPage.issueDate", null, "Ngày cấp") + '</span>' +
-          '<strong>' + latest.issueDate + '</strong>' +
+          '<span>' + escapeHtml(t("dashboard.studentPage.issueDate", null, "Ngày cấp")) + '</span>' +
+          '<strong>' + escapeHtml(latest.issueDate) + '</strong>' +
         '</div>' +
-        '<button class="app-button app-button-secondary u-mt-4" type="button">' + t("dashboard.studentPage.previewCertificate", null, "Xem trước chứng chỉ") + '</button>' +
+        '<button class="app-button app-button-secondary u-mt-4" type="button">' + escapeHtml(t("dashboard.studentPage.previewCertificate", null, "Xem trước chứng chỉ")) + '</button>' +
       '</div>'
     );
+    initDashboardReveal();
+  }
+
+  function initDashboardReveal() {
+    const $items = $("[data-dashboard-reveal]").not("[data-dashboard-reveal-ready]");
+
+    if (!$items.length) {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      $items.addClass("is-visible").attr("data-dashboard-reveal-ready", "true");
+      return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        $(entry.target).addClass("is-visible");
+        observer.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: "0px 0px -8% 0px"
+    });
+
+    $items.each(function (index) {
+      this.style.setProperty("--reveal-delay", Math.min(index * 45, 240) + "ms");
+      $(this).attr("data-dashboard-reveal-ready", "true");
+      observer.observe(this);
+    });
   }
 
   function renderAll() {
@@ -259,6 +304,7 @@
     renderCourses(state.courses);
     renderExams(state.exams);
     renderCertificates(state.certificates);
+    initDashboardReveal();
   }
 
   function bindActions() {
@@ -317,6 +363,7 @@
 
   function initStudentDashboard() {
     bindActions();
+    initDashboardReveal();
 
     if (Lms.i18n && Lms.i18n.ready) {
       Lms.i18n.ready.always(loadStudentDashboardData);

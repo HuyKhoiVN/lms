@@ -72,12 +72,12 @@
 
   function getMaterialImage(type) {
     const images = {
-      Text: "/images/reading-library.jpg",
-      Pdf: "/images/online-learning-banner.jpg",
-      File: "/images/online-tutor-lesson.jpg",
-      Link: "/images/study-collaboration.jpg"
+      Text: "/images/placeholders/material-placeholder.svg",
+      Pdf: "/images/placeholders/material-placeholder.svg",
+      File: "/images/placeholders/material-placeholder.svg",
+      Link: "/images/placeholders/material-placeholder.svg"
     };
-    return images[type] || "/images/reading-library.jpg";
+    return images[type] || "/images/placeholders/material-placeholder.svg";
   }
 
   function getMaterialSlotClass(type) {
@@ -103,8 +103,8 @@
 
     if (!state.filteredMaterials.length) {
       $grid.append(
-        '<div class="app-empty-state">' +
-          '<div class="image-slot image-slot-sm image-slot-material u-mb-4" data-image-label="Material"></div>' +
+        '<div class="app-empty-state student-material-empty student-material-reveal is-visible" data-material-reveal>' +
+          '<div class="image-slot image-slot-md image-slot-material u-mb-4" data-image-label="Material empty 640x360"><img src="/images/placeholders/empty-state-placeholder.svg" alt="" aria-hidden="true"></div>' +
           '<h3 class="app-empty-title">' + t("materials.studentListPage.noMaterialsFoundTitle", null, "Không tìm thấy tài liệu") + '</h3>' +
           '<p class="app-empty-copy">' + t("materials.studentListPage.noMaterialsFoundCopy", null, "Hãy thử bộ lọc từ khóa, khóa học hoặc loại khác.") + '</p>' +
         '</div>'
@@ -116,12 +116,13 @@
       const course = getCourse(material.courseId);
       const completed = Boolean(progress[material.id]);
       const cardClass = ["learning-card-safety", "learning-card-service", "learning-card-exam"][index % 3];
+      const featuredClass = index === 0 ? " is-featured" : "";
 
       $grid.append(
-        '<article class="app-card learning-card student-material-card ' + cardClass + '">' +
+        '<article class="app-card learning-card student-material-card student-material-reveal ' + cardClass + featuredClass + '" data-material-reveal>' +
           '<div class="app-card-body">' +
-            '<div class="image-slot image-slot-md ' + getMaterialSlotClass(material.contentType) + ' student-material-image" data-image-label="' + escapeHtml(getContentTypeLabel(material.contentType)) + '">' +
-              '<img src="' + getMaterialImage(material.contentType) + '" alt="" aria-hidden="true">' +
+            '<div class="image-slot image-slot-md ' + getMaterialSlotClass(material.contentType) + ' student-material-image" data-image-label="' + escapeHtml(getContentTypeLabel(material.contentType)) + ' 640x360">' +
+              '<img src="' + escapeHtml(getMaterialImage(material.contentType)) + '" alt="" aria-hidden="true">' +
             '</div>' +
             '<div class="course-thumb student-course-thumb-compact">' +
               '<span class="course-thumb-code">' + escapeHtml(material.contentType.charAt(0).toUpperCase()) + '</span>' +
@@ -142,6 +143,7 @@
         '</article>'
       );
     });
+    initMaterialReveal();
   }
 
   function applyFilters() {
@@ -156,6 +158,39 @@
     });
 
     render();
+  }
+
+  function initMaterialReveal() {
+    const $items = $("[data-material-reveal]").not("[data-material-reveal-ready]");
+
+    if (!$items.length) {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      $items.addClass("is-visible").attr("data-material-reveal-ready", "true");
+      return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        $(entry.target).addClass("is-visible");
+        observer.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: "0px 0px -8% 0px"
+    });
+
+    $items.each(function (index) {
+      this.style.setProperty("--reveal-delay", Math.min(index * 45, 240) + "ms");
+      $(this).attr("data-material-reveal-ready", "true");
+      observer.observe(this);
+    });
   }
 
   function bindEvents() {
@@ -192,6 +227,7 @@
 
   function init() {
     bindEvents();
+    initMaterialReveal();
 
     if (Lms.i18n && Lms.i18n.ready) {
       Lms.i18n.ready.always(loadPageData);

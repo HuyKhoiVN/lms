@@ -129,7 +129,7 @@
     $("[data-result-detail-title]").text(t("results.detailPage.notFoundTitle", null, "Không tìm thấy kết quả"));
     $("[data-result-detail-subtitle]").text(t("results.detailPage.notFoundDesc", null, "Quay lại danh sách kết quả và chọn kết quả khác."));
     $("#resultReviewContent").html(
-      '<div class="app-empty-state">' +
+      '<div class="app-empty-state linear-result-review-empty result-detail-reveal is-visible" data-result-detail-reveal>' +
         '<div class="image-slot image-slot-md image-slot-result u-mb-4" data-image-label="Result not found illustration 320x180">' +
           '<img src="/images/placeholders/result-placeholder.svg" alt="" aria-hidden="true" />' +
         '</div>' +
@@ -182,7 +182,7 @@
 
   function renderLockedReview(reviewMode) {
     $("#resultReviewContent").html(
-      '<div class="app-empty-state">' +
+      '<div class="app-empty-state linear-result-review-empty result-detail-reveal is-visible" data-result-detail-reveal>' +
         '<div class="image-slot image-slot-md image-slot-result u-mb-4" data-image-label="Locked review illustration 320x180">' +
           '<img src="/images/placeholders/result-placeholder.svg" alt="" aria-hidden="true" />' +
         '</div>' +
@@ -245,7 +245,7 @@
         : '<span class="app-badge ' + (isCorrect ? "app-badge-success" : "app-badge-danger") + '">' + (isCorrect ? t("results.detailPage.badgeCorrectState", null, "Đúng") : t("results.detailPage.badgeWrongState", null, "Sai")) + '</span>';
 
       return (
-        '<article class="result-question-review app-animate-slide-up ' + (isCorrect === null ? "is-sample" : (isCorrect ? "is-correct" : "is-wrong")) + '">' +
+        '<article class="result-question-review linear-result-question-review app-animate-slide-up result-detail-reveal ' + (isCorrect === null ? "is-sample" : (isCorrect ? "is-correct" : "is-wrong")) + '" data-result-detail-reveal>' +
           '<div class="result-question-review-head">' +
             '<div>' +
               '<h3>' + t("results.detailPage.questionHeading", { index: index + 1 }, "Câu hỏi " + (index + 1)) + '</h3>' +
@@ -268,6 +268,7 @@
     }).join("");
 
     $("#resultReviewContent").html(html);
+    initResultDetailReveal();
   }
 
   function renderReview() {
@@ -290,6 +291,39 @@
 
     renderSummary();
     renderReview();
+    initResultDetailReveal();
+  }
+
+  function initResultDetailReveal() {
+    const $items = $("[data-result-detail-reveal]").not("[data-result-detail-reveal-ready]");
+    if (!$items.length) {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      $items.addClass("is-visible").attr("data-result-detail-reveal-ready", "true");
+      return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        $(entry.target).addClass("is-visible");
+        observer.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: "0px 0px -8% 0px"
+    });
+
+    $items.each(function (index) {
+      this.style.setProperty("--reveal-delay", Math.min(index * 45, 260) + "ms");
+      $(this).attr("data-result-detail-reveal-ready", "true");
+      observer.observe(this);
+    });
   }
 
   function init() {
@@ -299,8 +333,10 @@
 
     if (Lms.i18n && Lms.i18n.ready) {
       Lms.i18n.ready.always(loadPageData);
+      initResultDetailReveal();
       return;
     }
+    initResultDetailReveal();
     loadPageData();
   }
 

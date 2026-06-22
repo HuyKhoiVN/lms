@@ -3,7 +3,7 @@
     var materialId = ViewData["MaterialId"] ?? 0;
 }
 
-<div class="page-header" data-student-material-id="@materialId">
+<div class="page-header linear-material-viewer-header material-viewer-reveal" data-student-material-id="@materialId" data-viewer-reveal>
     <div class="page-header-main">
         <nav class="page-breadcrumb" aria-label="Breadcrumb">
             <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="materials.viewerPage.breadcrumbHome">Trang chủ</a>
@@ -21,8 +21,8 @@
     </div>
 </div>
 
-<section class="material-viewer-layout">
-    <article class="app-card material-viewer-main">
+<section class="material-viewer-layout linear-material-viewer-layout">
+    <article class="app-card material-viewer-main linear-material-viewer-main material-viewer-reveal" data-viewer-reveal>
         <div class="app-card-header">
             <div class="admin-card-header-row">
                 <div>
@@ -33,9 +33,9 @@
             </div>
         </div>
         <div class="app-card-body">
-            <div class="material-viewer-hero app-animate-fade">
-                <div class="image-slot image-slot-banner image-slot-material material-viewer-hero-image" data-image-label="Material viewer banner 1200x260">
-                    <img src="~/images/online-tutor-lesson.jpg" alt="" aria-hidden="true" />
+            <div class="material-viewer-hero app-animate-fade material-viewer-reveal" data-viewer-reveal>
+                <div class="image-slot image-slot-banner image-slot-material material-viewer-hero-image linear-material-viewer-hero-image" data-image-label="Material viewer 1120x630">
+                    <img src="~/images/placeholders/material-placeholder.svg" alt="" aria-hidden="true" />
                 </div>
             </div>
             <div id="materialViewerContent" class="material-viewer-content">
@@ -47,8 +47,8 @@
         </div>
     </article>
 
-    <aside class="material-viewer-side">
-        <article class="app-card">
+    <aside class="material-viewer-side linear-material-viewer-side">
+        <article class="app-card linear-material-viewer-widget material-viewer-reveal" data-viewer-reveal>
             <div class="app-card-header">
                 <h2 class="app-card-title" data-i18n="materials.viewerPage.cardTitleProgress">Tiến trình</h2>
                 <p class="app-card-subtitle" data-i18n="materials.viewerPage.cardSubtitleProgress">Tiến trình học tập mô phỏng được lưu cục bộ.</p>
@@ -72,7 +72,7 @@
             </div>
         </article>
 
-        <article class="app-card u-mt-4">
+        <article class="app-card u-mt-4 linear-material-viewer-widget material-viewer-reveal" data-viewer-reveal>
             <div class="app-card-header">
                 <h2 class="app-card-title" data-i18n="materials.viewerPage.cardTitleNextSteps">Các bước tiếp theo</h2>
                 <p class="app-card-subtitle" data-i18n="materials.viewerPage.cardSubtitleNextSteps">Các tùy chọn hỗ trợ trong giai đoạn UI này.</p>

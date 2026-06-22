@@ -55,10 +55,10 @@
 
   function renderEmpty() {
     $("#certificateGrid").html(
-      '<div class="app-card certificate-empty-card">' +
+      '<div class="app-card certificate-empty-card linear-certificate-empty certificate-reveal is-visible" data-certificate-reveal>' +
         '<div class="app-card-body">' +
           '<div class="app-empty-state">' +
-            '<div class="image-slot image-slot-md image-slot-certificate u-mb-4" data-image-label="Empty certificate illustration 320x180">' +
+            '<div class="image-slot image-slot-md image-slot-certificate u-mb-4" data-image-label="Empty certificates 640x360">' +
               '<img src="/images/placeholders/certificate-placeholder.svg" alt="" aria-hidden="true" />' +
             '</div>' +
             '<h3 class="app-empty-title">' + t("certificates.listPage.noCertificatesTitle", null, "Không tìm thấy chứng chỉ") + '</h3>' +
@@ -80,9 +80,9 @@
 
     state.filteredCertificates.forEach(function (certificate) {
       $grid.append(
-        '<article class="app-card certificate-card app-card-clickable app-animate-slide-up">' +
+        '<article class="app-card certificate-card linear-certificate-card app-card-clickable app-animate-slide-up certificate-reveal" data-certificate-reveal>' +
           '<div class="app-card-body">' +
-            '<div class="certificate-frame image-slot image-slot-lg image-slot-certificate" data-image-label="Certificate preview 520x292">' +
+            '<div class="certificate-frame linear-certificate-frame image-slot image-slot-lg image-slot-certificate" data-image-label="Certificate preview 1120x792">' +
               '<img src="/images/placeholders/certificate-placeholder.svg" alt="" aria-hidden="true" />' +
             '</div>' +
             '<div class="certificate-card-top">' +
@@ -112,11 +112,13 @@
         '</article>'
       );
     });
+    initCertificateReveal();
   }
 
   function render() {
     renderMetrics();
     renderCards();
+    initCertificateReveal();
   }
 
   function applyFilters() {
@@ -143,14 +145,14 @@
     }
 
     const modal = $(
-      '<div>' +
+      '<div class="linear-certificate-modal">' +
         '<div class="app-modal-header">' +
           '<h2 class="app-modal-title" data-i18n="certificates.listPage.modalPreviewTitle">' + t("certificates.listPage.modalPreviewTitle", null, "Xem trước chứng chỉ") + '</h2>' +
           '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="certificates.listPage.buttonClose">' + t("certificates.listPage.buttonClose", null, "Đóng") + '</button>' +
         '</div>' +
         '<div class="app-modal-body">' +
-          '<div class="certificate-preview">' +
-            '<div class="certificate-preview-bg image-slot image-slot-lg image-slot-certificate" data-image-label="Certificate modal background 520x292">' +
+          '<div class="certificate-preview linear-certificate-preview">' +
+            '<div class="certificate-preview-bg image-slot image-slot-lg image-slot-certificate" data-image-label="Certificate modal preview 1120x792">' +
               '<img src="/images/placeholders/certificate-placeholder.svg" alt="" aria-hidden="true" />' +
             '</div>' +
             '<span class="certificate-preview-seal" aria-hidden="true">LMS</span>' +
@@ -188,6 +190,38 @@
     Lms.ui.showModal(modal);
   }
 
+  function initCertificateReveal() {
+    const $items = $("[data-certificate-reveal]").not("[data-certificate-reveal-ready]");
+    if (!$items.length) {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      $items.addClass("is-visible").attr("data-certificate-reveal-ready", "true");
+      return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        $(entry.target).addClass("is-visible");
+        observer.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: "0px 0px -8% 0px"
+    });
+
+    $items.each(function (index) {
+      this.style.setProperty("--reveal-delay", Math.min(index * 50, 280) + "ms");
+      $(this).attr("data-certificate-reveal-ready", "true");
+      observer.observe(this);
+    });
+  }
+
   function bindEvents() {
     $("[data-certificate-filter='search']").on("input", function () {
       state.search = $(this).val();
@@ -220,8 +254,10 @@
 
     if (Lms.i18n && Lms.i18n.ready) {
       Lms.i18n.ready.always(loadPageData);
+      initCertificateReveal();
       return;
     }
+    initCertificateReveal();
     loadPageData();
   }
 

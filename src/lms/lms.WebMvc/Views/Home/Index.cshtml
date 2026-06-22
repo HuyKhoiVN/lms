@@ -2,8 +2,8 @@
     ViewData["Title"] = "Bảng điều khiển học tập";
 }
 
-<section class="learning-hero student-dashboard-hero">
-    <div>
+<section class="learning-hero student-dashboard-hero linear-student-dashboard-hero student-dashboard-reveal" data-dashboard-reveal>
+    <div class="student-dashboard-hero-copy">
         <span class="learning-eyebrow" data-i18n="dashboard.studentPage.eyebrow">Học tập + Thi cử</span>
         <h1 class="learning-hero-title" data-i18n="dashboard.studentPage.heroTitle">Xây kỹ năng. Hoàn thành bài thi. Luôn sẵn chứng chỉ.</h1>
         <p class="learning-hero-copy" data-i18n="dashboard.studentPage.heroCopy">
@@ -15,9 +15,9 @@
         </div>
     </div>
 
-    <div class="learning-visual student-progress-visual" aria-label="Xem nhanh tiến độ học viên" data-i18n-aria="dashboard.studentPage.progressPreview">
+    <div class="learning-visual student-progress-visual student-dashboard-hero-visual student-dashboard-reveal" aria-label="Xem nhanh tiến độ học viên" data-i18n-aria="dashboard.studentPage.progressPreview" data-dashboard-reveal>
         <div class="image-slot image-slot-hero image-slot-dashboard student-hero-image" data-image-label="Hero 16:9">
-            <img src="~/images/online-learning-banner.jpg" alt="" aria-hidden="true" />
+            <img src="~/images/placeholders/dashboard-hero-placeholder.svg" alt="" aria-hidden="true" />
         </div>
         <div class="student-progress-score" aria-hidden="true">
             <span data-student-hero-score>--</span>
@@ -34,8 +34,8 @@
     </div>
 </section>
 
-<section class="page-grid page-grid-4 app-animate-stagger" aria-label="Tổng quan học viên" data-i18n-aria="dashboard.studentPage.studentSummary">
-    <article class="app-card">
+<section class="page-grid page-grid-4 app-animate-stagger student-dashboard-bento" aria-label="Tổng quan học viên" data-i18n-aria="dashboard.studentPage.studentSummary">
+    <article class="app-card student-dashboard-metric student-dashboard-reveal" data-dashboard-reveal>
         <div class="app-card-body app-metric">
             <div>
                 <p class="app-metric-label" data-i18n="dashboard.studentPage.assignedCourses">Khóa học được giao</p>
@@ -45,7 +45,7 @@
             <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-journal-bookmark"></i></span>
         </div>
     </article>
-    <article class="app-card">
+    <article class="app-card student-dashboard-metric student-dashboard-reveal" data-dashboard-reveal>
         <div class="app-card-body app-metric">
             <div>
                 <p class="app-metric-label" data-i18n="dashboard.studentPage.pendingExams">Bài thi cần làm</p>
@@ -55,7 +55,7 @@
             <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-clipboard-check"></i></span>
         </div>
     </article>
-    <article class="app-card">
+    <article class="app-card student-dashboard-metric student-dashboard-reveal" data-dashboard-reveal>
         <div class="app-card-body app-metric">
             <div>
                 <p class="app-metric-label" data-i18n="dashboard.studentPage.averageScore">Điểm trung bình</p>
@@ -65,7 +65,7 @@
             <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
         </div>
     </article>
-    <article class="app-card">
+    <article class="app-card student-dashboard-metric student-dashboard-reveal" data-dashboard-reveal>
         <div class="app-card-body app-metric">
             <div>
                 <p class="app-metric-label" data-i18n="dashboard.studentPage.certificates">Chứng chỉ</p>
@@ -77,7 +77,7 @@
     </article>
 </section>
 
-<div class="learning-section-header">
+<div class="learning-section-header student-dashboard-section-header student-dashboard-reveal" data-dashboard-reveal>
     <div>
         <h2 class="learning-section-title" data-i18n="dashboard.studentPage.continueCoursesTitle">Tiếp tục khóa học</h2>
         <p class="page-muted u-mb-0" data-i18n="dashboard.studentPage.continueCoursesCopy">Khóa học được giao và tiến độ học tập từ dữ liệu mô phỏng.</p>
@@ -85,8 +85,8 @@
     <a class="app-button app-button-secondary" asp-area="" asp-controller="Courses" asp-action="Index" data-i18n="dashboard.studentPage.allCourses">Tất cả khóa học</a>
 </div>
 
-<section class="learning-course-grid" aria-label="Thẻ khóa học" data-i18n-aria="dashboard.studentPage.courseCards" id="studentCourseCards">
-    <article class="app-card">
+<section class="learning-course-grid student-dashboard-course-grid" aria-label="Thẻ khóa học" data-i18n-aria="dashboard.studentPage.courseCards" id="studentCourseCards">
+    <article class="app-card student-dashboard-course-card student-dashboard-reveal" data-dashboard-reveal>
         <div class="app-card-body">
             <span class="app-skeleton app-skeleton-card u-mb-4"></span>
             <span class="app-skeleton u-mb-4"></span>
@@ -96,15 +96,15 @@
     </article>
 </section>
 
-<div class="learning-section-header">
+<div class="learning-section-header student-dashboard-section-header student-dashboard-reveal" data-dashboard-reveal>
     <div>
         <h2 class="learning-section-title" data-i18n="dashboard.studentPage.upcomingTitle">Bài thi sắp tới và kết quả</h2>
         <p class="page-muted u-mb-0" data-i18n="dashboard.studentPage.upcomingCopy">Nhiệm vụ thi luôn hiển thị bên cạnh tiến độ khóa học.</p>
     </div>
 </div>
 
-<section class="learning-panel-grid">
-    <article class="app-card">
+<section class="learning-panel-grid student-dashboard-panels">
+    <article class="app-card student-dashboard-panel-card student-dashboard-reveal" data-dashboard-reveal>
         <div class="app-card-header admin-card-header-row">
             <div>
                 <h3 class="app-card-title" data-i18n="dashboard.studentPage.pendingExams">Bài thi cần làm</h3>
@@ -120,14 +120,16 @@
         </div>
     </article>
 
-    <article class="app-card">
+    <article class="app-card student-dashboard-panel-card student-dashboard-reveal" data-dashboard-reveal>
         <div class="app-card-header">
             <h3 class="app-card-title" data-i18n="dashboard.studentPage.certificates">Chứng chỉ</h3>
             <p class="app-card-subtitle" data-i18n="dashboard.studentPage.noCertificatesCopy">Chứng chỉ sẽ được cấp sau khi vượt qua bài thi.</p>
         </div>
         <div class="app-card-body" id="studentCertificateSummary">
             <div class="app-empty-state">
-                <div class="app-empty-icon" aria-hidden="true">PDF</div>
+                <div class="image-slot image-slot-sm image-slot-certificate u-mb-4" data-image-label="Certificate mock">
+                    <img src="~/images/placeholders/certificate-placeholder.svg" alt="" aria-hidden="true" />
+                </div>
                 <h3 class="app-empty-title" data-i18n="dashboard.studentPage.loadingCertificates">Đang tải chứng chỉ</h3>
                 <p class="app-empty-copy" data-i18n="dashboard.studentPage.checkingCertificates">Đang kiểm tra dữ liệu chứng chỉ mô phỏng...</p>
             </div>

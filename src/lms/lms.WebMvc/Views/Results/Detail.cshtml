@@ -3,8 +3,8 @@
     var resultId = ViewData["ResultId"] ?? "";
 }
 
-<div class="result-detail-page" data-result-detail-id="@resultId">
-    <div class="page-header">
+<div class="result-detail-page linear-result-detail-page" data-result-detail-id="@resultId">
+    <div class="page-header linear-result-detail-header result-detail-reveal" data-result-detail-reveal>
         <div class="page-header-main">
             <nav class="page-breadcrumb" aria-label="Breadcrumb">
                 <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="results.detailPage.breadcrumbHome">Trang chủ</a>
@@ -21,8 +21,8 @@
         </div>
     </div>
 
-    <section class="result-score-hero app-animate-slide-up">
-        <div class="result-score-ring" data-result-score-ring>
+    <section class="result-score-hero linear-result-score-hero app-animate-slide-up result-detail-reveal" data-result-detail-reveal>
+        <div class="result-score-ring linear-result-score-ring" data-result-score-ring>
             <span data-result-detail-metric="scoreHero">--</span>
         </div>
         <div>
@@ -30,13 +30,13 @@
             <h2 class="app-card-title" data-result-score-hero-title data-i18n="results.detailPage.cardTitleSummary">ThÃ´ng tin lÆ°á»£t thi</h2>
             <p class="page-muted u-mb-0" data-result-score-hero-copy data-i18n="results.detailPage.cardSubtitleSummary">ThÃ´ng tin ná»™p bÃ i vÃ  chÃ­nh sÃ¡ch xem láº¡i.</p>
         </div>
-        <div class="image-slot image-slot-sm image-slot-result" data-image-label="Result visual 96x72">
+        <div class="image-slot image-slot-md image-slot-result linear-result-detail-visual" data-image-label="Result visual 320x180">
             <img src="~/images/placeholders/result-placeholder.svg" alt="" aria-hidden="true" />
         </div>
     </section>
 
-    <section class="page-grid page-grid-4 u-mb-4 app-animate-stagger" aria-label="Result summary">
-        <article class="app-card app-card-clickable">
+    <section class="page-grid page-grid-4 linear-result-detail-metrics u-mb-4 app-animate-stagger" aria-label="Result summary">
+        <article class="app-card app-card-clickable linear-result-detail-metric result-detail-reveal" data-result-detail-reveal>
             <div class="app-card-body app-metric">
                 <div>
                     <p class="app-metric-label" data-i18n="results.detailPage.metricScore">Điểm số</p>
@@ -45,7 +45,7 @@
                 <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-percent"></i></span>
             </div>
         </article>
-        <article class="app-card app-card-clickable">
+        <article class="app-card app-card-clickable linear-result-detail-metric result-detail-reveal" data-result-detail-reveal>
             <div class="app-card-body app-metric">
                 <div>
                     <p class="app-metric-label" data-i18n="results.detailPage.metricCorrect">Số câu đúng</p>
@@ -54,7 +54,7 @@
                 <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-check2-circle"></i></span>
             </div>
         </article>
-        <article class="app-card app-card-clickable">
+        <article class="app-card app-card-clickable linear-result-detail-metric result-detail-reveal" data-result-detail-reveal>
             <div class="app-card-body app-metric">
                 <div>
                     <p class="app-metric-label" data-i18n="results.detailPage.metricWrong">Số câu sai</p>
@@ -63,7 +63,7 @@
                 <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-x-circle"></i></span>
             </div>
         </article>
-        <article class="app-card app-card-clickable">
+        <article class="app-card app-card-clickable linear-result-detail-metric result-detail-reveal" data-result-detail-reveal>
             <div class="app-card-body app-metric">
                 <div>
                     <p class="app-metric-label" data-i18n="results.detailPage.metricDuration">Thời lượng</p>
@@ -74,8 +74,8 @@
         </article>
     </section>
 
-    <section class="result-detail-layout">
-        <aside class="app-card result-detail-side">
+    <section class="result-detail-layout linear-result-detail-layout">
+        <aside class="app-card result-detail-side linear-result-detail-side result-detail-reveal" data-result-detail-reveal>
             <div class="app-card-header">
                 <h2 class="app-card-title" data-i18n="results.detailPage.cardTitleSummary">Thông tin lượt thi</h2>
                 <p class="app-card-subtitle" data-i18n="results.detailPage.cardSubtitleSummary">Thông tin nộp bài và chính sách xem lại.</p>
@@ -106,7 +106,7 @@
             </div>
         </aside>
 
-        <main class="app-card result-detail-main">
+        <main class="app-card result-detail-main linear-result-detail-main result-detail-reveal" data-result-detail-reveal>
             <div class="app-card-header">
                 <div class="admin-card-header-row">
                     <div>

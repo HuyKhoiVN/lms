@@ -78,8 +78,8 @@
       $rows.append(
         '<tr>' +
           '<td colspan="6">' +
-            '<div class="app-empty-state">' +
-              '<div class="image-slot image-slot-md image-slot-result u-mb-4" data-image-label="Empty results illustration 320x180">' +
+            '<div class="app-empty-state result-list-empty result-list-reveal is-visible" data-result-list-reveal>' +
+              '<div class="image-slot image-slot-md image-slot-result u-mb-4" data-image-label="Empty results 640x360">' +
                 '<img src="/images/placeholders/result-placeholder.svg" alt="" aria-hidden="true" />' +
               '</div>' +
               '<h3 class="app-empty-title">' + t("results.listPage.noResultsTitle", null, "Không tìm thấy kết quả") + '</h3>' +
@@ -92,9 +92,18 @@
     }
 
     state.filteredResults.forEach(function (result) {
+      const labels = {
+        exam: escapeHtml(t("results.listPage.tableHeaderExam", null, "Exam")),
+        score: escapeHtml(t("results.listPage.tableHeaderScore", null, "Score")),
+        status: escapeHtml(t("results.listPage.tableHeaderStatus", null, "Status")),
+        duration: escapeHtml(t("results.listPage.tableHeaderDuration", null, "Duration")),
+        submitted: escapeHtml(t("results.listPage.tableHeaderSubmitted", null, "Submitted")),
+        actions: escapeHtml(t("results.listPage.tableHeaderActions", null, "Actions"))
+      };
+
       $rows.append(
-        '<tr class="student-result-row ' + (result.passed ? "is-passed" : "is-failed") + '">' +
-          '<td>' +
+        '<tr class="student-result-row linear-result-row result-list-reveal ' + (result.passed ? "is-passed" : "is-failed") + '" data-result-list-reveal>' +
+          '<td data-result-label="' + labels.exam + '">' +
             '<div class="admin-user-cell">' +
               '<span class="app-avatar student-result-avatar" aria-hidden="true"><i class="bi ' + getResultIcon(result.passed) + '"></i></span>' +
               '<div>' +
@@ -103,15 +112,54 @@
               '</div>' +
             '</div>' +
           '</td>' +
-          '<td><strong>' + escapeHtml(result.score) + '/100</strong></td>' +
+          '<td data-result-label="' + labels.score + '"><strong class="linear-result-score">' + escapeHtml(result.score) + '/100</strong></td>' +
           '<td><span class="app-badge ' + getBadgeClass(result.passed) + '">' + (result.passed ? t("results.listPage.passed", null, "Đạt") : t("results.listPage.failed", null, "Không đạt")) + '</span></td>' +
           '<td>' + t("results.listPage.durationValue", { minutes: result.durationMinutes }, result.durationMinutes + " phút") + '</td>' +
-          '<td>' + escapeHtml(formatDate(result.submittedAt)) + '</td>' +
-          '<td class="u-text-right">' +
+          '<td data-result-label="' + labels.submitted + '">' + escapeHtml(formatDate(result.submittedAt)) + '</td>' +
+          '<td class="u-text-right" data-result-label="' + labels.actions + '">' +
             '<button class="app-button app-button-secondary" type="button" data-result-action="detail" data-result-id="' + result.id + '">' + t("results.listPage.buttonDetail", null, "Chi tiết") + '</button>' +
           '</td>' +
         '</tr>'
       );
+    });
+    $rows.find("tr.linear-result-row").each(function () {
+      const $cells = $(this).children("td");
+      $cells.eq(2).attr("data-result-label", t("results.listPage.tableHeaderStatus", null, "Status"));
+      $cells.eq(3).attr("data-result-label", t("results.listPage.tableHeaderDuration", null, "Duration"));
+    });
+    initResultListReveal();
+  }
+
+  function initResultListReveal() {
+    const $items = $("[data-result-list-reveal]").not("[data-result-list-reveal-ready]");
+
+    if (!$items.length) {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      $items.addClass("is-visible").attr("data-result-list-reveal-ready", "true");
+      return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        $(entry.target).addClass("is-visible");
+        observer.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: "0px 0px -8% 0px"
+    });
+
+    $items.each(function (index) {
+      this.style.setProperty("--reveal-delay", Math.min(index * 45, 240) + "ms");
+      $(this).attr("data-result-list-reveal-ready", "true");
+      observer.observe(this);
     });
   }
 
@@ -164,6 +212,7 @@
 
   function init() {
     bindEvents();
+    initResultListReveal();
 
     if (Lms.i18n && Lms.i18n.ready) {
       Lms.i18n.ready.always(loadPageData);

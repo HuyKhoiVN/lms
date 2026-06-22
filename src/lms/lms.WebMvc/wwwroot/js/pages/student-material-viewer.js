@@ -39,10 +39,10 @@
 
   function getViewerImage(type) {
     const images = {
-      Text: "/images/reading-library.jpg",
-      Pdf: "/images/online-learning-banner.jpg",
-      File: "/images/study-collaboration.jpg",
-      Link: "/images/online-tutor-lesson.jpg"
+      Text: "/images/placeholders/material-placeholder.svg",
+      Pdf: "/images/placeholders/material-placeholder.svg",
+      File: "/images/placeholders/material-placeholder.svg",
+      Link: "/images/placeholders/material-placeholder.svg"
     };
 
     return images[type] || "/images/placeholders/material-placeholder.svg";
@@ -61,8 +61,8 @@
 
   function renderViewerImage(type) {
     return (
-      '<div class="image-slot image-slot-lg image-slot-material material-viewer-preview" data-image-label="' + getViewerImageLabel(type) + '">' +
-        '<img src="' + getViewerImage(type) + '" alt="" aria-hidden="true" />' +
+      '<div class="image-slot image-slot-lg image-slot-material material-viewer-preview linear-material-viewer-preview material-viewer-reveal is-visible" data-viewer-reveal data-image-label="' + escapeHtml(getViewerImageLabel(type)) + '">' +
+        '<img src="' + escapeHtml(getViewerImage(type)) + '" alt="" aria-hidden="true" />' +
       '</div>'
     );
   }
@@ -180,8 +180,8 @@
       $("[data-material-viewer-title]").text(t("materials.viewerPage.notFoundTitle", null, "Không tìm thấy tài liệu"));
       $("[data-material-viewer-course]").text(t("materials.viewerPage.notFoundDesc", null, "Tài liệu yêu cầu không tồn tại trong dữ liệu mô phỏng."));
       $("#materialViewerContent").html(
-        '<div class="app-empty-state">' +
-          '<div class="app-empty-icon" aria-hidden="true">!</div>' +
+        '<div class="app-empty-state material-viewer-empty material-viewer-reveal is-visible" data-viewer-reveal>' +
+          '<div class="image-slot image-slot-md image-slot-material u-mb-4" data-image-label="Material not found"><img src="/images/placeholders/empty-state-placeholder.svg" alt="" aria-hidden="true"></div>' +
           '<h3 class="app-empty-title">' + t("materials.viewerPage.notFoundTitle", null, "Không tìm thấy tài liệu") + '</h3>' +
           '<p class="app-empty-copy">' + t("materials.viewerPage.notFoundCopy", null, "Quay lại trang tài liệu và chọn một mục khác.") + '</p>' +
         '</div>'
@@ -209,6 +209,40 @@
       .toggleClass("is-complete", complete)
       .css("--progress", complete ? "100%" : "35%");
     $("#materialViewerContent").html(renderContent());
+    initViewerReveal();
+  }
+
+  function initViewerReveal() {
+    const $items = $("[data-viewer-reveal]").not("[data-viewer-reveal-ready]");
+
+    if (!$items.length) {
+      return;
+    }
+
+    if (!("IntersectionObserver" in window)) {
+      $items.addClass("is-visible").attr("data-viewer-reveal-ready", "true");
+      return;
+    }
+
+    const observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) {
+          return;
+        }
+
+        $(entry.target).addClass("is-visible");
+        observer.unobserve(entry.target);
+      });
+    }, {
+      threshold: 0.12,
+      rootMargin: "0px 0px -8% 0px"
+    });
+
+    $items.each(function (index) {
+      this.style.setProperty("--reveal-delay", Math.min(index * 55, 260) + "ms");
+      $(this).attr("data-viewer-reveal-ready", "true");
+      observer.observe(this);
+    });
   }
 
   function bindEvents() {
@@ -217,18 +251,31 @@
         return;
       }
 
+      const $button = $(this);
+      if (Lms.ui && Lms.ui.setButtonLoading) {
+        Lms.ui.setButtonLoading($button);
+      }
+
       const progress = getProgress();
       progress[state.materialId] = {
         completed: true,
         completedAt: new Date().toISOString()
       };
       saveProgress(progress);
-      render();
       showToast(
         "success",
         t("materials.viewerPage.toastProgressSavedTitle", null, "Đã lưu tiến trình"),
         t("materials.viewerPage.toastProgressSavedMessage", { title: state.material.title }, state.material.title + " đã được đánh dấu hoàn thành.")
       );
+
+      if (Lms.ui && Lms.ui.clearButtonLoading) {
+        window.setTimeout(function () {
+          Lms.ui.clearButtonLoading($button);
+          render();
+        }, 220);
+      } else {
+        render();
+      }
     });
 
     $(document).on("click", "[data-material-viewer-action='save-note']", function () {
@@ -261,6 +308,7 @@
   function init() {
     state.materialId = Number($("[data-student-material-id]").data("student-material-id"));
     bindEvents();
+    initViewerReveal();
 
     if (Lms.i18n && Lms.i18n.ready) {
       Lms.i18n.ready.always(loadPageData);
@@ -288,12 +336,13 @@
       render();
     }).fail(function () {
       $("#materialViewerContent").html(
-        '<div class="app-empty-state">' +
-          '<div class="app-empty-icon" aria-hidden="true">!</div>' +
+        '<div class="app-empty-state material-viewer-empty material-viewer-reveal is-visible" data-viewer-reveal>' +
+          '<div class="image-slot image-slot-md image-slot-material u-mb-4" data-image-label="Material error"><img src="/images/placeholders/material-placeholder.svg" alt="" aria-hidden="true"></div>' +
           '<h3 class="app-empty-title">' + t("materials.viewerPage.loadErrorTitle", null, "Không thể tải tài liệu") + '</h3>' +
           '<p class="app-empty-copy">' + t("materials.viewerPage.loadErrorCopy", null, "Vui lòng kiểm tra các tệp tin dữ liệu mô phỏng.") + '</p>' +
         '</div>'
       );
+      initViewerReveal();
     });
   }
 

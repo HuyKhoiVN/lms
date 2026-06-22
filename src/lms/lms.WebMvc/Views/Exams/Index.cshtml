@@ -2,7 +2,7 @@
     ViewData["Title"] = "Bài thi";
 }
 
-<div class="page-header">
+<div class="page-header linear-exam-list-header exam-list-reveal" data-exam-list-reveal>
     <div class="page-header-main">
         <nav class="page-breadcrumb" aria-label="Breadcrumb">
             <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="exams.studentListPage.breadcrumbHome">Trang chủ</a>
@@ -14,13 +14,13 @@
     </div>
 </div>
 
-<section class="student-exam-banner app-animate-slide-up">
-    <div class="image-slot image-slot-banner image-slot-exam" data-image-label="Exam banner 1200x240">
-        <img src="~/images/online-exam.jpg" alt="" aria-hidden="true" />
+<section class="student-exam-banner linear-exam-banner app-animate-slide-up exam-list-reveal" data-exam-list-reveal>
+    <div class="image-slot image-slot-banner image-slot-exam" data-image-label="Exam hub banner 1600x420">
+        <img src="~/images/placeholders/exam-placeholder.svg" alt="" aria-hidden="true" />
     </div>
 </section>
 
-<section class="app-card">
+<section class="app-card linear-exam-list-card exam-list-reveal" data-exam-list-reveal>
     <div class="app-card-header">
         <div class="admin-card-header-row">
             <div>
@@ -31,8 +31,8 @@
         </div>
     </div>
     <div class="app-card-body">
-        <div class="student-exam-card-grid" id="studentExamGrid">
-            <article class="app-card app-skeleton-card">
+        <div class="student-exam-card-grid linear-exam-grid" id="studentExamGrid">
+            <article class="app-card app-skeleton-card linear-exam-card exam-list-reveal" data-exam-list-reveal>
                 <div class="app-card-body">
                     <span class="app-skeleton app-skeleton-image u-mb-4"></span>
                     <span class="app-skeleton u-mb-4"></span>
