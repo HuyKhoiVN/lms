@@ -36,8 +36,12 @@
 
   function showToast(type, title, message) {
     if (Lms.ui && Lms.ui.showToast) {
-      Lms.ui.showToast({ type, title, message });
+      Lms.ui.showToast({ type: type, title: title, message: message });
     }
+  }
+
+  function renderPageTitle() {
+    document.title = t("certificates.listPage.title", null, "Chứng chỉ") + " - " + t("common.appName", null, "lms");
   }
 
   function renderMetrics() {
@@ -53,19 +57,46 @@
     $("[data-certificate-metric='available']").text(available);
   }
 
+  function renderSpotlight() {
+    const $container = $("#studentCertificateSpotlight").empty();
+    const latest = state.certificates.slice().sort(function (a, b) {
+      return new Date(b.issueDate) - new Date(a.issueDate);
+    })[0];
+
+    if (!latest) {
+      $container.html(
+        '<div class="lms-empty-compact">' +
+          '<i class="bi bi-award" aria-hidden="true"></i>' +
+          "<h3>Chưa có chứng chỉ</h3>" +
+          "<p>Chứng chỉ sẽ xuất hiện tại đây sau khi bạn đạt điều kiện của bài thi.</p>" +
+        "</div>"
+      );
+      return;
+    }
+
+    $container.html(
+      '<div class="student-certificate-spotlight-card">' +
+        '<div class="student-certificate-spotlight-frame image-slot image-slot-lg image-slot-certificate" data-image-label="Latest certificate 1120x792">' +
+          '<img src="/images/placeholders/certificate-placeholder.svg" alt="" aria-hidden="true" />' +
+        "</div>" +
+        "<h3>" + escapeHtml(latest.examName) + "</h3>" +
+        "<p>" + escapeHtml(latest.studentName) + "</p>" +
+        '<div class="student-certificate-spotlight-meta">' +
+          "<span>" + escapeHtml(latest.certificateCode) + "</span>" +
+          "<strong>" + escapeHtml(formatDate(latest.issueDate)) + "</strong>" +
+        "</div>" +
+        '<button class="app-button app-button-primary" type="button" data-certificate-action="preview" data-certificate-id="' + latest.id + '">' + escapeHtml(t("certificates.listPage.buttonPreview", null, "Xem trước")) + "</button>" +
+      "</div>"
+    );
+  }
+
   function renderEmpty() {
     $("#certificateGrid").html(
-      '<div class="app-card certificate-empty-card linear-certificate-empty certificate-reveal is-visible" data-certificate-reveal>' +
-        '<div class="app-card-body">' +
-          '<div class="app-empty-state">' +
-            '<div class="image-slot image-slot-md image-slot-certificate u-mb-4" data-image-label="Empty certificates 640x360">' +
-              '<img src="/images/placeholders/certificate-placeholder.svg" alt="" aria-hidden="true" />' +
-            '</div>' +
-            '<h3 class="app-empty-title">' + t("certificates.listPage.noCertificatesTitle", null, "Không tìm thấy chứng chỉ") + '</h3>' +
-            '<p class="app-empty-copy">' + t("certificates.listPage.noCertificatesCopy", null, "Hãy thử tìm bằng mã chứng chỉ hoặc tên bài thi khác.") + '</p>' +
-          '</div>' +
-        '</div>' +
-      '</div>'
+      '<div class="lms-empty-compact student-certificate-reveal is-visible" data-certificate-reveal>' +
+        '<i class="bi bi-search" aria-hidden="true"></i>' +
+        "<h3>" + escapeHtml(t("certificates.listPage.noCertificatesTitle", null, "Không tìm thấy chứng chỉ")) + "</h3>" +
+        "<p>" + escapeHtml(t("certificates.listPage.noCertificatesCopy", null, "Hãy thử tìm bằng mã chứng chỉ hoặc tên bài thi khác.")) + "</p>" +
+      "</div>"
     );
   }
 
@@ -80,43 +111,34 @@
 
     state.filteredCertificates.forEach(function (certificate) {
       $grid.append(
-        '<article class="app-card certificate-card linear-certificate-card app-card-clickable app-animate-slide-up certificate-reveal" data-certificate-reveal>' +
-          '<div class="app-card-body">' +
-            '<div class="certificate-frame linear-certificate-frame image-slot image-slot-lg image-slot-certificate" data-image-label="Certificate preview 1120x792">' +
-              '<img src="/images/placeholders/certificate-placeholder.svg" alt="" aria-hidden="true" />' +
-            '</div>' +
-            '<div class="certificate-card-top">' +
-              '<span class="certificate-seal" aria-hidden="true"><i class="bi bi-award"></i></span>' +
-              '<span class="app-badge app-badge-success">' + t("certificates.listPage.statusIssued", null, "Đã cấp") + '</span>' +
-            '</div>' +
-            '<h2 class="certificate-title">' + escapeHtml(certificate.examName) + '</h2>' +
-            '<dl class="certificate-meta">' +
-              '<div>' +
-                '<dt>' + t("certificates.listPage.metaCode", null, "Mã chứng chỉ") + '</dt>' +
-                '<dd>' + escapeHtml(certificate.certificateCode) + '</dd>' +
-              '</div>' +
-              '<div>' +
-                '<dt>' + t("certificates.listPage.metaStudent", null, "Cấp cho") + '</dt>' +
-                '<dd>' + escapeHtml(certificate.studentName) + '</dd>' +
-              '</div>' +
-              '<div>' +
-                '<dt>' + t("certificates.listPage.metaDate", null, "Ngày cấp") + '</dt>' +
-                '<dd>' + escapeHtml(formatDate(certificate.issueDate)) + '</dd>' +
-              '</div>' +
-            '</dl>' +
-          '</div>' +
-          '<div class="app-card-footer certificate-actions">' +
-            '<button class="app-button app-button-secondary" type="button" data-certificate-action="preview" data-certificate-id="' + certificate.id + '">' + t("certificates.listPage.buttonPreview", null, "Xem trước") + '</button>' +
-            '<button class="app-button app-button-primary" type="button" data-certificate-action="download" data-certificate-id="' + certificate.id + '">' + t("certificates.listPage.buttonDownload", null, "Tải xuống") + '</button>' +
-          '</div>' +
-        '</article>'
+        '<article class="student-certificate-card student-certificate-reveal" data-certificate-reveal>' +
+          '<div class="student-certificate-frame image-slot image-slot-lg image-slot-certificate" data-image-label="Certificate preview 1120x792">' +
+            '<img src="/images/placeholders/certificate-placeholder.svg" alt="" aria-hidden="true" />' +
+          "</div>" +
+          '<div class="student-certificate-card-top">' +
+            '<span class="student-certificate-seal" aria-hidden="true"><i class="bi bi-award"></i></span>' +
+            '<span class="lms-status-success">' + escapeHtml(t("certificates.listPage.statusIssued", null, "Đã cấp")) + "</span>" +
+          "</div>" +
+          '<h3 class="student-certificate-title">' + escapeHtml(certificate.examName) + "</h3>" +
+          '<dl class="student-certificate-meta">' +
+            "<div><dt>" + escapeHtml(t("certificates.listPage.metaCode", null, "Mã chứng chỉ")) + "</dt><dd>" + escapeHtml(certificate.certificateCode) + "</dd></div>" +
+            "<div><dt>" + escapeHtml(t("certificates.listPage.metaStudent", null, "Cấp cho")) + "</dt><dd>" + escapeHtml(certificate.studentName) + "</dd></div>" +
+            "<div><dt>" + escapeHtml(t("certificates.listPage.metaDate", null, "Ngày cấp")) + "</dt><dd>" + escapeHtml(formatDate(certificate.issueDate)) + "</dd></div>" +
+          "</dl>" +
+          '<div class="student-certificate-actions">' +
+            '<button class="app-button app-button-secondary" type="button" data-certificate-action="preview" data-certificate-id="' + certificate.id + '">' + escapeHtml(t("certificates.listPage.buttonPreview", null, "Xem trước")) + "</button>" +
+            '<button class="app-button app-button-primary" type="button" data-certificate-action="download" data-certificate-id="' + certificate.id + '">' + escapeHtml(t("certificates.listPage.buttonDownload", null, "Tải xuống")) + "</button>" +
+          "</div>" +
+        "</article>"
       );
     });
     initCertificateReveal();
   }
 
   function render() {
+    renderPageTitle();
     renderMetrics();
+    renderSpotlight();
     renderCards();
     initCertificateReveal();
   }
@@ -125,12 +147,12 @@
     const keyword = state.search.trim().toLowerCase();
 
     state.filteredCertificates = state.certificates.filter(function (certificate) {
-      return !keyword ||
-        certificate.examName.toLowerCase().includes(keyword) ||
-        certificate.certificateCode.toLowerCase().includes(keyword);
+      return !keyword
+        || String(certificate.examName).toLowerCase().includes(keyword)
+        || String(certificate.certificateCode).toLowerCase().includes(keyword);
     });
 
-    render();
+    renderCards();
   }
 
   function findCertificate(id) {
@@ -147,29 +169,29 @@
     const modal = $(
       '<div class="linear-certificate-modal">' +
         '<div class="app-modal-header">' +
-          '<h2 class="app-modal-title" data-i18n="certificates.listPage.modalPreviewTitle">' + t("certificates.listPage.modalPreviewTitle", null, "Xem trước chứng chỉ") + '</h2>' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="certificates.listPage.buttonClose">' + t("certificates.listPage.buttonClose", null, "Đóng") + '</button>' +
-        '</div>' +
+          '<h2 class="app-modal-title" data-i18n="certificates.listPage.modalPreviewTitle">' + t("certificates.listPage.modalPreviewTitle", null, "Xem trước chứng chỉ") + "</h2>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="certificates.listPage.buttonClose">' + t("certificates.listPage.buttonClose", null, "Đóng") + "</button>" +
+        "</div>" +
         '<div class="app-modal-body">' +
           '<div class="certificate-preview linear-certificate-preview">' +
             '<div class="certificate-preview-bg image-slot image-slot-lg image-slot-certificate" data-image-label="Certificate modal preview 1120x792">' +
               '<img src="/images/placeholders/certificate-placeholder.svg" alt="" aria-hidden="true" />' +
-            '</div>' +
+            "</div>" +
             '<span class="certificate-preview-seal" aria-hidden="true">LMS</span>' +
-            '<p class="certificate-preview-kicker" data-i18n="certificates.listPage.modalAwardTitle">' + t("certificates.listPage.modalAwardTitle", null, "Chứng nhận hoàn thành") + '</p>' +
-            '<h3></h3>' +
+            '<p class="certificate-preview-kicker" data-i18n="certificates.listPage.modalAwardTitle">' + t("certificates.listPage.modalAwardTitle", null, "Chứng nhận hoàn thành") + "</p>" +
+            "<h3></h3>" +
             '<p class="certificate-preview-copy"></p>' +
             '<div class="certificate-preview-meta">' +
-              '<span></span>' +
-              '<span></span>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
+              "<span></span>" +
+              "<span></span>" +
+            "</div>" +
+          "</div>" +
+        "</div>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="certificates.listPage.buttonClose">' + t("certificates.listPage.buttonClose", null, "Đóng") + '</button>' +
-          '<button class="app-button app-button-primary" type="button" data-certificate-preview-download data-i18n="certificates.listPage.buttonDownload">' + t("certificates.listPage.buttonDownload", null, "Tải xuống") + '</button>' +
-        '</div>' +
-      '</div>'
+          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="certificates.listPage.buttonClose">' + t("certificates.listPage.buttonClose", null, "Đóng") + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-certificate-preview-download data-i18n="certificates.listPage.buttonDownload">' + t("certificates.listPage.buttonDownload", null, "Tải xuống") + "</button>" +
+        "</div>" +
+      "</div>"
     );
 
     modal.find("h3").text(certificate.examName);

@@ -2,84 +2,92 @@
     ViewData["Title"] = "Chứng chỉ";
 }
 
-<div class="page-header linear-certificate-header certificate-reveal" data-certificate-reveal>
-    <div class="page-header-main">
-        <nav class="page-breadcrumb" aria-label="Breadcrumb">
-            <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="certificates.listPage.breadcrumbHome">Trang chủ</a>
-            <span>/</span>
-            <span data-i18n="certificates.listPage.breadcrumbCertificates">Chứng chỉ</span>
-        </nav>
-        <h1 class="page-title" data-i18n="certificates.listPage.title">Chứng chỉ</h1>
-        <p class="page-muted u-mb-0" data-i18n="certificates.listPage.subtitle">Xem các chứng chỉ đã đạt được và thực hiện xem trước/tải xuống.</p>
-    </div>
-</div>
+<section class="lms-workspace-page student-certificate-page" aria-label="Chứng chỉ">
+    <header class="lms-workspace-header student-certificate-reveal" data-certificate-reveal>
+        <div class="lms-workspace-header-main">
+            <nav class="page-breadcrumb" aria-label="Breadcrumb">
+                <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="certificates.listPage.breadcrumbHome">Trang chủ</a>
+                <span>/</span>
+                <span data-i18n="certificates.listPage.breadcrumbCertificates">Chứng chỉ</span>
+            </nav>
+            <p class="lms-workspace-kicker">Issued Certificates</p>
+            <h1 data-i18n="certificates.listPage.title">Chứng chỉ</h1>
+            <p class="lms-workspace-description" data-i18n="certificates.listPage.subtitle">
+                Xem các chứng chỉ đã đạt được, preview nhanh và sẵn sàng cho tác vụ tải xuống.
+            </p>
+        </div>
 
-<section class="student-certificate-banner linear-certificate-banner app-animate-slide-up certificate-reveal" data-certificate-reveal>
-    <div class="image-slot image-slot-banner image-slot-certificate" data-image-label="Certificate gallery banner 1600x420">
-        <img src="~/images/placeholders/certificate-placeholder.svg" alt="" aria-hidden="true" />
-    </div>
-</section>
+        <div class="student-dashboard-actions">
+            <a class="app-button app-button-secondary" asp-area="" asp-controller="Results" asp-action="Index">Xem kết quả</a>
+            <a class="app-button app-button-primary" asp-area="" asp-controller="Exams" asp-action="Index">Xem bài thi</a>
+        </div>
+    </header>
 
-<section class="page-grid page-grid-3 linear-certificate-metrics u-mb-4 app-animate-stagger" aria-label="Certificate summary">
-    <article class="app-card app-card-clickable linear-certificate-metric certificate-reveal" data-certificate-reveal>
-        <div class="app-card-body app-metric">
-            <div>
-                <p class="app-metric-label" data-i18n="certificates.listPage.metricTotal">Tổng chứng chỉ</p>
-                <p class="app-metric-value" data-certificate-metric="total">--</p>
+    <section class="student-certificate-metrics student-certificate-reveal" data-certificate-reveal>
+        <article class="lms-workspace-card student-certificate-metric-card">
+            <span data-i18n="certificates.listPage.metricTotal">Tổng chứng chỉ</span>
+            <strong data-certificate-metric="total">--</strong>
+        </article>
+        <article class="lms-workspace-card student-certificate-metric-card">
+            <span data-i18n="certificates.listPage.metricLatest">Cấp gần nhất</span>
+            <strong data-certificate-metric="latest">--</strong>
+        </article>
+        <article class="lms-workspace-card student-certificate-metric-card">
+            <span data-i18n="certificates.listPage.metricAvailable">Có thể tải</span>
+            <strong data-certificate-metric="available">--</strong>
+        </article>
+    </section>
+
+    <section class="student-certificate-layout">
+        <main class="lms-workspace-card student-certificate-main student-certificate-reveal" data-certificate-reveal>
+            <div class="lms-workspace-section-head">
+                <div>
+                    <p class="lms-workspace-kicker">Gallery</p>
+                    <h2 data-i18n="certificates.listPage.cardTitleHistory">Danh sách chứng chỉ</h2>
+                    <p class="lms-workspace-description" data-i18n="certificates.listPage.cardSubtitleHistory">
+                        Chứng chỉ được tải từ dữ liệu mô phỏng trong giai đoạn UI này.
+                    </p>
+                </div>
+                <span class="lms-workspace-count" data-certificate-count data-i18n="certificates.listPage.records">-- bản ghi</span>
             </div>
-            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-award"></i></span>
-        </div>
-    </article>
-    <article class="app-card app-card-clickable linear-certificate-metric certificate-reveal" data-certificate-reveal>
-        <div class="app-card-body app-metric">
-            <div>
-                <p class="app-metric-label" data-i18n="certificates.listPage.metricLatest">Cấp gần nhất</p>
-                <p class="app-metric-value" data-certificate-metric="latest">--</p>
-            </div>
-            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-calendar-check"></i></span>
-        </div>
-    </article>
-    <article class="app-card app-card-clickable linear-certificate-metric certificate-reveal" data-certificate-reveal>
-        <div class="app-card-body app-metric">
-            <div>
-                <p class="app-metric-label" data-i18n="certificates.listPage.metricAvailable">Có thể tải</p>
-                <p class="app-metric-value" data-certificate-metric="available">--</p>
-            </div>
-            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-download"></i></span>
-        </div>
-    </article>
-</section>
 
-<section class="app-card linear-certificate-gallery-card certificate-reveal" data-certificate-reveal>
-    <div class="app-card-header">
-        <div class="admin-card-header-row">
-            <div>
-                <h2 class="app-card-title" data-i18n="certificates.listPage.cardTitleHistory">Danh sách chứng chỉ</h2>
-                <p class="app-card-subtitle" data-i18n="certificates.listPage.cardSubtitleHistory">Chứng chỉ được tải từ dữ liệu mô phỏng trong giai đoạn UI này.</p>
+            <div class="lms-task-filter-bar" role="search" aria-label="Bộ lọc chứng chỉ">
+                <label class="visually-hidden" for="certificateSearch" data-i18n="certificates.listPage.searchLabel">Tìm kiếm chứng chỉ</label>
+                <input class="app-input" id="certificateSearch" type="search" placeholder="Tìm tên bài thi hoặc mã chứng chỉ..." data-certificate-filter="search" data-i18n-placeholder="certificates.listPage.searchPlaceholder" />
+
+                <div></div>
+                <div></div>
+
+                <button class="app-button app-button-secondary" type="button" data-certificate-action="clear-filters" data-i18n="certificates.listPage.clearFilters">Xóa bộ lọc</button>
             </div>
-            <span class="app-badge app-badge-info" data-certificate-count data-i18n="certificates.listPage.records">-- bản ghi</span>
-        </div>
-    </div>
 
-    <div class="app-card-body">
-        <div class="app-filter-bar admin-user-filter linear-certificate-filter">
-            <label class="visually-hidden" for="certificateSearch" data-i18n="certificates.listPage.searchLabel">Tìm kiếm chứng chỉ</label>
-            <input class="app-input" id="certificateSearch" type="search" placeholder="Tìm tên bài thi hoặc mã chứng chỉ..." data-certificate-filter="search" data-i18n-placeholder="certificates.listPage.searchPlaceholder" />
-            <button class="app-button app-button-secondary" type="button" data-certificate-action="clear-filters" data-i18n="certificates.listPage.clearFilters">Xóa bộ lọc</button>
-        </div>
+            <div class="student-certificate-grid" id="certificateGrid">
+                <article class="student-certificate-card">
+                    <span class="app-skeleton" style="height: 220px; border-radius: 8px;"></span>
+                    <span class="app-skeleton u-mt-4" style="height: 24px;"></span>
+                    <span class="app-skeleton u-mt-4"></span>
+                </article>
+            </div>
+        </main>
 
-        <div class="certificate-grid linear-certificate-grid u-mt-4" id="certificateGrid">
-            <div class="app-card app-skeleton-card">
-                <div class="app-card-body">
-                    <span class="app-skeleton app-skeleton-image u-mb-4"></span>
-                    <div class="app-loading">
-                        <span class="app-spinner" aria-hidden="true"></span>
-                        <span data-i18n="certificates.listPage.loadingCertificates">Đang tải chứng chỉ...</span>
+        <aside class="student-certificate-side">
+            <article class="lms-workspace-card student-certificate-side-card student-certificate-reveal" data-certificate-reveal>
+                <div class="lms-workspace-section-head">
+                    <div>
+                        <p class="lms-workspace-kicker">Latest</p>
+                        <h2>Chứng chỉ mới nhất</h2>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
+
+                <div class="student-certificate-spotlight" id="studentCertificateSpotlight">
+                    <div class="app-loading">
+                        <span class="app-spinner" aria-hidden="true"></span>
+                        <span>Đang tải chứng chỉ mới nhất...</span>
+                    </div>
+                </div>
+            </article>
+        </aside>
+    </section>
 </section>
 
 @section Scripts {

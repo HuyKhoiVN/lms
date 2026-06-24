@@ -14,12 +14,12 @@
     </div>
     <div class="page-header-actions">
         <a class="app-button app-button-secondary" asp-area="" asp-controller="Home" asp-action="Index" data-i18n="dashboard.adminPage.userSite">Trang học viên</a>
-        <button class="app-button app-button-primary" type="button" data-i18n="dashboard.adminPage.createExam">Tạo bài thi</button>
+        <a class="app-button app-button-primary" asp-area="Admin" asp-controller="Exams" asp-action="Builder" data-i18n="dashboard.adminPage.createExam">Tạo bài thi</a>
     </div>
 </div>
 
 <section class="admin-screen-banner app-animate-slide-up">
-    <div class="image-slot image-slot-banner image-slot-admin" data-image-label="Admin dashboard banner 1200x220">
+    <div class="image-slot image-slot-banner image-slot-admin" data-image-label="Bảng điều khiển quản trị">
         <img src="~/images/online-tutor-lesson.jpg" alt="" aria-hidden="true" />
     </div>
 </section>
@@ -99,13 +99,13 @@
     <article class="app-card">
         <div class="app-card-header admin-card-header-row">
             <div>
-                <h2 class="app-card-title" data-i18n="dashboard.adminPage.scoreDistribution">Phân bổ điểm</h2>
+                <h2 class="app-card-title" data-i18n="dashboard.adminPage.scoreDistribution">Phân bố điểm</h2>
                 <p class="app-card-subtitle" data-i18n="dashboard.adminPage.scoreDistributionSubtitle">Điểm học viên được nhóm theo khoảng.</p>
             </div>
             <span class="app-badge app-badge-muted" data-admin-summary="averageScore">...</span>
         </div>
         <div class="app-card-body">
-            <div class="admin-distribution" id="scoreDistributionChart" aria-label="Biểu đồ phân bổ điểm" data-i18n-aria="dashboard.adminPage.scoreDistributionChart"></div>
+            <div class="admin-distribution" id="scoreDistributionChart" aria-label="Biểu đồ phân bố điểm" data-i18n-aria="dashboard.adminPage.scoreDistributionChart"></div>
         </div>
     </article>
 </section>

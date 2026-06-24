@@ -90,15 +90,15 @@
 
     if (!rows.length) {
       $rows.append(
-        '<tr>' +
+        "<tr>" +
           '<td colspan="5">' +
             '<div class="app-empty-state">' +
               '<div class="app-empty-icon" aria-hidden="true">U</div>' +
-              '<h3 class="app-empty-title">' + escapeHtml(t("users.listPage.noUsersTitle", null, "Không tìm thấy người dùng")) + '</h3>' +
-              '<p class="app-empty-copy">' + escapeHtml(t("users.listPage.noUsersCopy", null, "Thử từ khóa, vai trò hoặc trạng thái khác.")) + '</p>' +
-            '</div>' +
-          '</td>' +
-        '</tr>'
+              '<h3 class="app-empty-title">' + escapeHtml(t("users.listPage.noUsersTitle", null, "Không tìm thấy người dùng")) + "</h3>" +
+              '<p class="app-empty-copy">' + escapeHtml(t("users.listPage.noUsersCopy", null, "Thử từ khóa, vai trò hoặc trạng thái khác.")) + "</p>" +
+            "</div>" +
+          "</td>" +
+        "</tr>"
       );
       return;
     }
@@ -110,27 +110,27 @@
         : t("users.listPage.lock", null, "Khóa");
 
       $rows.append(
-        '<tr>' +
-          '<td>' +
+        "<tr>" +
+          "<td>" +
             '<div class="admin-user-cell">' +
-              '<span class="app-avatar" aria-hidden="true">' + escapeHtml(user.fullName.charAt(0).toUpperCase()) + '</span>' +
-              '<div>' +
-                '<strong>' + escapeHtml(user.fullName) + '</strong>' +
-                '<span>' + escapeHtml(user.userName) + ' / ' + escapeHtml(user.email) + '</span>' +
-              '</div>' +
-            '</div>' +
-          '</td>' +
-          '<td><span class="app-badge app-badge-info">' + escapeHtml(translateRole(user.role)) + '</span></td>' +
-          '<td><span class="app-badge ' + getBadgeClass(user.status) + '">' + escapeHtml(translateStatus(user.status)) + '</span></td>' +
-          '<td>' + escapeHtml(formatDate(user.lastLoginAt)) + '</td>' +
+              '<span class="app-avatar" aria-hidden="true">' + escapeHtml(user.fullName.charAt(0).toUpperCase()) + "</span>" +
+              "<div>" +
+                "<strong>" + escapeHtml(user.fullName) + "</strong>" +
+                "<span>" + escapeHtml(user.userName) + " / " + escapeHtml(user.email) + "</span>" +
+              "</div>" +
+            "</div>" +
+          "</td>" +
+          '<td><span class="app-badge app-badge-info">' + escapeHtml(translateRole(user.role)) + "</span></td>" +
+          '<td><span class="app-badge ' + getBadgeClass(user.status) + '">' + escapeHtml(translateStatus(user.status)) + "</span></td>" +
+          "<td>" + escapeHtml(formatDate(user.lastLoginAt)) + "</td>" +
           '<td class="u-text-right">' +
             '<div class="admin-row-actions">' +
-              '<button class="app-button app-button-secondary" type="button" data-user-action="edit" data-user-id="' + user.id + '">' + escapeHtml(t("users.listPage.edit", null, "Sửa")) + '</button>' +
-              '<button class="app-button app-button-secondary" type="button" data-user-action="' + lockAction + '" data-user-id="' + user.id + '">' + escapeHtml(lockText) + '</button>' +
-              '<button class="app-button app-button-secondary" type="button" data-user-action="reset-password" data-user-id="' + user.id + '">' + escapeHtml(t("users.listPage.reset", null, "Đặt lại")) + '</button>' +
-            '</div>' +
-          '</td>' +
-        '</tr>'
+              '<button class="app-button app-button-secondary" type="button" data-user-action="edit" data-user-id="' + user.id + '">' + escapeHtml(t("users.listPage.edit", null, "Sửa")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-user-action="' + lockAction + '" data-user-id="' + user.id + '">' + escapeHtml(lockText) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-user-action="reset-password" data-user-id="' + user.id + '">' + escapeHtml(t("users.listPage.reset", null, "Đặt lại")) + "</button>" +
+            "</div>" +
+          "</td>" +
+        "</tr>"
       );
     });
   }
@@ -289,51 +289,51 @@
   function buildUserForm(user) {
     const isEdit = Boolean(user);
     const modal = $(
-      '<div>' +
+      "<div>" +
         '<div class="app-modal-header">' +
-          '<div>' +
-            '<h2 class="app-modal-title">' + escapeHtml(isEdit ? t("users.listPage.editUser", null, "Sửa người dùng") : t("users.listPage.createUserModal", null, "Tạo người dùng")) + '</h2>' +
-            '<p class="app-card-subtitle">' + escapeHtml(isEdit ? t("users.listPage.editSubtitle", null, "Cập nhật thông tin tài khoản mô phỏng.") : t("users.listPage.createSubtitle", null, "Thêm người dùng mô phỏng mới trong bộ nhớ.")) + '</p>' +
-          '</div>' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("users.listPage.close", null, "Đóng")) + '</button>' +
-        '</div>' +
+          "<div>" +
+            '<h2 class="app-modal-title">' + escapeHtml(isEdit ? t("users.listPage.editUser", null, "Sửa người dùng") : t("users.listPage.createUserModal", null, "Tạo người dùng")) + "</h2>" +
+            '<p class="app-card-subtitle">' + escapeHtml(isEdit ? t("users.listPage.editSubtitle", null, "Cập nhật thông tin tài khoản mô phỏng.") : t("users.listPage.createSubtitle", null, "Thêm người dùng mô phỏng mới trong bộ nhớ.")) + "</p>" +
+          "</div>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("users.listPage.close", null, "Đóng")) + "</button>" +
+        "</div>" +
         '<form class="app-modal-body admin-user-form" novalidate>' +
           '<label class="auth-field">' + escapeHtml(t("users.listPage.fullName", null, "Họ và tên")) +
             '<input class="app-input" name="fullName" type="text" autocomplete="name" />' +
             '<span class="auth-error" data-user-error="fullName"></span>' +
-          '</label>' +
+          "</label>" +
           '<label class="auth-field">' + escapeHtml(t("users.listPage.username", null, "Tên đăng nhập")) +
             '<input class="app-input" name="userName" type="text" autocomplete="username" />' +
             '<span class="auth-error" data-user-error="userName"></span>' +
-          '</label>' +
+          "</label>" +
           '<label class="auth-field">' + escapeHtml(t("users.listPage.email", null, "Email")) +
             '<input class="app-input" name="email" type="email" autocomplete="email" />' +
             '<span class="auth-error" data-user-error="email"></span>' +
-          '</label>' +
+          "</label>" +
           '<div class="admin-user-form-grid">' +
             '<label class="auth-field">' + escapeHtml(t("users.listPage.role", null, "Vai trò")) +
               '<select class="app-select" name="role">' +
-                '<option value="">' + escapeHtml(t("users.listPage.selectRole", null, "Chọn vai trò")) + '</option>' +
-                '<option value="Admin">' + escapeHtml(t("users.listPage.admin", null, "Quản trị")) + '</option>' +
-                '<option value="Student">' + escapeHtml(t("users.listPage.student", null, "Học viên")) + '</option>' +
-              '</select>' +
+                '<option value="">' + escapeHtml(t("users.listPage.selectRole", null, "Chọn vai trò")) + "</option>" +
+                '<option value="Admin">' + escapeHtml(t("users.listPage.admin", null, "Quản trị")) + "</option>" +
+                '<option value="Student">' + escapeHtml(t("users.listPage.student", null, "Học viên")) + "</option>" +
+              "</select>" +
               '<span class="auth-error" data-user-error="role"></span>' +
-            '</label>' +
+            "</label>" +
             '<label class="auth-field">' + escapeHtml(t("users.listPage.status", null, "Trạng thái")) +
               '<select class="app-select" name="status">' +
-                '<option value="">' + escapeHtml(t("users.listPage.selectStatus", null, "Chọn trạng thái")) + '</option>' +
-                '<option value="Active">' + escapeHtml(t("users.listPage.active", null, "Hoạt động")) + '</option>' +
-                '<option value="Locked">' + escapeHtml(t("users.listPage.locked", null, "Đã khóa")) + '</option>' +
-              '</select>' +
+                '<option value="">' + escapeHtml(t("users.listPage.selectStatus", null, "Chọn trạng thái")) + "</option>" +
+                '<option value="Active">' + escapeHtml(t("users.listPage.active", null, "Hoạt động")) + "</option>" +
+                '<option value="Locked">' + escapeHtml(t("users.listPage.locked", null, "Đã khóa")) + "</option>" +
+              "</select>" +
               '<span class="auth-error" data-user-error="status"></span>' +
-            '</label>' +
-          '</div>' +
-        '</form>' +
+            "</label>" +
+          "</div>" +
+        "</form>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("users.listPage.cancel", null, "Hủy")) + '</button>' +
-          '<button class="app-button app-button-primary" type="button" data-user-save>' + escapeHtml(isEdit ? t("users.listPage.saveChanges", null, "Lưu thay đổi") : t("users.listPage.createUser", null, "Tạo người dùng")) + '</button>' +
-        '</div>' +
-      '</div>'
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("users.listPage.cancel", null, "Hủy")) + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-user-save>' + escapeHtml(isEdit ? t("users.listPage.saveChanges", null, "Lưu thay đổi") : t("users.listPage.createUser", null, "Tạo người dùng")) + "</button>" +
+        "</div>" +
+      "</div>"
     );
 
     if (isEdit) {
@@ -389,7 +389,11 @@
       } else {
         const newUser = {
           id: getNextUserId(),
-          ...values,
+          fullName: values.fullName,
+          userName: values.userName,
+          email: values.email,
+          role: values.role,
+          status: values.status,
           lastLoginAt: null
         };
         state.users.unshift(newUser);
@@ -436,19 +440,19 @@
     }
 
     const modal = $(
-      '<div>' +
+      "<div>" +
         '<div class="app-modal-header">' +
-          '<h2 class="app-modal-title">' + escapeHtml(t("users.listPage.resetPassword", null, "Đặt lại mật khẩu")) + '</h2>' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("users.listPage.close", null, "Đóng")) + '</button>' +
-        '</div>' +
+          '<h2 class="app-modal-title">' + escapeHtml(t("users.listPage.resetPassword", null, "Đặt lại mật khẩu")) + "</h2>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("users.listPage.close", null, "Đóng")) + "</button>" +
+        "</div>" +
         '<div class="app-modal-body">' +
-          '<p class="u-mb-0">' + escapeHtml(t("users.listPage.resetPasswordCopy", { name: user.fullName }, "Đặt lại mật khẩu cho " + user.fullName + "? Đây là thao tác UI mô phỏng.")) + '</p>' +
-        '</div>' +
+          '<p class="u-mb-0">' + escapeHtml(t("users.listPage.resetPasswordCopy", { name: user.fullName }, "Đặt lại mật khẩu cho " + user.fullName + "? Đây là thao tác UI mô phỏng.")) + "</p>" +
+        "</div>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("users.listPage.cancel", null, "Hủy")) + '</button>' +
-          '<button class="app-button app-button-primary" type="button" data-user-confirm-reset>' + escapeHtml(t("users.listPage.resetPassword", null, "Đặt lại mật khẩu")) + '</button>' +
-        '</div>' +
-      '</div>'
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("users.listPage.cancel", null, "Hủy")) + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-user-confirm-reset>' + escapeHtml(t("users.listPage.resetPassword", null, "Đặt lại mật khẩu")) + "</button>" +
+        "</div>" +
+      "</div>"
     );
 
     modal.find("[data-modal-close]").on("click", Lms.ui.closeModal);
@@ -567,10 +571,10 @@
         '<tr><td colspan="5">' +
           '<div class="app-empty-state">' +
             '<div class="app-empty-icon" aria-hidden="true">!</div>' +
-            '<h3 class="app-empty-title">' + escapeHtml(t("users.listPage.loadErrorTitle", null, "Không thể tải người dùng")) + '</h3>' +
-            '<p class="app-empty-copy">' + escapeHtml(t("users.listPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/users.json.")) + '</p>' +
-          '</div>' +
-        '</td></tr>'
+            '<h3 class="app-empty-title">' + escapeHtml(t("users.listPage.loadErrorTitle", null, "Không thể tải người dùng")) + "</h3>" +
+            '<p class="app-empty-copy">' + escapeHtml(t("users.listPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/users.json.")) + "</p>" +
+          "</div>" +
+        "</td></tr>"
       );
       showToast(
         "error",

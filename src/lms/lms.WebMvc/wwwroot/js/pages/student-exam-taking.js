@@ -99,7 +99,7 @@
     const timerState = ratio <= 0.1 ? "danger" : ratio <= 0.2 ? "warning" : "normal";
 
     $("[data-exam-taking-timer]").text(formatTime(remaining));
-    $(".exam-timer-card").attr("data-exam-timer-state", timerState);
+    $(".student-exam-taking-timer").attr("data-exam-timer-state", timerState);
     $("[data-exam-taking-timer-progress]").css("width", Math.max(0, Math.min(100, ratio * 100)) + "%");
 
     if (remaining <= 0 && state.exam && !state.submitted) {
@@ -116,9 +116,9 @@
       const marked = state.marked.includes(question.id) ? " marked" : "";
 
       $navigator.append(
-        '<button class="exam-question-nav-item' + active + answered + marked + '" type="button" data-exam-question-index="' + index + '">' +
+        '<button class="student-exam-question-nav-item' + active + answered + marked + '" type="button" data-exam-question-index="' + index + '">' +
           (index + 1) +
-        '</button>'
+        "</button>"
       );
     });
 
@@ -165,10 +165,10 @@
         : Number(selected) === answer.id;
 
       $answers.append(
-        '<label class="exam-answer-option linear-exam-answer-option' + (checked ? " selected" : "") + '">' +
-          '<input type="' + inputType + '" name="examAnswer" value="' + answer.id + '"' + (checked ? " checked" : "") + ' />' +
-          '<span>' + escapeHtml(answer.content) + '</span>' +
-        '</label>'
+        '<label class="student-exam-answer-option' + (checked ? " selected" : "") + '">' +
+          '<input type="' + inputType + '" name="examAnswer" value="' + answer.id + '"' + (checked ? " checked" : "") + " />" +
+          "<span>" + escapeHtml(answer.content) + "</span>" +
+        "</label>"
       );
     });
 
@@ -176,11 +176,6 @@
     $("[data-exam-taking-action='next']").prop("disabled", state.currentIndex >= state.questions.length - 1).text(t("exams.takePage.buttonNext", null, "Câu sau"));
     $("[data-exam-taking-action='submit']").text(t("exams.takePage.buttonSubmit", null, "Nộp bài"));
     $("[data-exam-taking-action='mark']").toggleClass("active", state.marked.includes(question.id)).text(t("exams.takePage.buttonMark", null, "Đánh dấu"));
-  }
-
-  function initQuestionReadyState() {
-    $(".linear-exam-question-panel").addClass("is-question-ready");
-    initExamTakingReveal();
   }
 
   function getUnansweredQuestions() {
@@ -247,7 +242,7 @@
       id: Date.now(),
       examId: state.exam.id,
       examName: state.exam.name,
-      studentName: "Student One",
+      studentName: "Học viên Một",
       score,
       passed: score >= Number(state.exam.passScore || 0),
       durationMinutes,
@@ -276,17 +271,17 @@
     const modal = $(
       '<div class="linear-exam-submit-modal">' +
         '<div class="app-modal-header">' +
-          '<h2 class="app-modal-title" data-i18n="exams.takePage.modalSubmitTitle">' + t("exams.takePage.modalSubmitTitle", null, "Nộp bài thi") + '</h2>' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="exams.takePage.buttonClose">' + t("exams.takePage.buttonClose", null, "Đóng") + '</button>' +
-        '</div>' +
+          '<h2 class="app-modal-title" data-i18n="exams.takePage.modalSubmitTitle">' + t("exams.takePage.modalSubmitTitle", null, "Nộp bài thi") + "</h2>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="exams.takePage.buttonClose">' + t("exams.takePage.buttonClose", null, "Đóng") + "</button>" +
+        "</div>" +
         '<div class="app-modal-body">' +
           '<p class="u-mb-0"></p>' +
-        '</div>' +
+        "</div>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="exams.takePage.buttonCancel">' + t("exams.takePage.buttonCancel", null, "Hủy") + '</button>' +
-          '<button class="app-button app-button-primary" type="button" data-exam-confirm-submit data-i18n="exams.takePage.buttonSubmit">' + t("exams.takePage.buttonSubmit", null, "Nộp bài") + '</button>' +
-        '</div>' +
-      '</div>'
+          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="exams.takePage.buttonCancel">' + t("exams.takePage.buttonCancel", null, "Hủy") + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-exam-confirm-submit data-i18n="exams.takePage.buttonSubmit">' + t("exams.takePage.buttonSubmit", null, "Nộp bài") + "</button>" +
+        "</div>" +
+      "</div>"
     );
 
     modal.find(".app-modal-body p").html(
@@ -348,12 +343,13 @@
     if (!state.exam) {
       $("[data-exam-taking-title]").text(t("exams.takePage.notFoundTitle", null, "Không tìm thấy bài thi"));
       $("[data-exam-taking-subtitle]").text(t("exams.takePage.notFoundDesc", null, "Quay lại danh sách bài thi và chọn bài thi khác."));
+      $("[data-exam-question-content]").empty();
       $("#examAnswerList").html(
         '<div class="app-empty-state">' +
           '<div class="app-empty-icon" aria-hidden="true">!</div>' +
-          '<h3 class="app-empty-title">' + t("exams.takePage.notFoundTitle", null, "Không tìm thấy bài thi") + '</h3>' +
-          '<p class="app-empty-copy">' + t("exams.takePage.notFoundCopy", null, "Bài thi yêu cầu không tồn tại trong dữ liệu mô phỏng.") + '</p>' +
-        '</div>'
+          '<h3 class="app-empty-title">' + t("exams.takePage.notFoundTitle", null, "Không tìm thấy bài thi") + "</h3>" +
+          '<p class="app-empty-copy">' + t("exams.takePage.notFoundCopy", null, "Bài thi yêu cầu không tồn tại trong dữ liệu mô phỏng.") + "</p>" +
+        "</div>"
       );
       return;
     }
@@ -363,7 +359,6 @@
     renderTimer();
     renderNavigator();
     renderQuestion();
-    initQuestionReadyState();
   }
 
   function bindEvents() {

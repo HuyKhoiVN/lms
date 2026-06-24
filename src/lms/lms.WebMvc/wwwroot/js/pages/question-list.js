@@ -110,7 +110,7 @@
 
     $select.find("option:not(:first)").remove();
     categories.forEach(function (category) {
-      $select.append('<option value="' + escapeHtml(category) + '">' + escapeHtml(category) + '</option>');
+      $select.append('<option value="' + escapeHtml(category) + '">' + escapeHtml(category) + "</option>");
     });
     $select.val(currentValue);
   }
@@ -138,15 +138,15 @@
 
     if (!rows.length) {
       $rows.append(
-        '<tr>' +
+        "<tr>" +
           '<td colspan="7">' +
             '<div class="app-empty-state">' +
               '<div class="app-empty-icon" aria-hidden="true">Q</div>' +
-              '<h3 class="app-empty-title">' + escapeHtml(t("questions.listPage.noQuestionsTitle", null, "Không tìm thấy câu hỏi")) + '</h3>' +
-              '<p class="app-empty-copy">' + escapeHtml(t("questions.listPage.noQuestionsCopy", null, "Thử từ khóa, danh mục, độ khó hoặc bộ lọc thể loại khác.")) + '</p>' +
-            '</div>' +
-          '</td>' +
-        '</tr>'
+              '<h3 class="app-empty-title">' + escapeHtml(t("questions.listPage.noQuestionsTitle", null, "Không tìm thấy câu hỏi")) + "</h3>" +
+              '<p class="app-empty-copy">' + escapeHtml(t("questions.listPage.noQuestionsCopy", null, "Thử từ khóa, danh mục, độ khó hoặc bộ lọc thể loại khác.")) + "</p>" +
+            "</div>" +
+          "</td>" +
+        "</tr>"
       );
       return;
     }
@@ -160,26 +160,26 @@
         : 0;
 
       $rows.append(
-        '<tr>' +
-          '<td>' +
+        "<tr>" +
+          "<td>" +
             '<div class="admin-question-cell">' +
-              '<strong>' + escapeHtml(question.content) + '</strong>' +
-              '<span>' + escapeHtml(t("questions.listPage.questionId", { id: question.id }, "Mã câu hỏi #" + question.id)) + '</span>' +
-            '</div>' +
-          '</td>' +
-          '<td><span class="app-badge app-badge-info">' + escapeHtml(question.category) + '</span></td>' +
-          '<td><span class="app-badge ' + getDifficultyBadgeClass(question.difficulty) + '">' + escapeHtml(translateDifficulty(question.difficulty)) + '</span></td>' +
-          '<td>' + escapeHtml(translateType(question.questionType)) + '</td>' +
-          '<td>' + escapeHtml(question.score) + '</td>' +
-          '<td>' + escapeHtml(t("questions.listPage.answersMeta", { options: answerCount, correct: correctCount }, answerCount + " lựa chọn / " + correctCount + " đúng")) + '</td>' +
+              "<strong>" + escapeHtml(question.content) + "</strong>" +
+              "<span>" + escapeHtml(t("questions.listPage.questionId", { id: question.id }, "Mã câu hỏi #" + question.id)) + "</span>" +
+            "</div>" +
+          "</td>" +
+          '<td><span class="app-badge app-badge-info">' + escapeHtml(question.category) + "</span></td>" +
+          '<td><span class="app-badge ' + getDifficultyBadgeClass(question.difficulty) + '">' + escapeHtml(translateDifficulty(question.difficulty)) + "</span></td>" +
+          "<td>" + escapeHtml(translateType(question.questionType)) + "</td>" +
+          "<td>" + escapeHtml(question.score) + "</td>" +
+          "<td>" + escapeHtml(t("questions.listPage.answersMeta", { options: answerCount, correct: correctCount }, answerCount + " lựa chọn / " + correctCount + " đúng")) + "</td>" +
           '<td class="u-text-right">' +
             '<div class="admin-row-actions">' +
-              '<button class="app-button app-button-secondary" type="button" data-question-action="view" data-question-id="' + question.id + '">' + escapeHtml(t("common.view", null, "Xem")) + '</button>' +
-              '<button class="app-button app-button-secondary" type="button" data-question-action="edit" data-question-id="' + question.id + '">' + escapeHtml(t("common.edit", null, "Sửa")) + '</button>' +
-              '<button class="app-button app-button-secondary" type="button" data-question-action="delete" data-question-id="' + question.id + '">' + escapeHtml(t("common.delete", null, "Xóa")) + '</button>' +
-            '</div>' +
-          '</td>' +
-        '</tr>'
+              '<button class="app-button app-button-secondary" type="button" data-question-action="view" data-question-id="' + question.id + '">' + escapeHtml(t("common.view", null, "Xem")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-question-action="edit" data-question-id="' + question.id + '">' + escapeHtml(t("common.edit", null, "Sửa")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-question-action="delete" data-question-id="' + question.id + '">' + escapeHtml(t("common.delete", null, "Xóa")) + "</button>" +
+            "</div>" +
+          "</td>" +
+        "</tr>"
       );
     });
   }
@@ -236,12 +236,12 @@
       '<div class="question-editor-answer-row" data-question-answer-row>' +
         '<label class="question-editor-correct">' +
           '<input type="' + inputType + '"' + nameAttribute + ' data-question-answer-correct />' +
-          '<span>' + escapeHtml(t("questions.listPage.correct", null, "Đúng")) + '</span>' +
-        '</label>' +
+          "<span>" + escapeHtml(t("questions.listPage.correct", null, "Đúng")) + "</span>" +
+        "</label>" +
         '<input class="app-input" type="text" data-question-answer-content placeholder="' + escapeHtml(t("questions.listPage.answerPlaceholder", null, "Nội dung đáp án")) + '" />' +
-        '<button class="app-button app-button-secondary" type="button" data-question-answer-remove>' + escapeHtml(t("common.delete", null, "Xóa")) + '</button>' +
+        '<button class="app-button app-button-secondary" type="button" data-question-answer-remove>' + escapeHtml(t("common.delete", null, "Xóa")) + "</button>" +
         '<span class="auth-error" data-question-answer-error></span>' +
-      '</div>'
+      "</div>"
     );
 
     row.attr("data-answer-id", answerValue.id);
@@ -373,63 +373,63 @@
   function buildQuestionEditor(question) {
     const isEdit = Boolean(question);
     const modal = $(
-      '<div>' +
+      "<div>" +
         '<div class="app-modal-header">' +
-          '<div>' +
-            '<h2 class="app-modal-title">' + escapeHtml(isEdit ? t("questions.listPage.editQuestion", null, "Sửa câu hỏi") : t("questions.listPage.createQuestionModal", null, "Tạo câu hỏi")) + '</h2>' +
-            '<p class="app-card-subtitle">' + escapeHtml(isEdit ? t("questions.listPage.editSubtitle", null, "Cập nhật nội dung câu hỏi và các lựa chọn đáp án mô phỏng.") : t("questions.listPage.createSubtitle", null, "Thêm một câu hỏi mô phỏng mới trong bộ nhớ.")) + '</p>' +
-          '</div>' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("questions.listPage.close", null, "Đóng")) + '</button>' +
-        '</div>' +
+          "<div>" +
+            '<h2 class="app-modal-title">' + escapeHtml(isEdit ? t("questions.listPage.editQuestion", null, "Sửa câu hỏi") : t("questions.listPage.createQuestionModal", null, "Tạo câu hỏi")) + "</h2>" +
+            '<p class="app-card-subtitle">' + escapeHtml(isEdit ? t("questions.listPage.editSubtitle", null, "Cập nhật nội dung câu hỏi và các lựa chọn đáp án mô phỏng.") : t("questions.listPage.createSubtitle", null, "Thêm một câu hỏi mô phỏng mới trong bộ nhớ.")) + "</p>" +
+          "</div>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("questions.listPage.close", null, "Đóng")) + "</button>" +
+        "</div>" +
         '<form class="app-modal-body admin-user-form question-editor-form" novalidate>' +
           '<label class="auth-field">' + escapeHtml(t("questions.listPage.formContent", null, "Nội dung câu hỏi")) +
             '<textarea class="app-input admin-course-textarea" name="content" rows="3"></textarea>' +
             '<span class="auth-error" data-question-error="content"></span>' +
-          '</label>' +
+          "</label>" +
           '<div class="admin-user-form-grid">' +
             '<label class="auth-field">' + escapeHtml(t("questions.listPage.formCategory", null, "Danh mục")) +
               '<input class="app-input" name="category" type="text" autocomplete="off" />' +
               '<span class="auth-error" data-question-error="category"></span>' +
-            '</label>' +
+            "</label>" +
             '<label class="auth-field">' + escapeHtml(t("questions.listPage.formDifficulty", null, "Độ khó")) +
               '<select class="app-select" name="difficulty">' +
-                '<option value="">' + escapeHtml(t("questions.listPage.selectDifficultyPlaceholder", null, "Chọn độ khó")) + '</option>' +
-                '<option value="Easy">' + escapeHtml(t("questions.listPage.difficultyEasy", null, "Dễ")) + '</option>' +
-                '<option value="Medium">' + escapeHtml(t("questions.listPage.difficultyMedium", null, "Trung bình")) + '</option>' +
-                '<option value="Hard">' + escapeHtml(t("questions.listPage.difficultyHard", null, "Khó")) + '</option>' +
-              '</select>' +
+                '<option value="">' + escapeHtml(t("questions.listPage.selectDifficultyPlaceholder", null, "Chọn độ khó")) + "</option>" +
+                '<option value="Easy">' + escapeHtml(t("questions.listPage.difficultyEasy", null, "Dễ")) + "</option>" +
+                '<option value="Medium">' + escapeHtml(t("questions.listPage.difficultyMedium", null, "Trung bình")) + "</option>" +
+                '<option value="Hard">' + escapeHtml(t("questions.listPage.difficultyHard", null, "Khó")) + "</option>" +
+              "</select>" +
               '<span class="auth-error" data-question-error="difficulty"></span>' +
-            '</label>' +
-          '</div>' +
+            "</label>" +
+          "</div>" +
           '<div class="admin-user-form-grid">' +
             '<label class="auth-field">' + escapeHtml(t("questions.listPage.formType", null, "Thể loại câu hỏi")) +
               '<select class="app-select" name="questionType">' +
-                '<option value="">' + escapeHtml(t("questions.listPage.selectTypePlaceholder", null, "Chọn thể loại")) + '</option>' +
-                '<option value="SingleChoice">' + escapeHtml(t("questions.listPage.typeSingle", null, "Một lựa chọn")) + '</option>' +
-                '<option value="MultipleChoice">' + escapeHtml(t("questions.listPage.typeMultiple", null, "Nhiều lựa chọn")) + '</option>' +
-              '</select>' +
+                '<option value="">' + escapeHtml(t("questions.listPage.selectTypePlaceholder", null, "Chọn thể loại")) + "</option>" +
+                '<option value="SingleChoice">' + escapeHtml(t("questions.listPage.typeSingle", null, "Một lựa chọn")) + "</option>" +
+                '<option value="MultipleChoice">' + escapeHtml(t("questions.listPage.typeMultiple", null, "Nhiều lựa chọn")) + "</option>" +
+              "</select>" +
               '<span class="auth-error" data-question-error="questionType"></span>' +
-            '</label>' +
+            "</label>" +
             '<label class="auth-field">' + escapeHtml(t("questions.listPage.formScore", null, "Điểm")) +
               '<input class="app-input" name="score" type="number" min="1" step="1" />' +
               '<span class="auth-error" data-question-error="score"></span>' +
-            '</label>' +
-          '</div>' +
+            "</label>" +
+          "</div>" +
           '<div class="question-editor-answer-header">' +
-            '<div>' +
-              '<h3 class="app-card-title">' + escapeHtml(t("questions.listPage.answerOptions", null, "Danh sách đáp án")) + '</h3>' +
-              '<p class="app-card-subtitle">' + escapeHtml(t("questions.listPage.answersSubtitle", null, "Một lựa chọn chỉ cho phép duy nhất một đáp án đúng; nhiều lựa chọn cho phép chọn nhiều.")) + '</p>' +
-            '</div>' +
-            '<button class="app-button app-button-secondary" type="button" data-question-answer-add>' + escapeHtml(t("questions.listPage.addAnswer", null, "Thêm đáp án")) + '</button>' +
-          '</div>' +
+            "<div>" +
+              '<h3 class="app-card-title">' + escapeHtml(t("questions.listPage.answerOptions", null, "Danh sách đáp án")) + "</h3>" +
+              '<p class="app-card-subtitle">' + escapeHtml(t("questions.listPage.answersSubtitle", null, "Một lựa chọn chỉ cho phép duy nhất một đáp án đúng; nhiều lựa chọn cho phép chọn nhiều.")) + "</p>" +
+            "</div>" +
+            '<button class="app-button app-button-secondary" type="button" data-question-answer-add>' + escapeHtml(t("questions.listPage.addAnswer", null, "Thêm đáp án")) + "</button>" +
+          "</div>" +
           '<div class="question-editor-answer-list" data-question-answer-list></div>' +
           '<span class="auth-error" data-question-error="answers"></span>' +
-        '</form>' +
+        "</form>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("questions.listPage.cancel", null, "Hủy")) + '</button>' +
-          '<button class="app-button app-button-primary" type="button" data-question-save>' + escapeHtml(isEdit ? t("questions.listPage.saveChanges", null, "Lưu thay đổi") : t("questions.listPage.createQuestion", null, "Tạo câu hỏi")) + '</button>' +
-        '</div>' +
-      '</div>'
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("questions.listPage.cancel", null, "Hủy")) + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-question-save>' + escapeHtml(isEdit ? t("questions.listPage.saveChanges", null, "Lưu thay đổi") : t("questions.listPage.createQuestion", null, "Tạo câu hỏi")) + "</button>" +
+        "</div>" +
+      "</div>"
     );
 
     modal.find("[name='content']").val(question ? question.content : "");
@@ -544,29 +544,29 @@
     const answers = question.answers.map(function (answer) {
       return (
         '<div class="question-answer-row">' +
-          '<span class="app-badge ' + (answer.isCorrect ? "app-badge-success" : "app-badge-muted") + '">' + (answer.isCorrect ? escapeHtml(t("questions.listPage.badgeCorrect", null, "Đúng")) : escapeHtml(t("questions.listPage.badgeOption", null, "Lựa chọn"))) + '</span>' +
-          '<span>' + escapeHtml(answer.content) + '</span>' +
-        '</div>'
+          '<span class="app-badge ' + (answer.isCorrect ? "app-badge-success" : "app-badge-muted") + '">' + (answer.isCorrect ? escapeHtml(t("questions.listPage.badgeCorrect", null, "Đúng")) : escapeHtml(t("questions.listPage.badgeOption", null, "Lựa chọn"))) + "</span>" +
+          "<span>" + escapeHtml(answer.content) + "</span>" +
+        "</div>"
       );
     }).join("");
 
     const modal = $(
-      '<div>' +
+      "<div>" +
         '<div class="app-modal-header">' +
-          '<div>' +
-            '<h2 class="app-modal-title">' + escapeHtml(t("questions.listPage.detailTitle", null, "Chi tiết câu hỏi")) + '</h2>' +
-            '<p class="app-card-subtitle">' + escapeHtml(question.category) + ' / ' + escapeHtml(translateDifficulty(question.difficulty)) + ' / ' + escapeHtml(translateType(question.questionType)) + '</p>' +
-          '</div>' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("questions.listPage.close", null, "Đóng")) + '</button>' +
-        '</div>' +
+          "<div>" +
+            '<h2 class="app-modal-title">' + escapeHtml(t("questions.listPage.detailTitle", null, "Chi tiết câu hỏi")) + "</h2>" +
+            '<p class="app-card-subtitle">' + escapeHtml(question.category) + " / " + escapeHtml(translateDifficulty(question.difficulty)) + " / " + escapeHtml(translateType(question.questionType)) + "</p>" +
+          "</div>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("questions.listPage.close", null, "Đóng")) + "</button>" +
+        "</div>" +
         '<div class="app-modal-body">' +
-          '<p class="question-detail-content">' + escapeHtml(question.content) + '</p>' +
-          '<div class="question-answer-list">' + answers + '</div>' +
-        '</div>' +
+          '<p class="question-detail-content">' + escapeHtml(question.content) + "</p>" +
+          '<div class="question-answer-list">' + answers + "</div>" +
+        "</div>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-primary" type="button" data-modal-close>' + escapeHtml(t("questions.listPage.doneButton", null, "Hoàn tất")) + '</button>' +
-        '</div>' +
-      '</div>'
+          '<button class="app-button app-button-primary" type="button" data-modal-close>' + escapeHtml(t("questions.listPage.doneButton", null, "Hoàn tất")) + "</button>" +
+        "</div>" +
+      "</div>"
     );
 
     modal.find("[data-modal-close]").on("click", Lms.ui.closeModal);
@@ -581,20 +581,20 @@
     }
 
     const modal = $(
-      '<div>' +
+      "<div>" +
         '<div class="app-modal-header">' +
-          '<h2 class="app-modal-title">' + escapeHtml(t("questions.listPage.deleteQuestionTitle", null, "Xóa câu hỏi")) + '</h2>' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("questions.listPage.close", null, "Đóng")) + '</button>' +
-        '</div>' +
+          '<h2 class="app-modal-title">' + escapeHtml(t("questions.listPage.deleteQuestionTitle", null, "Xóa câu hỏi")) + "</h2>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("questions.listPage.close", null, "Đóng")) + "</button>" +
+        "</div>" +
         '<div class="app-modal-body">' +
-          '<p class="u-mb-0">' + escapeHtml(t("questions.listPage.deleteConfirmMessage", null, "Bạn có chắc chắn muốn xóa câu hỏi này khỏi bộ nhớ mô phỏng?")) + '</p>' +
+          '<p class="u-mb-0">' + escapeHtml(t("questions.listPage.deleteConfirmMessage", null, "Bạn có chắc chắn muốn xóa câu hỏi này khỏi bộ nhớ mô phỏng?")) + "</p>" +
           '<p class="page-muted u-mt-4 u-mb-0"></p>' +
-        '</div>' +
+        "</div>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("questions.listPage.cancel", null, "Hủy")) + '</button>' +
-          '<button class="app-button app-button-primary" type="button" data-question-confirm-delete>' + escapeHtml(t("common.delete", null, "Xóa")) + '</button>' +
-        '</div>' +
-      '</div>'
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("questions.listPage.cancel", null, "Hủy")) + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-question-confirm-delete>' + escapeHtml(t("common.delete", null, "Xóa")) + "</button>" +
+        "</div>" +
+      "</div>"
     );
 
     modal.find(".page-muted").text(question.content);
@@ -707,10 +707,10 @@
         '<tr><td colspan="7">' +
           '<div class="app-empty-state">' +
             '<div class="app-empty-icon" aria-hidden="true">!</div>' +
-            '<h3 class="app-empty-title">' + escapeHtml(t("questions.listPage.loadErrorTitle", null, "Không thể tải câu hỏi")) + '</h3>' +
-            '<p class="app-empty-copy">' + escapeHtml(t("questions.listPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/questions.json.")) + '</p>' +
-          '</div>' +
-        '</td></tr>'
+            '<h3 class="app-empty-title">' + escapeHtml(t("questions.listPage.loadErrorTitle", null, "Không thể tải câu hỏi")) + "</h3>" +
+            '<p class="app-empty-copy">' + escapeHtml(t("questions.listPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/questions.json.")) + "</p>" +
+          "</div>" +
+        "</td></tr>"
       );
       showToast("error", t("questions.listPage.dataErrorTitle", null, "Lỗi dữ liệu câu hỏi"), t("questions.listPage.dataErrorMessage", null, "Không thể tải dữ liệu mô phỏng câu hỏi."));
     });

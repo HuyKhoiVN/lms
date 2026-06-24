@@ -3,9 +3,9 @@
     var resultId = ViewData["ResultId"] ?? "";
 }
 
-<div class="result-detail-page linear-result-detail-page" data-result-detail-id="@resultId">
-    <div class="page-header linear-result-detail-header result-detail-reveal" data-result-detail-reveal>
-        <div class="page-header-main">
+<section class="lms-workspace-page student-result-detail-page" data-result-detail-id="@resultId" aria-label="Chi tiết kết quả">
+    <header class="lms-workspace-header student-result-detail-reveal" data-result-detail-reveal>
+        <div class="lms-workspace-header-main">
             <nav class="page-breadcrumb" aria-label="Breadcrumb">
                 <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="results.detailPage.breadcrumbHome">Trang chủ</a>
                 <span>/</span>
@@ -13,78 +13,61 @@
                 <span>/</span>
                 <span data-i18n="results.detailPage.breadcrumbCurrent">Chi tiết</span>
             </nav>
-            <h1 class="page-title" data-result-detail-title data-i18n="results.detailPage.title">Chi tiết kết quả</h1>
-            <p class="page-muted u-mb-0" data-result-detail-subtitle data-i18n="results.detailPage.subtitle">Đang tải kết quả...</p>
+            <p class="lms-workspace-kicker">Result Review</p>
+            <h1 data-result-detail-title data-i18n="results.detailPage.title">Chi tiết kết quả</h1>
+            <p class="lms-workspace-description" data-result-detail-subtitle data-i18n="results.detailPage.subtitle">Đang tải kết quả...</p>
         </div>
-        <div class="page-header-actions">
-            <a class="app-button app-button-secondary" asp-area="" asp-controller="Results" asp-action="Index" data-i18n="results.detailPage.backToResults">Quay lại danh sách</a>
-        </div>
-    </div>
 
-    <section class="result-score-hero linear-result-score-hero app-animate-slide-up result-detail-reveal" data-result-detail-reveal>
-        <div class="result-score-ring linear-result-score-ring" data-result-score-ring>
+        <a class="app-button app-button-secondary" asp-area="" asp-controller="Results" asp-action="Index" data-i18n="results.detailPage.backToResults">Quay lại danh sách</a>
+    </header>
+
+    <section class="student-result-detail-hero student-result-detail-reveal" data-result-detail-reveal>
+        <div class="student-result-detail-score-ring" data-result-score-ring>
             <span data-result-detail-metric="scoreHero">--</span>
         </div>
-        <div>
-            <p class="app-card-subtitle u-mb-2" data-i18n="results.detailPage.metricScore">Äiá»ƒm sá»‘</p>
-            <h2 class="app-card-title" data-result-score-hero-title data-i18n="results.detailPage.cardTitleSummary">ThÃ´ng tin lÆ°á»£t thi</h2>
-            <p class="page-muted u-mb-0" data-result-score-hero-copy data-i18n="results.detailPage.cardSubtitleSummary">ThÃ´ng tin ná»™p bÃ i vÃ  chÃ­nh sÃ¡ch xem láº¡i.</p>
+        <div class="student-result-detail-hero-copy">
+            <p class="lms-workspace-kicker">Score Summary</p>
+            <h2 data-result-score-hero-title data-i18n="results.detailPage.cardTitleSummary">Thông tin lượt thi</h2>
+            <p class="lms-workspace-description" data-result-score-hero-copy data-i18n="results.detailPage.cardSubtitleSummary">Thông tin nộp bài và chính sách xem lại.</p>
         </div>
-        <div class="image-slot image-slot-md image-slot-result linear-result-detail-visual" data-image-label="Result visual 320x180">
+        <div class="student-result-detail-hero-art image-slot image-slot-md image-slot-result" data-image-label="Result detail visual 320x180">
             <img src="~/images/placeholders/result-placeholder.svg" alt="" aria-hidden="true" />
         </div>
     </section>
 
-    <section class="page-grid page-grid-4 linear-result-detail-metrics u-mb-4 app-animate-stagger" aria-label="Result summary">
-        <article class="app-card app-card-clickable linear-result-detail-metric result-detail-reveal" data-result-detail-reveal>
-            <div class="app-card-body app-metric">
-                <div>
-                    <p class="app-metric-label" data-i18n="results.detailPage.metricScore">Điểm số</p>
-                    <p class="app-metric-value" data-result-detail-metric="score">--</p>
-                </div>
-                <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-percent"></i></span>
-            </div>
+    <section class="student-result-detail-metrics student-result-detail-reveal" data-result-detail-reveal>
+        <article class="lms-workspace-card student-result-detail-metric-card">
+            <span data-i18n="results.detailPage.metricScore">Điểm số</span>
+            <strong data-result-detail-metric="score">--</strong>
         </article>
-        <article class="app-card app-card-clickable linear-result-detail-metric result-detail-reveal" data-result-detail-reveal>
-            <div class="app-card-body app-metric">
-                <div>
-                    <p class="app-metric-label" data-i18n="results.detailPage.metricCorrect">Số câu đúng</p>
-                    <p class="app-metric-value" data-result-detail-metric="correct">--</p>
-                </div>
-                <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-check2-circle"></i></span>
-            </div>
+        <article class="lms-workspace-card student-result-detail-metric-card">
+            <span data-i18n="results.detailPage.metricCorrect">Số câu đúng</span>
+            <strong data-result-detail-metric="correct">--</strong>
         </article>
-        <article class="app-card app-card-clickable linear-result-detail-metric result-detail-reveal" data-result-detail-reveal>
-            <div class="app-card-body app-metric">
-                <div>
-                    <p class="app-metric-label" data-i18n="results.detailPage.metricWrong">Số câu sai</p>
-                    <p class="app-metric-value" data-result-detail-metric="wrong">--</p>
-                </div>
-                <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-x-circle"></i></span>
-            </div>
+        <article class="lms-workspace-card student-result-detail-metric-card">
+            <span data-i18n="results.detailPage.metricWrong">Số câu sai</span>
+            <strong data-result-detail-metric="wrong">--</strong>
         </article>
-        <article class="app-card app-card-clickable linear-result-detail-metric result-detail-reveal" data-result-detail-reveal>
-            <div class="app-card-body app-metric">
-                <div>
-                    <p class="app-metric-label" data-i18n="results.detailPage.metricDuration">Thời lượng</p>
-                    <p class="app-metric-value" data-result-detail-metric="duration">--</p>
-                </div>
-                <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-stopwatch"></i></span>
-            </div>
+        <article class="lms-workspace-card student-result-detail-metric-card">
+            <span data-i18n="results.detailPage.metricDuration">Thời lượng</span>
+            <strong data-result-detail-metric="duration">--</strong>
         </article>
     </section>
 
-    <section class="result-detail-layout linear-result-detail-layout">
-        <aside class="app-card result-detail-side linear-result-detail-side result-detail-reveal" data-result-detail-reveal>
-            <div class="app-card-header">
-                <h2 class="app-card-title" data-i18n="results.detailPage.cardTitleSummary">Thông tin lượt thi</h2>
-                <p class="app-card-subtitle" data-i18n="results.detailPage.cardSubtitleSummary">Thông tin nộp bài và chính sách xem lại.</p>
-            </div>
-            <div class="app-card-body">
-                <dl class="result-detail-list">
+    <section class="student-result-detail-layout">
+        <aside class="student-result-detail-side">
+            <article class="lms-workspace-card student-result-detail-side-card student-result-detail-reveal" data-result-detail-reveal>
+                <div class="lms-workspace-section-head">
+                    <div>
+                        <p class="lms-workspace-kicker">Attempt</p>
+                        <h2 data-i18n="results.detailPage.cardTitleSummary">Thông tin lượt thi</h2>
+                    </div>
+                </div>
+
+                <dl class="student-result-detail-summary">
                     <div>
                         <dt data-i18n="results.detailPage.summaryStatus">Trạng thái</dt>
-                        <dd><span class="app-badge" data-result-detail-status>--</span></dd>
+                        <dd><span class="lms-status-info" data-result-detail-status>--</span></dd>
                     </div>
                     <div>
                         <dt data-i18n="results.detailPage.summaryPassScore">Điểm đạt</dt>
@@ -103,30 +86,28 @@
                         <dd data-result-detail-info="studentName">--</dd>
                     </div>
                 </dl>
-            </div>
+            </article>
         </aside>
 
-        <main class="app-card result-detail-main linear-result-detail-main result-detail-reveal" data-result-detail-reveal>
-            <div class="app-card-header">
-                <div class="admin-card-header-row">
-                    <div>
-                        <h2 class="app-card-title" data-i18n="results.detailPage.cardTitleReview">Xem lại bài làm</h2>
-                        <p class="app-card-subtitle" data-result-review-copy data-i18n="results.detailPage.cardSubtitleReview">Đang tải chính sách xem lại...</p>
-                    </div>
-                    <span class="app-badge app-badge-info" data-result-review-count data-i18n="results.detailPage.reviewQuestionsCount">-- câu hỏi</span>
+        <main class="lms-workspace-card student-result-detail-main student-result-detail-reveal" data-result-detail-reveal>
+            <div class="lms-workspace-section-head">
+                <div>
+                    <p class="lms-workspace-kicker">Review</p>
+                    <h2 data-i18n="results.detailPage.cardTitleReview">Xem lại bài làm</h2>
+                    <p class="lms-workspace-description" data-result-review-copy data-i18n="results.detailPage.cardSubtitleReview">Đang tải chính sách xem lại...</p>
                 </div>
+                <span class="lms-workspace-count" data-result-review-count data-i18n="results.detailPage.reviewQuestionsCount">-- câu hỏi</span>
             </div>
-            <div class="app-card-body">
-                <div id="resultReviewContent">
-                    <div class="app-loading">
-                        <span class="app-spinner" aria-hidden="true"></span>
-                        <span data-i18n="results.detailPage.loadingDetail">Đang tải chi tiết kết quả...</span>
-                    </div>
+
+            <div id="resultReviewContent">
+                <div class="app-loading">
+                    <span class="app-spinner" aria-hidden="true"></span>
+                    <span data-i18n="results.detailPage.loadingDetail">Đang tải chi tiết kết quả...</span>
                 </div>
             </div>
         </main>
     </section>
-</div>
+</section>
 
 @section Scripts {
     <script src="~/js/pages/student-result-detail.js" asp-append-version="true"></script>

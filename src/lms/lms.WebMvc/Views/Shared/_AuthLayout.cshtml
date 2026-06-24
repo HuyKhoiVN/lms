@@ -15,18 +15,27 @@
     <link rel="stylesheet" href="~/css/utilities.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lms.WebMvc.styles.css" asp-append-version="true" />
 </head>
-<body>
-    <div class="auth-language-control">
-        <label class="visually-hidden" for="authLanguageSwitcher" data-i18n="common.language">Ngôn ngữ</label>
-        <select class="app-select app-language-switcher" id="authLanguageSwitcher" data-i18n-language aria-label="Ngôn ngữ" data-i18n-aria="common.language">
-            <option value="vi">VI</option>
-            <option value="en">EN</option>
-        </select>
-    </div>
+<body class="app-auth-body">
+    <div class="app-auth-shell">
+        <header class="app-auth-topbar">
+            <a class="app-brand-link app-auth-brand" asp-area="" asp-controller="Home" asp-action="Index" aria-label="lms">
+                <span class="app-brand-mark">L</span>
+                <span class="app-brand-text">lms</span>
+            </a>
 
-    <main role="main">
-        @RenderBody()
-    </main>
+            <div class="auth-language-control">
+                <label class="visually-hidden" for="authLanguageSwitcher" data-i18n="common.language">Ngôn ngữ</label>
+                <select class="app-select app-language-switcher" id="authLanguageSwitcher" data-i18n-language aria-label="Ngôn ngữ" data-i18n-aria="common.language">
+                    <option value="vi">VI</option>
+                    <option value="en">EN</option>
+                </select>
+            </div>
+        </header>
+
+        <main class="app-auth-main" role="main">
+            @RenderBody()
+        </main>
+    </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>

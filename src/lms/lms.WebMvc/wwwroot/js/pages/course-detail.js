@@ -99,7 +99,9 @@
     $("[data-course-detail-metric='materials']").text(state.materials.length);
     $("[data-course-detail-metric='assigned']").text(state.course.assignedCount);
     $("[data-course-detail-metric='completion']").text(state.course.completionRate + "%");
-    $("[data-course-detail-count='materials']").text(t("courses.detailPage.materialCount", { count: state.materials.length }, state.materials.length + " tài liệu"));
+    $("[data-course-detail-count='materials']").text(
+      t("courses.detailPage.materialCount", { count: state.materials.length }, state.materials.length + " tài liệu")
+    );
   }
 
   function renderCourseInfo() {
@@ -110,7 +112,9 @@
       .addClass(badgeClass)
       .text(translateStatus(state.course.status));
     $("[data-course-detail-code]").text(getInitials(state.course.name));
-    $("[data-course-detail-progress-badge]").text(t("courses.detailPage.complete", { percent: state.course.completionRate }, state.course.completionRate + "% hoàn thành"));
+    $("[data-course-detail-progress-badge]").text(
+      t("courses.detailPage.complete", { percent: state.course.completionRate }, state.course.completionRate + "% hoàn thành")
+    );
     $("[data-course-detail-title]").text(state.course.name);
     $("[data-course-detail-copy]").text(state.course.description);
     setProgress(state.course.completionRate);
@@ -123,9 +127,9 @@
       $container.append(
         '<div class="app-empty-state">' +
           '<div class="app-empty-icon" aria-hidden="true">M</div>' +
-          '<h3 class="app-empty-title">' + escapeHtml(t("courses.detailPage.noMaterialsTitle", null, "Chưa có tài liệu")) + '</h3>' +
-          '<p class="app-empty-copy">' + escapeHtml(t("courses.detailPage.noMaterialsCopy", null, "Tài liệu học tập sẽ được quản lý ở task tiếp theo.")) + '</p>' +
-        '</div>'
+          '<h3 class="app-empty-title">' + escapeHtml(t("courses.detailPage.noMaterialsTitle", null, "Chưa có tài liệu")) + "</h3>" +
+          '<p class="app-empty-copy">' + escapeHtml(t("courses.detailPage.noMaterialsCopy", null, "Tài liệu học tập sẽ được quản lý ở task tiếp theo.")) + "</p>" +
+        "</div>"
       );
       return;
     }
@@ -134,14 +138,14 @@
       $container.append(
         '<div class="group-detail-item">' +
           '<div class="admin-user-cell">' +
-            '<span class="app-avatar" aria-hidden="true">' + escapeHtml(material.contentType.charAt(0).toUpperCase()) + '</span>' +
-            '<div>' +
-              '<strong>' + escapeHtml(material.title) + '</strong>' +
-              '<span>' + escapeHtml(t("courses.detailPage.materialMeta", { type: material.contentType, minutes: material.durationMinutes }, material.contentType + " / " + material.durationMinutes + " phút")) + '</span>' +
-            '</div>' +
-          '</div>' +
-          '<span class="app-badge ' + getBadgeClass(material.status) + '">' + escapeHtml(translateStatus(material.status)) + '</span>' +
-        '</div>'
+            '<span class="app-avatar" aria-hidden="true">' + escapeHtml(material.contentType.charAt(0).toUpperCase()) + "</span>" +
+            "<div>" +
+              "<strong>" + escapeHtml(material.title) + "</strong>" +
+              "<span>" + escapeHtml(t("courses.detailPage.materialMeta", { type: material.contentType, minutes: material.durationMinutes }, material.contentType + " / " + material.durationMinutes + " phút")) + "</span>" +
+            "</div>" +
+          "</div>" +
+          '<span class="app-badge ' + getBadgeClass(material.status) + '">' + escapeHtml(translateStatus(material.status)) + "</span>" +
+        "</div>"
       );
     });
   }
@@ -153,9 +157,9 @@
       $container.append(
         '<div class="app-empty-state">' +
           '<div class="app-empty-icon" aria-hidden="true">A</div>' +
-          '<h3 class="app-empty-title">' + escapeHtml(emptyTitle) + '</h3>' +
-          '<p class="app-empty-copy">' + escapeHtml(emptyCopy) + '</p>' +
-        '</div>'
+          '<h3 class="app-empty-title">' + escapeHtml(emptyTitle) + "</h3>" +
+          '<p class="app-empty-copy">' + escapeHtml(emptyCopy) + "</p>" +
+        "</div>"
       );
       return;
     }
@@ -167,13 +171,13 @@
       $container.append(
         '<div class="group-detail-item">' +
           '<div class="admin-user-cell">' +
-            '<span class="app-avatar" aria-hidden="true">' + escapeHtml(title.charAt(0).toUpperCase()) + '</span>' +
-            '<div>' +
-              '<strong>' + escapeHtml(title) + '</strong>' +
-              '<span>' + escapeHtml(subtitle) + '</span>' +
-            '</div>' +
-          '</div>' +
-        '</div>'
+            '<span class="app-avatar" aria-hidden="true">' + escapeHtml(title.charAt(0).toUpperCase()) + "</span>" +
+            "<div>" +
+              "<strong>" + escapeHtml(title) + "</strong>" +
+              "<span>" + escapeHtml(subtitle) + "</span>" +
+            "</div>" +
+          "</div>" +
+        "</div>"
       );
     });
   }
@@ -229,9 +233,9 @@
     $("#courseMaterialList, #courseAssignedUsers, #courseAssignedGroups").html(
       '<div class="app-empty-state">' +
         '<div class="app-empty-icon" aria-hidden="true">!</div>' +
-        '<h3 class="app-empty-title">' + escapeHtml(t("courses.detailPage.loadErrorTitle", null, "Không thể tải chi tiết khóa học")) + '</h3>' +
-        '<p class="app-empty-copy">' + escapeHtml(t("courses.detailPage.loadErrorCopy", null, "Vui lòng kiểm tra các file dữ liệu mô phỏng.")) + '</p>' +
-      '</div>'
+        '<h3 class="app-empty-title">' + escapeHtml(t("courses.detailPage.loadErrorTitle", null, "Không thể tải chi tiết khóa học")) + "</h3>" +
+        '<p class="app-empty-copy">' + escapeHtml(t("courses.detailPage.loadErrorCopy", null, "Vui lòng kiểm tra các file dữ liệu mô phỏng.")) + "</p>" +
+      "</div>"
     );
   }
 

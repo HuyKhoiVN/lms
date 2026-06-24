@@ -324,10 +324,8 @@
 }
 
 .auth-language-control {
-  position: fixed;
-  top: var(--space-4);
-  right: var(--space-4);
-  z-index: 1020;
+  display: inline-flex;
+  align-items: center;
 }
 
 .app-header-actions {
@@ -367,6 +365,11 @@
 .app-content {
   flex: 1;
   padding: var(--space-8);
+}
+
+.app-content-inner {
+  width: min(1480px, 100%);
+  margin: 0 auto;
 }
 
 .app-footer {
@@ -699,6 +702,16 @@
   .app-shell-admin .app-nav-link {
     white-space: normal;
   }
+
+  .app-content {
+    padding: var(--space-6);
+  }
+
+  .app-content-inner,
+  .app-auth-topbar,
+  .app-auth-main {
+    width: min(100%, calc(100% - 24px));
+  }
 }
 
 @media (max-width: 767.98px) {
@@ -706,6 +719,16 @@
     right: auto;
     left: 0;
     width: min(260px, calc(100vw - 32px));
+  }
+
+  .app-auth-topbar {
+    align-items: flex-start;
+    flex-direction: column;
+    padding-top: var(--space-4);
+  }
+
+  .app-auth-main {
+    padding-top: var(--space-4);
   }
 }
 
@@ -759,6 +782,9 @@
 }
 
 .app-shell-admin .app-header {
+  position: sticky;
+  top: 0;
+  z-index: 995;
   background: rgba(255, 255, 255, 0.86);
 }
 
@@ -766,20 +792,52 @@
   position: relative;
 }
 
-body:has(.auth-language-control) {
+.app-auth-body {
   background:
     linear-gradient(135deg, rgba(17, 23, 43, 0.78), rgba(99, 91, 255, 0.22)),
     url("/images/backgrounds/auth-bg.svg") center / cover fixed no-repeat,
     #11172b;
 }
 
-body:has(.auth-language-control) main {
+.app-auth-shell {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-auth-topbar {
+  width: min(1180px, calc(100% - 32px));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin: 0 auto;
+  padding: var(--space-4) 0 0;
+}
+
+.app-auth-brand {
+  color: var(--color-sidebar-text-active);
+}
+
+.app-auth-brand:hover {
+  color: var(--color-sidebar-text-active);
+}
+
+.app-auth-main {
+  min-height: 100vh;
+  display: grid;
+  align-items: center;
+  width: min(1180px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: var(--space-5) 0 var(--space-7);
+}
+
+.app-auth-body .auth-language-control .app-language-switcher {
+  background: rgba(255, 255, 255, 0.92);
 }
 
 @supports not selector(body:has(.auth-language-control)) {
-  .auth-language-control + main {
-    min-height: 100vh;
+  .app-auth-body {
     background:
       linear-gradient(135deg, rgba(17, 23, 43, 0.78), rgba(99, 91, 255, 0.22)),
       url("/images/backgrounds/auth-bg.svg") center / cover fixed no-repeat,

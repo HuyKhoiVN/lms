@@ -48,7 +48,9 @@
   }
 
   function seedRelations() {
-    const studentIds = state.users.filter(function (user) { return user.role === "Student"; }).map(function (user) { return user.id; });
+    const studentIds = state.users
+      .filter(function (user) { return user.role === "Student"; })
+      .map(function (user) { return user.id; });
     const courseIds = state.courses.map(function (course) { return course.id; });
     const examIds = state.exams.map(function (exam) { return exam.id; });
 
@@ -71,16 +73,28 @@
     }
 
     $("[data-group-detail-name]").text(state.group.name);
-    $("[data-group-detail-summary]").text(t("groups.detailPage.groupSummary", { id: state.group.id }, "Mã nhóm #" + state.group.id + " / Giao nhiệm vụ mô phỏng chỉ ở UI."));
+    $("[data-group-detail-summary]").text(
+      t(
+        "groups.detailPage.groupSummary",
+        { id: state.group.id },
+        "Mã nhóm #" + state.group.id + " / Giao nhiệm vụ mô phỏng chỉ ở UI."
+      )
+    );
   }
 
   function renderMetrics() {
     $("[data-group-detail-metric='members']").text(state.memberIds.length);
     $("[data-group-detail-metric='courses']").text(state.courseIds.length);
     $("[data-group-detail-metric='exams']").text(state.examIds.length);
-    $("[data-group-detail-count='members']").text(t("groups.detailPage.memberCount", { count: state.memberIds.length }, state.memberIds.length + " thành viên"));
-    $("[data-group-detail-count='courses']").text(t("groups.detailPage.courseCount", { count: state.courseIds.length }, state.courseIds.length + " khóa học"));
-    $("[data-group-detail-count='exams']").text(t("groups.detailPage.examCount", { count: state.examIds.length }, state.examIds.length + " bài thi"));
+    $("[data-group-detail-count='members']").text(
+      t("groups.detailPage.memberCount", { count: state.memberIds.length }, state.memberIds.length + " thành viên")
+    );
+    $("[data-group-detail-count='courses']").text(
+      t("groups.detailPage.courseCount", { count: state.courseIds.length }, state.courseIds.length + " khóa học")
+    );
+    $("[data-group-detail-count='exams']").text(
+      t("groups.detailPage.examCount", { count: state.examIds.length }, state.examIds.length + " bài thi")
+    );
   }
 
   function renderSelect(selector, items, selectedIds, emptyText) {
@@ -90,15 +104,15 @@
     });
 
     if (!availableItems.length) {
-      $select.append('<option value="">' + escapeHtml(emptyText) + '</option>');
+      $select.append('<option value="">' + escapeHtml(emptyText) + "</option>");
       $select.prop("disabled", true);
       return;
     }
 
     $select.prop("disabled", false);
-    $select.append('<option value="">' + escapeHtml(t("groups.detailPage.selectItem", null, "Chọn một mục")) + '</option>');
+    $select.append('<option value="">' + escapeHtml(t("groups.detailPage.selectItem", null, "Chọn một mục")) + "</option>");
     availableItems.forEach(function (item) {
-      $select.append('<option value="' + item.id + '">' + escapeHtml(item.fullName || item.name) + '</option>');
+      $select.append('<option value="' + item.id + '">' + escapeHtml(item.fullName || item.name) + "</option>");
     });
   }
 
@@ -109,9 +123,9 @@
       $container.append(
         '<div class="app-empty-state">' +
           '<div class="app-empty-icon" aria-hidden="true">+</div>' +
-          '<h3 class="app-empty-title">' + escapeHtml(t("groups.detailPage.nothingAssigned", null, "Chưa có mục được giao")) + '</h3>' +
-          '<p class="app-empty-copy">' + escapeHtml(emptyCopy) + '</p>' +
-        '</div>'
+          '<h3 class="app-empty-title">' + escapeHtml(t("groups.detailPage.nothingAssigned", null, "Chưa có mục được giao")) + "</h3>" +
+          '<p class="app-empty-copy">' + escapeHtml(emptyCopy) + "</p>" +
+        "</div>"
       );
       return;
     }
@@ -128,22 +142,32 @@
       if (type === "member") {
         subtitle = item.userName + " / " + item.email;
       } else if (type === "course") {
-        subtitle = t("groups.detailPage.materialsMeta", { status: item.status, count: item.materialCount }, item.status + " / " + item.materialCount + " tài liệu");
+        subtitle = t(
+          "groups.detailPage.materialsMeta",
+          { status: item.status, count: item.materialCount },
+          item.status + " / " + item.materialCount + " tài liệu"
+        );
       } else {
-        subtitle = t("groups.detailPage.examMeta", { status: item.status, minutes: item.durationMinutes, passScore: item.passScore }, item.status + " / " + item.durationMinutes + " phút / đạt " + item.passScore);
+        subtitle = t(
+          "groups.detailPage.examMeta",
+          { status: item.status, minutes: item.durationMinutes, passScore: item.passScore },
+          item.status + " / " + item.durationMinutes + " phút / đạt " + item.passScore
+        );
       }
 
       $container.append(
         '<div class="group-detail-item">' +
           '<div class="admin-user-cell">' +
-            '<span class="app-avatar" aria-hidden="true">' + escapeHtml(title.charAt(0).toUpperCase()) + '</span>' +
-            '<div>' +
-              '<strong>' + escapeHtml(title) + '</strong>' +
-              '<span>' + escapeHtml(subtitle) + '</span>' +
-            '</div>' +
-          '</div>' +
-          '<button class="app-button app-button-secondary" type="button" data-group-detail-remove="' + type + '" data-item-id="' + item.id + '">' + escapeHtml(t("groups.detailPage.remove", null, "Xóa")) + '</button>' +
-        '</div>'
+            '<span class="app-avatar" aria-hidden="true">' + escapeHtml(title.charAt(0).toUpperCase()) + "</span>" +
+            "<div>" +
+              "<strong>" + escapeHtml(title) + "</strong>" +
+              "<span>" + escapeHtml(subtitle) + "</span>" +
+            "</div>" +
+          "</div>" +
+          '<button class="app-button app-button-secondary" type="button" data-group-detail-remove="' + type + '" data-item-id="' + item.id + '">' +
+            escapeHtml(t("groups.detailPage.remove", null, "Xóa")) +
+          "</button>" +
+        "</div>"
       );
     });
   }
@@ -184,7 +208,11 @@
     const typeLabel = getTypeLabel(type);
 
     if (!itemId) {
-      showToast("warning", t("groups.detailPage.selectWarningTitle", { type: typeLabel }, "Chọn " + typeLabel), t("groups.detailPage.selectWarningMessage", null, "Chọn một mục trước khi thêm."));
+      showToast(
+        "warning",
+        t("groups.detailPage.selectWarningTitle", { type: typeLabel }, "Chọn " + typeLabel),
+        t("groups.detailPage.selectWarningMessage", null, "Chọn một mục trước khi thêm.")
+      );
       return;
     }
 
@@ -194,7 +222,11 @@
     }
 
     render();
-    showToast("success", t("groups.detailPage.addedTitle", null, "Đã thêm giao nhiệm vụ"), t("groups.detailPage.addedMessage", { type: typeLabel, group: state.group.name }, typeLabel + " đã được thêm vào " + state.group.name + "."));
+    showToast(
+      "success",
+      t("groups.detailPage.addedTitle", null, "Đã thêm giao nhiệm vụ"),
+      t("groups.detailPage.addedMessage", { type: typeLabel, group: state.group.name }, typeLabel + " đã được thêm vào " + state.group.name + ".")
+    );
   }
 
   function removeItem(type, itemId) {
@@ -207,7 +239,11 @@
     }
 
     render();
-    showToast("success", t("groups.detailPage.removedTitle", null, "Đã xóa giao nhiệm vụ"), t("groups.detailPage.removedMessage", { type: typeLabel, group: state.group.name }, typeLabel + " đã được xóa khỏi " + state.group.name + "."));
+    showToast(
+      "success",
+      t("groups.detailPage.removedTitle", null, "Đã xóa giao nhiệm vụ"),
+      t("groups.detailPage.removedMessage", { type: typeLabel, group: state.group.name }, typeLabel + " đã được xóa khỏi " + state.group.name + ".")
+    );
   }
 
   function bindEvents() {
@@ -226,9 +262,9 @@
     $(".group-detail-list").html(
       '<div class="app-empty-state">' +
         '<div class="app-empty-icon" aria-hidden="true">!</div>' +
-        '<h3 class="app-empty-title">' + escapeHtml(t("groups.detailPage.loadErrorTitle", null, "Không thể tải chi tiết nhóm")) + '</h3>' +
-        '<p class="app-empty-copy">' + escapeHtml(t("groups.detailPage.loadErrorCopy", null, "Vui lòng kiểm tra các file dữ liệu mô phỏng.")) + '</p>' +
-      '</div>'
+        '<h3 class="app-empty-title">' + escapeHtml(t("groups.detailPage.loadErrorTitle", null, "Không thể tải chi tiết nhóm")) + "</h3>" +
+        '<p class="app-empty-copy">' + escapeHtml(t("groups.detailPage.loadErrorCopy", null, "Vui lòng kiểm tra các file dữ liệu mô phỏng.")) + "</p>" +
+      "</div>"
     );
   }
 
@@ -259,7 +295,11 @@
       render();
     }).fail(function () {
       renderLoadError();
-      showToast("error", t("groups.detailPage.dataErrorTitle", null, "Lỗi chi tiết nhóm"), t("groups.detailPage.dataErrorMessage", null, "Không thể tải dữ liệu mô phỏng chi tiết nhóm."));
+      showToast(
+        "error",
+        t("groups.detailPage.dataErrorTitle", null, "Lỗi chi tiết nhóm"),
+        t("groups.detailPage.dataErrorMessage", null, "Không thể tải dữ liệu mô phỏng chi tiết nhóm.")
+      );
     });
   }
 

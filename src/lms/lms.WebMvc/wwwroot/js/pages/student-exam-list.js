@@ -26,12 +26,14 @@
       .replace(/'/g, "&#039;");
   }
 
-  function getBadgeClass(status) {
-    return status === "Published" ? "app-badge-success" : "app-badge-muted";
+  function getStatusClass(status) {
+    return status === "Published" ? "lms-status-warning" : "lms-status-muted";
   }
 
-  function getExamImage(index) {
-    return "/images/placeholders/exam-placeholder.svg";
+  function getStatusLabel(status) {
+    return status === "Published"
+      ? t("exams.studentListPage.statusPublished", null, "Đang mở")
+      : t("exams.studentListPage.statusUnavailable", null, "Chưa khả dụng");
   }
 
   function getReviewLabel(reviewMode) {
@@ -45,65 +47,104 @@
     return labels[reviewMode] || reviewMode;
   }
 
-  function getStatusLabel(status) {
-    return status === "Published" ? t("exams.studentListPage.statusPublished", null, "Đang mở") : t("exams.studentListPage.statusUnavailable", null, "Không khả dụng");
+  function renderAttention(exams) {
+    const actionableExam = exams.find(function (exam) {
+      return exam.status === "Published";
+    }) || exams[0];
+
+    if (!actionableExam) {
+      $("[data-student-exam-attention-title]").text(t("exams.studentListPage.noExamsTitle", null, "Hiện chưa có bài thi được giao."));
+      $("[data-student-exam-attention-copy]").text(t("exams.studentListPage.noExamsCopy", null, "Các bài thi được giao sẽ xuất hiện ở đây."));
+      $("[data-student-exam-attention-duration]").text("--");
+      $("[data-student-exam-attention-score]").text("--");
+      $("[data-student-exam-attention-status]").text(t("exams.studentListPage.statusUnavailable", null, "Chưa khả dụng"));
+      $("[data-student-exam-attention-review]").text("--");
+      $("[data-student-exam-attention-questions]").text("--");
+      $("[data-student-exam-attention-link]").addClass("is-disabled").attr("aria-disabled", "true").attr("href", "#");
+      return;
+    }
+
+    $("[data-student-exam-attention-title]").text(actionableExam.name);
+    $("[data-student-exam-attention-copy]").text(
+      actionableExam.status === "Published"
+        ? t("exams.studentListPage.onlyPublishedSubtitle", null, "Chỉ bài thi đã xuất bản mới có thể bắt đầu làm.")
+        : t("exams.studentListPage.statusUnavailable", null, "Bài thi này chưa khả dụng để bắt đầu.")
+    );
+    $("[data-student-exam-attention-duration]").text(
+      t("exams.studentListPage.metaDuration", { minutes: actionableExam.durationMinutes }, actionableExam.durationMinutes + " phút")
+    );
+    $("[data-student-exam-attention-score]").text(
+      t("exams.studentListPage.metaPassScore", { score: actionableExam.passScore }, "Điểm đạt " + actionableExam.passScore)
+    );
+    $("[data-student-exam-attention-status]")
+      .removeClass("lms-status-warning lms-status-muted")
+      .addClass(getStatusClass(actionableExam.status))
+      .text(getStatusLabel(actionableExam.status));
+    $("[data-student-exam-attention-review]").text(getReviewLabel(actionableExam.reviewMode));
+    $("[data-student-exam-attention-questions]").text(actionableExam.questionCount);
+    $("[data-student-exam-attention-link]")
+      .attr("href", actionableExam.status === "Published" ? "/Exams/Start/" + actionableExam.id : "/Exams")
+      .text(actionableExam.status === "Published"
+        ? t("exams.studentListPage.buttonStart", null, "Bắt đầu")
+        : t("exams.studentListPage.buttonUnavailable", null, "Không khả dụng"));
+  }
+
+  function renderEmptyState() {
+    return (
+      '<div class="lms-empty-compact student-exam-empty student-exam-list-reveal is-visible" data-exam-list-reveal>' +
+        '<i class="bi bi-journal-x" aria-hidden="true"></i>' +
+        '<h3>' + escapeHtml(t("exams.studentListPage.noExamsTitle", null, "Hiện chưa có bài thi được giao.")) + "</h3>" +
+        '<p>' + escapeHtml(t("exams.studentListPage.noExamsCopy", null, "Các bài thi được giao sẽ xuất hiện ở đây.")) + "</p>" +
+      "</div>"
+    );
+  }
+
+  function renderExamRow(exam) {
+    const canStart = exam.status === "Published";
+
+    return (
+      '<article class="student-exam-row student-exam-list-reveal" data-exam-list-reveal>' +
+        '<div class="student-exam-row-main">' +
+          "<h3>" + escapeHtml(exam.name) + "</h3>" +
+          "<p>" + escapeHtml(getReviewLabel(exam.reviewMode)) + "</p>" +
+        "</div>" +
+        '<div class="student-exam-row-stat">' +
+          '<span>' + escapeHtml(t("exams.studentListPage.durationLabel", null, "Thời lượng")) + "</span>" +
+          "<strong>" + escapeHtml(exam.durationMinutes + " phút") + "</strong>" +
+        "</div>" +
+        '<div class="student-exam-row-stat">' +
+          '<span>' + escapeHtml(t("exams.studentListPage.passScoreLabel", null, "Điểm đạt")) + "</span>" +
+          "<strong>" + escapeHtml(String(exam.passScore)) + "</strong>" +
+        "</div>" +
+        '<div class="student-exam-row-stat">' +
+          '<span>' + escapeHtml(t("exams.studentListPage.questionsLabel", null, "Số câu hỏi")) + "</span>" +
+          "<strong>" + escapeHtml(String(exam.questionCount)) + "</strong>" +
+        "</div>" +
+        '<div class="student-exam-row-action">' +
+          '<span class="' + getStatusClass(exam.status) + '">' + escapeHtml(getStatusLabel(exam.status)) + "</span>" +
+          (canStart
+            ? '<a class="app-button app-button-primary" href="/Exams/Start/' + exam.id + '">' + escapeHtml(t("exams.studentListPage.buttonStart", null, "Bắt đầu")) + "</a>"
+            : '<button class="app-button app-button-secondary" type="button" disabled>' + escapeHtml(t("exams.studentListPage.buttonUnavailable", null, "Không khả dụng")) + "</button>") +
+        "</div>" +
+      "</article>"
+    );
   }
 
   function renderExams(exams) {
     const $grid = $("#studentExamGrid").empty();
-    const publishedCount = exams.filter(function (exam) {
-      return exam.status === "Published";
-    }).length;
+    const assignedCount = exams.length;
 
-    $("[data-student-exam-count]").text(t("exams.studentListPage.records", { count: publishedCount }, publishedCount + " bài thi"));
+    renderAttention(exams);
+    $("[data-student-exam-count]").text(
+      t("exams.studentListPage.records", { count: assignedCount }, assignedCount + " bài thi")
+    );
 
     if (!exams.length) {
-      $grid.append(
-        '<div class="app-empty-state exam-list-empty exam-list-reveal is-visible" data-exam-list-reveal>' +
-          '<div class="image-slot image-slot-md image-slot-exam u-mb-4" data-image-label="Empty exams 640x360">' +
-            '<img src="/images/placeholders/exam-placeholder.svg" alt="" aria-hidden="true" />' +
-          '</div>' +
-          '<h3 class="app-empty-title">' + t("exams.studentListPage.noExamsTitle", null, "Không có bài thi được giao") + '</h3>' +
-          '<p class="app-empty-copy">' + t("exams.studentListPage.noExamsCopy", null, "Các bài thi được giao cho bạn sẽ xuất hiện ở đây.") + '</p>' +
-        '</div>'
-      );
+      $grid.html(renderEmptyState());
       return;
     }
 
-    exams.forEach(function (exam, index) {
-      const canStart = exam.status === "Published";
-      const cardClass = ["learning-card-safety", "learning-card-service", "learning-card-exam"][index % 3];
-      const stateClass = canStart ? "is-actionable" : "is-muted";
-
-      $grid.append(
-        '<article class="app-card learning-card student-exam-card linear-exam-card exam-list-reveal ' + cardClass + " " + stateClass + '" data-exam-list-reveal>' +
-          '<div class="app-card-body">' +
-            '<div class="image-slot image-slot-md image-slot-exam student-exam-image" data-image-label="Exam card 640x360">' +
-              '<img src="' + escapeHtml(getExamImage(index)) + '" alt="" aria-hidden="true" />' +
-            '</div>' +
-            '<div class="course-thumb">' +
-              '<span class="course-thumb-code">EX</span>' +
-              '<span class="app-badge ' + getBadgeClass(exam.status) + '">' + escapeHtml(getStatusLabel(exam.status)) + '</span>' +
-            '</div>' +
-            '<h3 class="app-card-title">' + escapeHtml(exam.name) + '</h3>' +
-            '<p class="app-card-subtitle">' +
-              t("exams.studentListPage.metaText", {
-                minutes: exam.durationMinutes,
-                passScore: exam.passScore,
-                review: getReviewLabel(exam.reviewMode)
-              }, exam.durationMinutes + " phút / điểm đạt " + exam.passScore + " / " + getReviewLabel(exam.reviewMode)) +
-            '</p>' +
-            '<div class="admin-summary-line u-mt-4"><span>' + t("exams.studentListPage.questionsLabel", null, "Số câu hỏi") + '</span><strong>' + escapeHtml(exam.questionCount) + '</strong></div>' +
-            '<div class="admin-summary-line u-mt-4"><span>' + t("exams.studentListPage.assignedLearnersLabel", null, "Số người được giao") + '</span><strong>' + escapeHtml(exam.assignedCount) + '</strong></div>' +
-          '</div>' +
-          '<div class="app-card-footer">' +
-            (canStart
-              ? '<a class="app-button app-button-primary" href="/Exams/Start/' + exam.id + '">' + t("exams.studentListPage.buttonStart", null, "Bắt đầu") + '</a>'
-              : '<button class="app-button app-button-secondary" type="button" disabled>' + t("exams.studentListPage.buttonUnavailable", null, "Không khả dụng") + '</button>') +
-          '</div>' +
-        '</article>'
-      );
-    });
+    $grid.html(exams.map(renderExamRow).join(""));
     initExamListReveal();
   }
 
@@ -134,9 +175,30 @@
     });
 
     $items.each(function (index) {
-      this.style.setProperty("--reveal-delay", Math.min(index * 45, 240) + "ms");
+      this.style.setProperty("--reveal-delay", Math.min(index * 45, 220) + "ms");
       $(this).attr("data-exam-list-reveal-ready", "true");
       observer.observe(this);
+    });
+  }
+
+  function loadPageData() {
+    if (!Lms.apiClient) {
+      $("#studentExamGrid").html(renderEmptyState());
+      return;
+    }
+
+    Lms.apiClient.get("exams.json").done(function (response) {
+      cachedExams = getItems(response);
+      renderExams(cachedExams);
+    }).fail(function () {
+      $("#studentExamGrid").html(
+        '<div class="lms-empty-compact student-exam-empty student-exam-list-reveal is-visible" data-exam-list-reveal>' +
+          '<i class="bi bi-exclamation-circle" aria-hidden="true"></i>' +
+          '<h3>' + escapeHtml(t("exams.studentListPage.loadErrorTitle", null, "Không thể tải bài thi")) + "</h3>" +
+          '<p>' + escapeHtml(t("exams.studentListPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/exams.json.")) + "</p>" +
+        "</div>"
+      );
+      initExamListReveal();
     });
   }
 
@@ -151,25 +213,8 @@
       Lms.i18n.ready.always(loadPageData);
       return;
     }
-    loadPageData();
-  }
 
-  function loadPageData() {
-    Lms.apiClient.get("exams.json").done(function (response) {
-      cachedExams = getItems(response);
-      renderExams(cachedExams);
-    }).fail(function () {
-      $("#studentExamGrid").html(
-        '<div class="app-empty-state exam-list-empty exam-list-reveal is-visible" data-exam-list-reveal>' +
-          '<div class="image-slot image-slot-md image-slot-exam u-mb-4" data-image-label="Exam load error 640x360">' +
-            '<img src="/images/placeholders/exam-placeholder.svg" alt="" aria-hidden="true" />' +
-          '</div>' +
-          '<h3 class="app-empty-title">' + t("exams.studentListPage.loadErrorTitle", null, "Không thể tải bài thi") + '</h3>' +
-          '<p class="app-empty-copy">' + t("exams.studentListPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/exams.json.") + '</p>' +
-        '</div>'
-      );
-      initExamListReveal();
-    });
+    loadPageData();
   }
 
   $(init);

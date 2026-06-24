@@ -3,9 +3,9 @@
     var examId = ViewData["ExamId"] ?? 0;
 }
 
-<div class="exam-taking-shell linear-exam-taking-shell" data-exam-taking-id="@examId">
-    <header class="exam-taking-header linear-exam-taking-header exam-taking-reveal" data-exam-taking-reveal>
-        <div>
+<section class="lms-workspace-page student-exam-taking-page" data-exam-taking-id="@examId" aria-label="Làm bài thi">
+    <header class="student-exam-taking-header student-exam-taking-reveal" data-exam-taking-reveal>
+        <div class="student-exam-taking-header-copy">
             <nav class="page-breadcrumb" aria-label="Breadcrumb">
                 <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="exams.takePage.breadcrumbHome">Trang chủ</a>
                 <span>/</span>
@@ -13,54 +13,84 @@
                 <span>/</span>
                 <span data-i18n="exams.takePage.breadcrumbCurrent">Đang làm bài</span>
             </nav>
-            <h1 class="page-title" data-exam-taking-title data-i18n="exams.takePage.title">Đang làm bài</h1>
-            <p class="page-muted u-mb-0" data-exam-taking-subtitle data-i18n="exams.takePage.subtitle">Đang tải bài thi...</p>
+            <p class="lms-workspace-kicker">Phiên làm bài</p>
+            <h1 data-exam-taking-title data-i18n="exams.takePage.title">Đang làm bài</h1>
+            <p class="lms-workspace-description" data-exam-taking-subtitle data-i18n="exams.takePage.subtitle">Đang tải bài thi...</p>
         </div>
 
-        <div class="exam-timer-card linear-exam-timer-card" data-exam-timer-state="normal">
+        <div class="student-exam-taking-timer" data-exam-timer-state="normal">
             <span data-i18n="exams.takePage.timerLabel">Thời gian còn lại</span>
             <strong data-exam-taking-timer>--:--</strong>
-            <div class="exam-timer-progress" aria-hidden="true">
+            <div class="student-exam-taking-timer-progress" aria-hidden="true">
                 <span data-exam-taking-timer-progress></span>
             </div>
         </div>
     </header>
 
-    <section class="exam-taking-layout linear-exam-taking-layout">
-        <aside class="app-card exam-question-navigator linear-exam-question-navigator exam-taking-reveal" data-exam-taking-reveal>
-            <div class="app-card-header">
-                <h2 class="app-card-title" data-i18n="exams.takePage.cardTitleNavigator">Danh sách câu hỏi</h2>
-                <p class="app-card-subtitle" data-exam-taking-progress>--</p>
-            </div>
-            <div class="app-card-body">
-                <div class="exam-question-grid" id="examQuestionNavigator"></div>
-            </div>
+    <section class="student-exam-taking-layout">
+        <aside class="student-exam-taking-side">
+            <article class="lms-workspace-card student-exam-taking-card student-exam-taking-reveal" data-exam-taking-reveal>
+                <div class="lms-workspace-section-head">
+                    <div>
+                        <p class="lms-workspace-kicker">Điều hướng</p>
+                        <h2 data-i18n="exams.takePage.cardTitleNavigator">Danh sách câu hỏi</h2>
+                    </div>
+                    <span class="student-exam-progress-chip" data-exam-taking-progress>--</span>
+                </div>
+
+                <div class="student-exam-question-grid" id="examQuestionNavigator"></div>
+            </article>
+
+            <article class="lms-workspace-card student-exam-taking-card student-exam-taking-reveal" data-exam-taking-reveal>
+                <div class="lms-workspace-section-head">
+                    <div>
+                        <p class="lms-workspace-kicker">Chú thích</p>
+                        <h2>Trạng thái</h2>
+                    </div>
+                </div>
+
+                <div class="student-exam-status-list">
+                    <div>
+                        <span class="student-exam-question-nav-item active" aria-hidden="true">1</span>
+                        <span>Câu đang xem</span>
+                    </div>
+                    <div>
+                        <span class="student-exam-question-nav-item answered" aria-hidden="true">2</span>
+                        <span>Đã trả lời</span>
+                    </div>
+                    <div>
+                        <span class="student-exam-question-nav-item marked" aria-hidden="true">3</span>
+                        <span>Đã đánh dấu</span>
+                    </div>
+                </div>
+            </article>
         </aside>
 
-        <main class="app-card exam-question-panel linear-exam-question-panel app-animate-slide-up exam-taking-reveal" data-exam-taking-reveal>
-            <div class="app-card-header">
-                <div class="admin-card-header-row">
-                    <div>
-                        <h2 class="app-card-title" data-exam-question-heading data-i18n="exams.takePage.cardTitleQuestion">Câu hỏi</h2>
-                        <p class="app-card-subtitle" data-exam-question-meta>--</p>
-                    </div>
-                    <button class="app-button app-button-secondary" type="button" data-exam-taking-action="mark" data-i18n="exams.takePage.buttonMark">Đánh dấu</button>
+        <main class="lms-workspace-card student-exam-question-shell student-exam-taking-reveal" data-exam-taking-reveal>
+            <div class="lms-workspace-section-head">
+                <div>
+                    <p class="lms-workspace-kicker">Câu hỏi</p>
+                    <h2 data-exam-question-heading data-i18n="exams.takePage.cardTitleQuestion">Câu hỏi</h2>
+                    <p class="lms-workspace-description" data-exam-question-meta>--</p>
                 </div>
+                <button class="app-button app-button-secondary student-exam-mark-button" type="button" data-exam-taking-action="mark" data-i18n="exams.takePage.buttonMark">Đánh dấu</button>
             </div>
-            <div class="app-card-body linear-exam-question-body">
-                <p class="exam-question-content" data-exam-question-content data-i18n="exams.takePage.loadingQuestion">Đang tải câu hỏi...</p>
-                <div class="exam-answer-list" id="examAnswerList"></div>
+
+            <div class="student-exam-question-content">
+                <p data-exam-question-content data-i18n="exams.takePage.loadingQuestion">Đang tải câu hỏi...</p>
+                <div class="student-exam-answer-list" id="examAnswerList"></div>
             </div>
-            <div class="app-card-footer exam-taking-footer">
+
+            <div class="student-exam-action-row">
                 <button class="app-button app-button-secondary" type="button" data-exam-taking-action="prev" data-i18n="exams.takePage.buttonPrev">Câu trước</button>
-                <div class="exam-taking-footer-main">
+                <div class="student-exam-footer-actions">
                     <button class="app-button app-button-secondary" type="button" data-exam-taking-action="next" data-i18n="exams.takePage.buttonNext">Câu sau</button>
                     <button class="app-button app-button-primary" type="button" data-exam-taking-action="submit" data-i18n="exams.takePage.buttonSubmit">Nộp bài</button>
                 </div>
             </div>
         </main>
     </section>
-</div>
+</section>
 
 @section Scripts {
     <script src="~/js/pages/student-exam-taking.js" asp-append-version="true"></script>

@@ -90,8 +90,8 @@
       const $bar = $(
         '<div class="admin-bar-item">' +
           '<div class="admin-bar" title="' + attemptsText + '"></div>' +
-          '<span>' + escapeHtml(label) + '</span>' +
-        '</div>'
+          "<span>" + escapeHtml(label) + "</span>" +
+        "</div>"
       );
 
       $bar.find(".admin-bar").css("--bar-height", height + "px");
@@ -114,12 +114,12 @@
       const width = Math.round((item.count / total) * 100);
       const $row = $(
         '<div class="admin-distribution-row">' +
-          '<span>' + escapeHtml(item.range) + '</span>' +
+          "<span>" + escapeHtml(item.range) + "</span>" +
           '<div class="progress-track">' +
             '<div class="progress-fill"></div>' +
-          '</div>' +
-          '<strong>' + item.count + '</strong>' +
-        '</div>'
+          "</div>" +
+          "<strong>" + item.count + "</strong>" +
+        "</div>"
       );
 
       $row.find(".progress-fill").css("--progress-width", width + "%");
@@ -127,7 +127,6 @@
     });
   }
 
-  // Translates filter state description at runtime
   function getFilterLabel() {
     const active = [];
 
@@ -147,17 +146,17 @@
   function renderSnapshot(summary) {
     $("#reportSummaryList").html(
       '<div class="report-summary-item">' +
-        '<span>' + t("reports.adminPage.snapshotPerformance", null, "Hiệu suất") + '</span>' +
-        '<strong>' + t("reports.adminPage.snapshotPerformanceDesc", { passRate: summary.passRate, averageScore: summary.averageScore }, summary.passRate + '% tỉ lệ đạt với ' + summary.averageScore + '/100 điểm trung bình') + '</strong>' +
-      '</div>' +
+        "<span>" + t("reports.adminPage.snapshotPerformance", null, "Hiệu suất") + "</span>" +
+        "<strong>" + t("reports.adminPage.snapshotPerformanceDesc", { passRate: summary.passRate, averageScore: summary.averageScore }, summary.passRate + "% tỉ lệ đạt với " + summary.averageScore + "/100 điểm trung bình") + "</strong>" +
+      "</div>" +
       '<div class="report-summary-item">' +
-        '<span>' + t("reports.adminPage.snapshotCoverage", null, "Phạm vi") + '</span>' +
-        '<strong>' + t("reports.adminPage.snapshotCoverageDesc", { count: summary.examCount }, summary.examCount + ' bài thi bao gồm trong ngữ cảnh báo cáo này') + '</strong>' +
-      '</div>' +
+        "<span>" + t("reports.adminPage.snapshotCoverage", null, "Phạm vi") + "</span>" +
+        "<strong>" + t("reports.adminPage.snapshotCoverageDesc", { count: summary.examCount }, summary.examCount + " bài thi bao gồm trong ngữ cảnh báo cáo này") + "</strong>" +
+      "</div>" +
       '<div class="report-summary-item">' +
-        '<span>' + t("reports.adminPage.snapshotCompletion", null, "Hoàn thành") + '</span>' +
-        '<strong>' + t("reports.adminPage.snapshotCompletionDesc", { completionRate: summary.completionRate }, summary.completionRate + '% tỉ lệ hoàn thành của học viên') + '</strong>' +
-      '</div>'
+        "<span>" + t("reports.adminPage.snapshotCompletion", null, "Hoàn thành") + "</span>" +
+        "<strong>" + t("reports.adminPage.snapshotCompletionDesc", { completionRate: summary.completionRate }, summary.completionRate + "% tỉ lệ hoàn thành của học viên") + "</strong>" +
+      "</div>"
     );
   }
 

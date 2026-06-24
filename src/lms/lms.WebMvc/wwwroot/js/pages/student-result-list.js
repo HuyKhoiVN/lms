@@ -23,17 +23,12 @@
     return payload && payload.data && Array.isArray(payload.data.items) ? payload.data.items : [];
   }
 
-  // Use toLocaleString but keep fallback or handle custom logic if needed
   function formatDate(value) {
     return value ? new Date(value).toLocaleString() : "--";
   }
 
   function getBadgeClass(passed) {
-    return passed ? "app-badge-success" : "app-badge-danger";
-  }
-
-  function getResultIcon(passed) {
-    return passed ? "bi-check2-circle" : "bi-x-circle";
+    return passed ? "lms-status-success" : "lms-status-danger";
   }
 
   function getLocalResults() {
@@ -47,6 +42,10 @@
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#039;");
+  }
+
+  function renderPageTitle() {
+    document.title = t("results.listPage.title", null, "Kết quả học tập") + " - " + t("common.appName", null, "lms");
   }
 
   function renderMetrics() {
@@ -69,64 +68,91 @@
     $("[data-result-metric='latest']").text(latest ? latest.score + "%" : "--");
   }
 
+  function renderSpotlight() {
+    const $container = $("#studentResultSpotlight").empty();
+    const latest = state.results.slice().sort(function (a, b) {
+      return new Date(b.submittedAt) - new Date(a.submittedAt);
+    })[0];
+
+    if (!latest) {
+      $container.html(
+        '<div class="lms-empty-compact">' +
+          '<i class="bi bi-clipboard2-data" aria-hidden="true"></i>' +
+          "<h3>Chưa có kết quả</h3>" +
+          "<p>Hoàn thành bài thi đầu tiên để xem tóm tắt kết quả tại đây.</p>" +
+        "</div>"
+      );
+      return;
+    }
+
+    $container.html(
+      '<div class="student-result-spotlight-card">' +
+        '<span class="' + getBadgeClass(latest.passed) + '">' + escapeHtml(latest.passed ? t("results.listPage.passed", null, "Đạt") : t("results.listPage.failed", null, "Không đạt")) + "</span>" +
+        "<h3>" + escapeHtml(latest.examName) + "</h3>" +
+        "<p>" + escapeHtml(formatDate(latest.submittedAt)) + "</p>" +
+        '<div class="student-result-spotlight-score">' +
+          "<strong>" + escapeHtml(latest.score) + "/100</strong>" +
+          "<span>" + escapeHtml(t("results.listPage.durationValue", { minutes: latest.durationMinutes }, latest.durationMinutes + " phút")) + "</span>" +
+        "</div>" +
+        '<a class="app-button app-button-primary" href="/Results/Detail/' + encodeURIComponent(latest.id) + '">' + escapeHtml(t("results.listPage.buttonDetail", null, "Chi tiết")) + "</a>" +
+      "</div>"
+    );
+  }
+
+  function emptyMarkup() {
+    return (
+      '<div class="lms-empty-compact student-result-reveal is-visible" data-result-list-reveal>' +
+        '<i class="bi bi-search" aria-hidden="true"></i>' +
+        "<h3>" + escapeHtml(t("results.listPage.noResultsTitle", null, "Không tìm thấy kết quả")) + "</h3>" +
+        "<p>" + escapeHtml(t("results.listPage.noResultsCopy", null, "Thử tên bài thi hoặc trạng thái khác để xem kết quả phù hợp hơn.")) + "</p>" +
+      "</div>"
+    );
+  }
+
   function renderRows() {
     const $rows = $("#studentResultRows").empty();
 
     $("[data-result-count]").text(t("results.listPage.records", { count: state.filteredResults.length }, state.filteredResults.length + " bản ghi"));
 
     if (!state.filteredResults.length) {
-      $rows.append(
-        '<tr>' +
-          '<td colspan="6">' +
-            '<div class="app-empty-state result-list-empty result-list-reveal is-visible" data-result-list-reveal>' +
-              '<div class="image-slot image-slot-md image-slot-result u-mb-4" data-image-label="Empty results 640x360">' +
-                '<img src="/images/placeholders/result-placeholder.svg" alt="" aria-hidden="true" />' +
-              '</div>' +
-              '<h3 class="app-empty-title">' + t("results.listPage.noResultsTitle", null, "Không tìm thấy kết quả") + '</h3>' +
-              '<p class="app-empty-copy">' + t("results.listPage.noResultsCopy", null, "Thử từ khóa tên bài thi hoặc trạng thái khác.") + '</p>' +
-            '</div>' +
-          '</td>' +
-        '</tr>'
-      );
+      $rows.html(emptyMarkup());
+      initResultListReveal();
       return;
     }
 
     state.filteredResults.forEach(function (result) {
-      const labels = {
-        exam: escapeHtml(t("results.listPage.tableHeaderExam", null, "Exam")),
-        score: escapeHtml(t("results.listPage.tableHeaderScore", null, "Score")),
-        status: escapeHtml(t("results.listPage.tableHeaderStatus", null, "Status")),
-        duration: escapeHtml(t("results.listPage.tableHeaderDuration", null, "Duration")),
-        submitted: escapeHtml(t("results.listPage.tableHeaderSubmitted", null, "Submitted")),
-        actions: escapeHtml(t("results.listPage.tableHeaderActions", null, "Actions"))
-      };
-
-      $rows.append(
-        '<tr class="student-result-row linear-result-row result-list-reveal ' + (result.passed ? "is-passed" : "is-failed") + '" data-result-list-reveal>' +
-          '<td data-result-label="' + labels.exam + '">' +
-            '<div class="admin-user-cell">' +
-              '<span class="app-avatar student-result-avatar" aria-hidden="true"><i class="bi ' + getResultIcon(result.passed) + '"></i></span>' +
-              '<div>' +
-                '<strong>' + escapeHtml(result.examName) + '</strong>' +
-                '<span>' + escapeHtml(result.studentName || t("common.student", null, "Học viên")) + '</span>' +
-              '</div>' +
-            '</div>' +
-          '</td>' +
-          '<td data-result-label="' + labels.score + '"><strong class="linear-result-score">' + escapeHtml(result.score) + '/100</strong></td>' +
-          '<td><span class="app-badge ' + getBadgeClass(result.passed) + '">' + (result.passed ? t("results.listPage.passed", null, "Đạt") : t("results.listPage.failed", null, "Không đạt")) + '</span></td>' +
-          '<td>' + t("results.listPage.durationValue", { minutes: result.durationMinutes }, result.durationMinutes + " phút") + '</td>' +
-          '<td data-result-label="' + labels.submitted + '">' + escapeHtml(formatDate(result.submittedAt)) + '</td>' +
-          '<td class="u-text-right" data-result-label="' + labels.actions + '">' +
-            '<button class="app-button app-button-secondary" type="button" data-result-action="detail" data-result-id="' + result.id + '">' + t("results.listPage.buttonDetail", null, "Chi tiết") + '</button>' +
-          '</td>' +
-        '</tr>'
+      const $row = $(
+        '<article class="student-result-row student-result-reveal ' + (result.passed ? "is-passed" : "is-failed") + '" data-result-list-reveal>' +
+          '<div class="student-result-row-main">' +
+            '<div class="student-result-row-head">' +
+              '<span class="student-result-avatar" aria-hidden="true"><i class="bi ' + (result.passed ? "bi-check2-circle" : "bi-x-circle") + '"></i></span>' +
+              "<div>" +
+                "<h3>" + escapeHtml(result.examName) + "</h3>" +
+                "<p>" + escapeHtml(result.studentName || t("common.student", null, "Học viên")) + "</p>" +
+              "</div>" +
+            "</div>" +
+            '<div class="student-result-row-meta">' +
+              '<span class="' + getBadgeClass(result.passed) + '">' + escapeHtml(result.passed ? t("results.listPage.passed", null, "Đạt") : t("results.listPage.failed", null, "Không đạt")) + "</span>" +
+              "<span>" + escapeHtml(formatDate(result.submittedAt)) + "</span>" +
+            "</div>" +
+          "</div>" +
+          '<div class="student-result-row-stat">' +
+            "<span>Điểm số</span>" +
+            "<strong>" + escapeHtml(result.score) + "/100</strong>" +
+          "</div>" +
+          '<div class="student-result-row-stat">' +
+            "<span>Thời gian làm bài</span>" +
+            "<strong>" + escapeHtml(result.durationMinutes) + " phút</strong>" +
+          "</div>" +
+          '<div class="student-result-row-action">' +
+            '<a class="app-button app-button-secondary" href="/Results/Detail/' + encodeURIComponent(result.id) + '">' + escapeHtml(t("results.listPage.buttonDetail", null, "Chi tiết")) + "</a>" +
+          "</div>" +
+        "</article>"
       );
+
+      $rows.append($row);
     });
-    $rows.find("tr.linear-result-row").each(function () {
-      const $cells = $(this).children("td");
-      $cells.eq(2).attr("data-result-label", t("results.listPage.tableHeaderStatus", null, "Status"));
-      $cells.eq(3).attr("data-result-label", t("results.listPage.tableHeaderDuration", null, "Duration"));
-    });
+
     initResultListReveal();
   }
 
@@ -164,7 +190,9 @@
   }
 
   function render() {
+    renderPageTitle();
     renderMetrics();
+    renderSpotlight();
     renderRows();
   }
 
@@ -172,15 +200,15 @@
     const keyword = state.search.trim().toLowerCase();
 
     state.filteredResults = state.results.filter(function (result) {
-      const matchesKeyword = !keyword || result.examName.toLowerCase().includes(keyword);
-      const matchesStatus = !state.status ||
-        (state.status === "passed" && result.passed) ||
-        (state.status === "failed" && !result.passed);
+      const matchesKeyword = !keyword || String(result.examName).toLowerCase().includes(keyword);
+      const matchesStatus = !state.status
+        || (state.status === "passed" && result.passed)
+        || (state.status === "failed" && !result.passed);
 
       return matchesKeyword && matchesStatus;
     });
 
-    render();
+    renderRows();
   }
 
   function bindEvents() {
@@ -200,11 +228,6 @@
       $("[data-result-filter='search']").val("");
       $("[data-result-filter='status']").val("");
       applyFilters();
-    });
-
-    $(document).on("click", "[data-result-action='detail']", function () {
-      const resultId = $(this).data("result-id");
-      window.location.href = "/Results/Detail/" + encodeURIComponent(resultId);
     });
 
     $(document).on("lms:i18n:changed", render);

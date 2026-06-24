@@ -1,49 +1,66 @@
-﻿@{
+@{
     ViewData["Title"] = "Đăng nhập";
     Layout = "_AuthLayout";
 }
 
-<section class="auth-page linear-auth-page">
-    <div class="auth-visual linear-auth-visual auth-reveal" aria-label="Nền tảng học tập và thi trực tuyến" data-i18n-aria="auth.loginPage.visualLabel" data-auth-reveal>
-        <a class="learning-brand" asp-area="" asp-controller="Home" asp-action="Index">
-            <span class="learning-brand-mark">L</span>
-            <span>lms</span>
-        </a>
+<section class="auth-page auth-page-login">
+    <div class="auth-visual auth-visual-login app-animate-slide-right" aria-label="Nền tảng học tập và thi trực tuyến" data-i18n-aria="auth.loginPage.visualLabel">
+        <div class="auth-visual-top">
+            <a class="learning-brand" asp-area="" asp-controller="Home" asp-action="Index">
+                <span class="learning-brand-mark">L</span>
+                <span>lms</span>
+            </a>
 
-        <div class="auth-hero-copy linear-auth-hero-copy auth-reveal" data-auth-reveal>
-            <span class="learning-eyebrow" data-i18n="auth.loginPage.eyebrow">Học tập + Thi cử</span>
-            <h1 class="auth-title" data-i18n="auth.loginPage.heroTitle">Phát triển kỹ năng và kiểm chứng năng lực trong một không gian.</h1>
-            <p class="auth-copy" data-i18n="auth.loginPage.heroCopy">Tiếp tục khóa học được giao, làm bài thi an toàn, xem lại điểm số và tải chứng chỉ.</p>
-        </div>
-
-        <div class="image-slot image-slot-hero auth-visual-image" data-image-label="Auth learning visual 640x360">
-            <img src="~/images/study-collaboration.jpg" alt="" aria-hidden="true" />
-        </div>
-
-        <div class="auth-preview-card linear-auth-preview-card auth-reveal" data-auth-reveal>
-            <div class="app-metric">
-                <div>
-                    <p class="app-metric-label" data-i18n="auth.loginPage.latestScore">Điểm gần nhất</p>
-                    <p class="app-metric-value">86</p>
-                    <span class="app-badge app-badge-success" data-i18n="auth.loginPage.passed">Đạt</span>
-                </div>
-                <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
+            <div class="auth-hero-copy">
+                <span class="learning-eyebrow" data-i18n="auth.loginPage.eyebrow">Học tập + Thi cử</span>
+                <h1 class="auth-title" data-i18n="auth.loginPage.heroTitle">Phát triển kỹ năng và kiểm chứng năng lực trong một không gian.</h1>
+                <p class="auth-copy" data-i18n="auth.loginPage.heroCopy">Tiếp tục khóa học được giao, làm bài thi an toàn, xem lại điểm số và tải chứng chỉ.</p>
             </div>
-            <div class="progress-track u-mt-4">
-                <div class="progress-fill progress-fill-86"></div>
+        </div>
+
+        <div class="auth-visual-stage">
+            <div class="image-slot image-slot-hero auth-visual-image" data-image-label="Auth learning visual 640x360">
+                <img src="~/images/study-collaboration.jpg" alt="" aria-hidden="true" />
+            </div>
+
+            <div class="auth-preview-card app-animate-slide-up">
+                <div class="app-metric">
+                    <div>
+                        <p class="app-metric-label" data-i18n="auth.loginPage.latestScore">Điểm gần nhất</p>
+                        <p class="app-metric-value">86</p>
+                        <span class="app-badge app-badge-success" data-i18n="auth.loginPage.passed">Đạt</span>
+                    </div>
+                    <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
+                </div>
+                <div class="progress-track u-mt-4">
+                    <div class="progress-fill progress-fill-86"></div>
+                </div>
+            </div>
+
+            <div class="auth-spotlight-grid app-animate-stagger">
+                <article class="auth-spotlight-card">
+                    <span data-i18n="auth.loginPage.studentAccount">Học viên</span>
+                    <strong>student01</strong>
+                    <small>123456</small>
+                </article>
+                <article class="auth-spotlight-card">
+                    <span data-i18n="auth.loginPage.adminAccount">Quản trị</span>
+                    <strong>admin</strong>
+                    <small>123456</small>
+                </article>
             </div>
         </div>
     </div>
 
-    <div class="auth-panel-wrap linear-auth-panel-wrap">
-        <form class="auth-panel linear-auth-panel auth-reveal" id="loginForm" data-auth-reveal novalidate>
+    <div class="auth-panel-wrap">
+        <form class="auth-panel app-animate-scale-in" id="loginForm" novalidate>
             <div class="auth-panel-header">
                 <span class="learning-eyebrow" data-i18n="auth.loginPage.welcome">Chào mừng trở lại</span>
                 <h2 class="section-title" data-i18n="auth.loginPage.signInTitle">Đăng nhập vào lms</h2>
                 <p class="page-muted u-mb-0" data-i18n="auth.loginPage.mockCopy">Sử dụng tài khoản mô phỏng trong giai đoạn chưa tích hợp API.</p>
             </div>
 
-            <div class="auth-demo-grid linear-auth-demo-grid" aria-label="Tài khoản mô phỏng" data-i18n-aria="auth.loginPage.mockAccounts">
+            <div class="auth-demo-grid" aria-label="Tài khoản mô phỏng" data-i18n-aria="auth.loginPage.mockAccounts">
                 <button class="auth-demo-account" type="button" data-login-role="Student">
                     <span class="app-avatar" aria-hidden="true"><i class="bi bi-person"></i></span>
                     <span>

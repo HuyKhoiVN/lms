@@ -2,46 +2,68 @@
     ViewData["Title"] = "Bài thi";
 }
 
-<div class="page-header linear-exam-list-header exam-list-reveal" data-exam-list-reveal>
-    <div class="page-header-main">
-        <nav class="page-breadcrumb" aria-label="Breadcrumb">
-            <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="exams.studentListPage.breadcrumbHome">Trang chủ</a>
-            <span>/</span>
-            <span data-i18n="exams.studentListPage.breadcrumbExams">Bài thi</span>
-        </nav>
-        <h1 class="page-title" data-i18n="exams.studentListPage.title">Bài thi</h1>
-        <p class="page-muted u-mb-0" data-i18n="exams.studentListPage.subtitle">Xem các bài thi được giao và bắt đầu khi bạn sẵn sàng.</p>
-    </div>
-</div>
-
-<section class="student-exam-banner linear-exam-banner app-animate-slide-up exam-list-reveal" data-exam-list-reveal>
-    <div class="image-slot image-slot-banner image-slot-exam" data-image-label="Exam hub banner 1600x420">
-        <img src="~/images/placeholders/exam-placeholder.svg" alt="" aria-hidden="true" />
-    </div>
-</section>
-
-<section class="app-card linear-exam-list-card exam-list-reveal" data-exam-list-reveal>
-    <div class="app-card-header">
-        <div class="admin-card-header-row">
-            <div>
-                <h2 class="app-card-title" data-i18n="exams.studentListPage.availableExams">Bài thi có sẵn</h2>
-                <p class="app-card-subtitle" data-i18n="exams.studentListPage.onlyPublishedSubtitle">Chỉ bài thi đã xuất bản mới có thể bắt đầu làm.</p>
-            </div>
-            <span class="app-badge app-badge-info" data-student-exam-count data-i18n="exams.studentListPage.records">-- bài thi</span>
+<section class="lms-workspace-page student-exam-task-page" aria-label="Bài thi được giao">
+    <header class="lms-workspace-header student-exam-list-reveal" data-exam-list-reveal>
+        <div class="lms-workspace-header-main">
+            <nav class="page-breadcrumb" aria-label="Breadcrumb">
+                <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="exams.studentListPage.breadcrumbHome">Trang chủ</a>
+                <span>/</span>
+                <span data-i18n="exams.studentListPage.breadcrumbExams">Bài thi</span>
+            </nav>
+            <p class="lms-workspace-kicker">Bài thi được giao</p>
+            <h1 data-i18n="exams.studentListPage.title">Bài thi</h1>
+            <p class="lms-workspace-description" data-i18n="exams.studentListPage.subtitle">Theo dõi bài thi được giao và bắt đầu khi bạn sẵn sàng.</p>
         </div>
-    </div>
-    <div class="app-card-body">
-        <div class="student-exam-card-grid linear-exam-grid" id="studentExamGrid">
-            <article class="app-card app-skeleton-card linear-exam-card exam-list-reveal" data-exam-list-reveal>
-                <div class="app-card-body">
-                    <span class="app-skeleton app-skeleton-image u-mb-4"></span>
-                    <span class="app-skeleton u-mb-4"></span>
-                    <span class="app-skeleton u-mb-4"></span>
-                    <span class="app-skeleton"></span>
+
+        <a class="app-button app-button-primary" asp-area="" asp-controller="Exams" asp-action="Start" asp-route-id="1">Làm bài thi</a>
+    </header>
+
+    <section class="student-exam-attention student-exam-list-reveal" data-exam-list-reveal>
+        <div class="student-exam-attention-copy">
+            <p class="lms-workspace-kicker">Cần hoàn thành</p>
+            <h2 data-student-exam-attention-title>Safety Certification Exam</h2>
+            <p data-student-exam-attention-copy>Bài thi ưu tiên cần hoàn thành trong đợt học hiện tại.</p>
+            <div class="student-exam-attention-meta">
+                <span data-student-exam-attention-duration>45 phút</span>
+                <span data-student-exam-attention-score>Điểm đạt 80</span>
+                <span class="lms-status-warning" data-student-exam-attention-status">Đang mở</span>
+            </div>
+        </div>
+
+        <dl class="student-exam-attention-side">
+            <div>
+                <dt>Chính sách xem lại</dt>
+                <dd data-student-exam-attention-review>Toàn bộ kết quả</dd>
+            </div>
+            <div>
+                <dt>Số câu hỏi</dt>
+                <dd data-student-exam-attention-questions>20</dd>
+            </div>
+            <div>
+                <dt>Hành động</dt>
+                <dd><a class="app-button app-button-primary" data-student-exam-attention-link asp-area="" asp-controller="Exams" asp-action="Start" asp-route-id="1">Thực hiện ngay</a></dd>
+            </div>
+        </dl>
+    </section>
+
+    <section class="lms-workspace-card student-exam-list-reveal" data-exam-list-reveal>
+        <div class="lms-workspace-section-head">
+            <div>
+                <p class="lms-workspace-kicker">Danh sách đánh giá</p>
+                <h2 data-i18n="exams.studentListPage.availableExams">Bài thi được giao</h2>
+            </div>
+            <span class="lms-workspace-count" data-student-exam-count data-i18n="exams.studentListPage.records">-- bài thi</span>
+        </div>
+
+        <div class="student-exam-list" id="studentExamGrid">
+            <article class="student-exam-row student-exam-list-reveal" data-exam-list-reveal>
+                <div class="student-exam-row-main">
+                    <span class="app-skeleton" style="height: 24px;"></span>
+                    <span class="app-skeleton u-mt-4"></span>
                 </div>
             </article>
         </div>
-    </div>
+    </section>
 </section>
 
 @section Scripts {

@@ -112,45 +112,45 @@
 
     if (!rows.length) {
       $rows.append(
-        '<tr>' +
+        "<tr>" +
           '<td colspan="8">' +
             '<div class="app-empty-state">' +
               '<div class="image-slot image-slot-md image-slot-exam u-mb-4" data-image-label="Empty exams illustration 320x180"><img src="/images/placeholders/exam-placeholder.svg" alt="" aria-hidden="true" /></div>' +
-              '<h3 class="app-empty-title">' + escapeHtml(t("exams.adminListPage.noExamsTitle", null, "Không tìm thấy bài thi")) + '</h3>' +
-              '<p class="app-empty-copy">' + escapeHtml(t("exams.adminListPage.noExamsCopy", null, "Thử từ khóa, trạng thái, thời lượng hoặc bộ lọc xem lại khác.")) + '</p>' +
-            '</div>' +
-          '</td>' +
-        '</tr>'
+              '<h3 class="app-empty-title">' + escapeHtml(t("exams.adminListPage.noExamsTitle", null, "Không tìm thấy bài thi")) + "</h3>" +
+              '<p class="app-empty-copy">' + escapeHtml(t("exams.adminListPage.noExamsCopy", null, "Thử từ khóa, trạng thái, thời lượng hoặc bộ lọc xem lại khác.")) + "</p>" +
+            "</div>" +
+          "</td>" +
+        "</tr>"
       );
       return;
     }
 
     rows.forEach(function (exam, index) {
       $rows.append(
-        '<tr>' +
-          '<td>' +
+        "<tr>" +
+          "<td>" +
             '<div class="admin-user-cell">' +
               '<span class="app-avatar admin-thumbnail-avatar" aria-hidden="true"><img src="' + getExamVisual(index) + '" alt="" /></span>' +
-              '<div>' +
-                '<strong>' + escapeHtml(exam.name) + '</strong>' +
-                '<span>' + escapeHtml(t("exams.adminListPage.examId", { id: exam.id }, "Mã bài thi #" + exam.id)) + '</span>' +
-              '</div>' +
-            '</div>' +
-          '</td>' +
-          '<td><span class="app-badge ' + getBadgeClass(exam.status) + '">' + escapeHtml(translateStatus(exam.status)) + '</span></td>' +
-          '<td>' + escapeHtml(exam.durationMinutes) + ' ' + escapeHtml(t("exams.adminListPage.minutesUnit", null, "phút")) + '</td>' +
-          '<td>' + escapeHtml(exam.passScore) + '</td>' +
-          '<td>' + escapeHtml(exam.questionCount) + '</td>' +
-          '<td>' + escapeHtml(exam.assignedCount) + '</td>' +
-          '<td>' + escapeHtml(getReviewLabel(exam.reviewMode)) + '</td>' +
+              "<div>" +
+                "<strong>" + escapeHtml(exam.name) + "</strong>" +
+                "<span>" + escapeHtml(t("exams.adminListPage.examId", { id: exam.id }, "Mã bài thi #" + exam.id)) + "</span>" +
+              "</div>" +
+            "</div>" +
+          "</td>" +
+          '<td><span class="app-badge ' + getBadgeClass(exam.status) + '">' + escapeHtml(translateStatus(exam.status)) + "</span></td>" +
+          "<td>" + escapeHtml(exam.durationMinutes) + " " + escapeHtml(t("exams.adminListPage.minutesUnit", null, "phút")) + "</td>" +
+          "<td>" + escapeHtml(exam.passScore) + "</td>" +
+          "<td>" + escapeHtml(exam.questionCount) + "</td>" +
+          "<td>" + escapeHtml(exam.assignedCount) + "</td>" +
+          "<td>" + escapeHtml(getReviewLabel(exam.reviewMode)) + "</td>" +
           '<td class="u-text-right">' +
             '<div class="admin-row-actions">' +
-              '<button class="app-button app-button-secondary" type="button" data-exam-action="edit" data-exam-id="' + exam.id + '">' + escapeHtml(t("common.edit", null, "Sửa")) + '</button>' +
-              '<button class="app-button app-button-secondary" type="button" data-exam-action="assign" data-exam-id="' + exam.id + '">' + escapeHtml(t("exams.adminListPage.assign", null, "Giao")) + '</button>' +
-              '<button class="app-button app-button-secondary" type="button" data-exam-action="publish" data-exam-id="' + exam.id + '">' + escapeHtml(t("exams.adminListPage.publish", null, "Xuất bản")) + '</button>' +
-            '</div>' +
-          '</td>' +
-        '</tr>'
+              '<button class="app-button app-button-secondary" type="button" data-exam-action="edit" data-exam-id="' + exam.id + '">' + escapeHtml(t("common.edit", null, "Sửa")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-exam-action="assign" data-exam-id="' + exam.id + '">' + escapeHtml(t("exams.adminListPage.assign", null, "Giao")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-exam-action="publish" data-exam-id="' + exam.id + '">' + escapeHtml(t("exams.adminListPage.publish", null, "Xuất bản")) + "</button>" +
+            "</div>" +
+          "</td>" +
+        "</tr>"
       );
     });
   }
@@ -209,19 +209,19 @@
     }
 
     const modal = $(
-      '<div>' +
+      "<div>" +
         '<div class="app-modal-header">' +
-          '<h2 class="app-modal-title">' + escapeHtml(t("exams.adminListPage.publishExamTitle", null, "Xuất bản bài thi")) + '</h2>' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.close", null, "Đóng")) + '</button>' +
-        '</div>' +
+          '<h2 class="app-modal-title">' + escapeHtml(t("exams.adminListPage.publishExamTitle", null, "Xuất bản bài thi")) + "</h2>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.close", null, "Đóng")) + "</button>" +
+        "</div>" +
         '<div class="app-modal-body">' +
-          '<p class="u-mb-0">' + escapeHtml(t("exams.adminListPage.publishConfirmPrefix", null, "Xuất bản bài thi ")) + '<strong></strong>' + escapeHtml(t("exams.adminListPage.publishConfirmSuffix", null, "? Học viên được giao bài thi này sẽ có thể nhìn thấy nó.")) + '</p>' +
-        '</div>' +
+          '<p class="u-mb-0">' + escapeHtml(t("exams.adminListPage.publishConfirmPrefix", null, "Xuất bản bài thi ")) + "<strong></strong>" + escapeHtml(t("exams.adminListPage.publishConfirmSuffix", null, "? Học viên được giao bài thi này sẽ có thể nhìn thấy nó.")) + "</p>" +
+        "</div>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.cancel", null, "Hủy")) + '</button>' +
-          '<button class="app-button app-button-primary" type="button" data-exam-confirm-publish>' + escapeHtml(t("exams.adminListPage.publish", null, "Xuất bản")) + '</button>' +
-        '</div>' +
-      '</div>'
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.cancel", null, "Hủy")) + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-exam-confirm-publish>' + escapeHtml(t("exams.adminListPage.publish", null, "Xuất bản")) + "</button>" +
+        "</div>" +
+      "</div>"
     );
 
     modal.find("strong").text(exam.name);
@@ -238,44 +238,44 @@
 
   function buildAssignForm(exam) {
     const modal = $(
-      '<div>' +
+      "<div>" +
         '<div class="app-modal-header">' +
-          '<div>' +
-            '<h2 class="app-modal-title">' + escapeHtml(t("exams.adminListPage.assignExamTitle", null, "Giao bài thi")) + '</h2>' +
+          "<div>" +
+            '<h2 class="app-modal-title">' + escapeHtml(t("exams.adminListPage.assignExamTitle", null, "Giao bài thi")) + "</h2>" +
             '<p class="app-card-subtitle"></p>' +
-          '</div>' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.close", null, "Đóng")) + '</button>' +
-        '</div>' +
+          "</div>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.close", null, "Đóng")) + "</button>" +
+        "</div>" +
         '<form class="app-modal-body admin-user-form" novalidate>' +
           '<label class="auth-field">' + escapeHtml(t("exams.adminListPage.assignToUser", null, "Giao cho người dùng")) +
             '<select class="app-select" name="userId"></select>' +
-          '</label>' +
+          "</label>" +
           '<label class="auth-field">' + escapeHtml(t("exams.adminListPage.assignToGroup", null, "Giao cho nhóm")) +
             '<select class="app-select" name="groupId"></select>' +
-          '</label>' +
-          '<p class="page-muted u-mb-0">' + escapeHtml(t("exams.adminListPage.assignHelp", null, "Thao tác mô phỏng này chỉ tăng số lượt giao trong bộ nhớ.")) + '</p>' +
-        '</form>' +
+          "</label>" +
+          '<p class="page-muted u-mb-0">' + escapeHtml(t("exams.adminListPage.assignHelp", null, "Thao tác mô phỏng này chỉ tăng số lượt giao trong bộ nhớ.")) + "</p>" +
+        "</form>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.cancel", null, "Hủy")) + '</button>' +
-          '<button class="app-button app-button-primary" type="button" data-exam-confirm-assign>' + escapeHtml(t("exams.adminListPage.assign", null, "Giao")) + '</button>' +
-        '</div>' +
-      '</div>'
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.cancel", null, "Hủy")) + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-exam-confirm-assign>' + escapeHtml(t("exams.adminListPage.assign", null, "Giao")) + "</button>" +
+        "</div>" +
+      "</div>"
     );
 
     modal.find(".app-card-subtitle").text(exam.name);
-    const $userSelect = modal.find("[name='userId']").append('<option value="">' + escapeHtml(t("exams.adminListPage.noIndividualUser", null, "Không chọn người dùng riêng lẻ")) + '</option>');
-    const $groupSelect = modal.find("[name='groupId']").append('<option value="">' + escapeHtml(t("exams.adminListPage.noGroup", null, "Không chọn nhóm")) + '</option>');
+    const $userSelect = modal.find("[name='userId']").append('<option value="">' + escapeHtml(t("exams.adminListPage.noIndividualUser", null, "Không chọn người dùng riêng lẻ")) + "</option>");
+    const $groupSelect = modal.find("[name='groupId']").append('<option value="">' + escapeHtml(t("exams.adminListPage.noGroup", null, "Không chọn nhóm")) + "</option>");
 
     state.users
       .filter(function (user) {
         return user.role === "Student";
       })
       .forEach(function (user) {
-        $userSelect.append('<option value="' + user.id + '">' + escapeHtml(user.fullName) + '</option>');
+        $userSelect.append('<option value="' + user.id + '">' + escapeHtml(user.fullName) + "</option>");
       });
 
     state.groups.forEach(function (group) {
-      $groupSelect.append('<option value="' + group.id + '">' + escapeHtml(group.name) + '</option>');
+      $groupSelect.append('<option value="' + group.id + '">' + escapeHtml(group.name) + "</option>");
     });
 
     return modal;
@@ -409,10 +409,10 @@
         '<tr><td colspan="8">' +
           '<div class="app-empty-state">' +
             '<div class="app-empty-icon" aria-hidden="true">!</div>' +
-            '<h3 class="app-empty-title">' + escapeHtml(t("exams.adminListPage.loadErrorTitle", null, "Không thể tải bài thi")) + '</h3>' +
-            '<p class="app-empty-copy">' + escapeHtml(t("exams.adminListPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/exams.json.")) + '</p>' +
-          '</div>' +
-        '</td></tr>'
+            '<h3 class="app-empty-title">' + escapeHtml(t("exams.adminListPage.loadErrorTitle", null, "Không thể tải bài thi")) + "</h3>" +
+            '<p class="app-empty-copy">' + escapeHtml(t("exams.adminListPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/exams.json.")) + "</p>" +
+          "</div>" +
+        "</td></tr>"
       );
       showToast("error", t("exams.adminListPage.dataErrorTitle", null, "Lỗi dữ liệu bài thi"), t("exams.adminListPage.dataErrorMessage", null, "Không thể tải dữ liệu mô phỏng bài thi."));
     });

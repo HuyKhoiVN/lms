@@ -1,0 +1,131 @@
+@{
+    ViewData["Title"] = "Khóa học";
+}
+
+<section class="lms-workspace-page student-course-page" aria-label="Khóa học được giao">
+    <header class="lms-workspace-header student-course-reveal" data-student-course-reveal>
+        <div class="lms-workspace-header-main">
+            <nav class="page-breadcrumb" aria-label="Breadcrumb">
+                <a asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
+                <span>/</span>
+                <span data-i18n="nav.courses">Khóa học</span>
+            </nav>
+            <p class="lms-workspace-kicker">Assigned Courses</p>
+            <h1 data-i18n="courses.listPage.title">Khóa học</h1>
+            <p class="lms-workspace-description">
+                Theo dõi các khóa học đang học, mức độ hoàn thành và đường dẫn nhanh đến tài liệu học tập.
+            </p>
+        </div>
+
+        <div class="student-dashboard-actions">
+            <a class="app-button app-button-secondary" asp-area="" asp-controller="Exams" asp-action="Index">Xem bài thi</a>
+            <a class="app-button app-button-primary" asp-area="" asp-controller="LearningMaterials" asp-action="Index">Mở tài liệu</a>
+        </div>
+    </header>
+
+    <section class="student-course-metrics student-course-reveal" data-student-course-reveal>
+        <article class="lms-workspace-card student-course-metric-card">
+            <span>Tổng khóa học</span>
+            <strong data-student-course-metric="total">--</strong>
+        </article>
+        <article class="lms-workspace-card student-course-metric-card">
+            <span>Đang học</span>
+            <strong data-student-course-metric="active">--</strong>
+        </article>
+        <article class="lms-workspace-card student-course-metric-card">
+            <span>Tổng tài liệu</span>
+            <strong data-student-course-metric="materials">--</strong>
+        </article>
+        <article class="lms-workspace-card student-course-metric-card">
+            <span>Tiến độ trung bình</span>
+            <strong data-student-course-metric="completion">--</strong>
+        </article>
+    </section>
+
+    <section class="student-course-layout">
+        <main class="lms-workspace-card student-course-main student-course-reveal" data-student-course-reveal>
+            <div class="lms-workspace-section-head">
+                <div>
+                    <p class="lms-workspace-kicker">Course Catalog</p>
+                    <h2>Không gian học tập</h2>
+                </div>
+                <span class="lms-workspace-count" data-student-course-count>-- khóa học</span>
+            </div>
+
+            <div class="lms-task-filter-bar" role="search" aria-label="Bộ lọc khóa học">
+                <label class="visually-hidden" for="studentCourseSearch">Tìm kiếm khóa học</label>
+                <input class="app-input" id="studentCourseSearch" type="search" placeholder="Tìm kiếm khóa học..." data-student-course-filter="search" />
+
+                <label class="visually-hidden" for="studentCourseStatus">Trạng thái</label>
+                <select class="app-select" id="studentCourseStatus" data-student-course-filter="status">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="Published">Đang học</option>
+                    <option value="Draft">Sắp mở</option>
+                </select>
+
+                <label class="visually-hidden" for="studentCourseCompletion">Tiến độ</label>
+                <select class="app-select" id="studentCourseCompletion" data-student-course-filter="completion">
+                    <option value="">Tất cả tiến độ</option>
+                    <option value="high">Từ 70% trở lên</option>
+                    <option value="low">Dưới 70%</option>
+                </select>
+
+                <button class="app-button app-button-secondary" type="button" data-student-course-action="clear-filters">Xóa bộ lọc</button>
+            </div>
+
+            <div class="student-course-grid" id="studentCourseGrid">
+                <article class="student-course-card">
+                    <span class="app-skeleton" style="height: 180px; border-radius: 8px;"></span>
+                    <span class="app-skeleton u-mt-4" style="height: 22px;"></span>
+                    <span class="app-skeleton u-mt-4"></span>
+                </article>
+            </div>
+        </main>
+
+        <aside class="student-course-side">
+            <article class="lms-workspace-card student-course-side-card student-course-reveal" data-student-course-reveal>
+                <div class="lms-workspace-section-head">
+                    <div>
+                        <p class="lms-workspace-kicker">Focus</p>
+                        <h2>Tiếp theo nên học gì</h2>
+                    </div>
+                </div>
+
+                <div class="student-course-focus" id="studentCourseFocus">
+                    <div class="app-loading">
+                        <span class="app-spinner" aria-hidden="true"></span>
+                        <span>Đang tải đề xuất...</span>
+                    </div>
+                </div>
+            </article>
+
+            <article class="lms-workspace-card student-course-side-card student-course-reveal" data-student-course-reveal>
+                <div class="lms-workspace-section-head">
+                    <div>
+                        <p class="lms-workspace-kicker">Shortcuts</p>
+                        <h2>Đi nhanh</h2>
+                    </div>
+                </div>
+
+                <div class="student-course-shortcuts">
+                    <a class="student-course-shortcut" asp-area="" asp-controller="LearningMaterials" asp-action="Index">
+                        <strong>Tài liệu học tập</strong>
+                        <span>Mở danh sách học liệu được giao</span>
+                    </a>
+                    <a class="student-course-shortcut" asp-area="" asp-controller="Exams" asp-action="Index">
+                        <strong>Bài thi</strong>
+                        <span>Xem bài thi liên quan đến quá trình học</span>
+                    </a>
+                    <a class="student-course-shortcut" asp-area="" asp-controller="Results" asp-action="Index">
+                        <strong>Kết quả</strong>
+                        <span>Kiểm tra điểm và lịch sử nộp bài</span>
+                    </a>
+                </div>
+            </article>
+        </aside>
+    </section>
+</section>
+
+@section Scripts {
+    <script src="~/js/pages/student-course-list.js" asp-append-version="true"></script>
+}

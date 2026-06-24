@@ -98,15 +98,15 @@
 
     if (!rows.length) {
       $rows.append(
-        '<tr>' +
+        "<tr>" +
           '<td colspan="6">' +
             '<div class="app-empty-state">' +
               '<div class="image-slot image-slot-md image-slot-admin u-mb-4" data-image-label="Empty audit logs illustration 320x180"><img src="/images/backgrounds/admin-dashboard-bg.svg" alt="" aria-hidden="true" /></div>' +
-              '<h3 class="app-empty-title">' + t("auditLogs.adminPage.noLogsTitle", null, "Không tìm thấy nhật ký hệ thống") + '</h3>' +
-              '<p class="app-empty-copy">' + t("auditLogs.adminPage.noLogsCopy", null, "Thử từ khóa, hành động, đối tượng hoặc bộ lọc ngày khác.") + '</p>' +
-            '</div>' +
-          '</td>' +
-        '</tr>'
+              '<h3 class="app-empty-title">' + t("auditLogs.adminPage.noLogsTitle", null, "Không tìm thấy nhật ký hệ thống") + "</h3>" +
+              '<p class="app-empty-copy">' + t("auditLogs.adminPage.noLogsCopy", null, "Thử từ khóa, hành động, đối tượng hoặc bộ lọc ngày khác.") + "</p>" +
+            "</div>" +
+          "</td>" +
+        "</tr>"
       );
       return;
     }
@@ -115,24 +115,24 @@
       const logIdText = t("auditLogs.adminPage.logIdLabel", { id: log.id }, "Sự kiện nhật ký #" + log.id);
       const actionBtnText = t("auditLogs.adminPage.buttonView", null, "Xem");
       $rows.append(
-        '<tr>' +
-          '<td>' +
+        "<tr>" +
+          "<td>" +
             '<div class="admin-user-cell audit-user-cell">' +
               '<span class="app-avatar admin-type-avatar" aria-hidden="true"><i class="bi bi-clock-history"></i></span>' +
-              '<div>' +
-                '<strong>' + escapeHtml(log.user) + '</strong>' +
-                '<span>' + escapeHtml(logIdText) + '</span>' +
-              '</div>' +
-            '</div>' +
-          '</td>' +
-          '<td><span class="app-badge ' + getBadgeClass(log.action) + '">' + escapeHtml(log.action) + '</span></td>' +
-          '<td><span class="app-badge app-badge-muted">' + escapeHtml(log.entity) + '</span></td>' +
-          '<td class="audit-description-cell">' + escapeHtml(log.description) + '</td>' +
-          '<td>' + escapeHtml(formatDateTime(log.dateTime)) + '</td>' +
+              "<div>" +
+                "<strong>" + escapeHtml(log.user) + "</strong>" +
+                "<span>" + escapeHtml(logIdText) + "</span>" +
+              "</div>" +
+            "</div>" +
+          "</td>" +
+          '<td><span class="app-badge ' + getBadgeClass(log.action) + '">' + escapeHtml(log.action) + "</span></td>" +
+          '<td><span class="app-badge app-badge-muted">' + escapeHtml(log.entity) + "</span></td>" +
+          '<td class="audit-description-cell">' + escapeHtml(log.description) + "</td>" +
+          "<td>" + escapeHtml(formatDateTime(log.dateTime)) + "</td>" +
           '<td class="u-text-right">' +
-            '<button class="app-button app-button-secondary" type="button" data-audit-action="view" data-audit-id="' + log.id + '">' + escapeHtml(actionBtnText) + '</button>' +
-          '</td>' +
-        '</tr>'
+            '<button class="app-button app-button-secondary" type="button" data-audit-action="view" data-audit-id="' + log.id + '">' + escapeHtml(actionBtnText) + "</button>" +
+          "</td>" +
+        "</tr>"
       );
     });
   }
@@ -196,31 +196,31 @@
     }
 
     const modal = $(
-      '<div>' +
+      "<div>" +
         '<div class="app-modal-header">' +
-          '<div>' +
-            '<h2 class="app-modal-title">' + t("auditLogs.adminPage.modalTitle", null, "Chi tiết nhật ký hệ thống") + '</h2>' +
-            '<p class="app-card-subtitle">' + t("auditLogs.adminPage.modalSubtitle", null, "Sự kiện nhật ký mô phỏng chỉ đọc.") + '</p>' +
-          '</div>' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + t("common.close", null, "Đóng") + '</button>' +
-        '</div>' +
+          "<div>" +
+            '<h2 class="app-modal-title">' + t("auditLogs.adminPage.modalTitle", null, "Chi tiết nhật ký hệ thống") + "</h2>" +
+            '<p class="app-card-subtitle">' + t("auditLogs.adminPage.modalSubtitle", null, "Sự kiện nhật ký mô phỏng chỉ đọc.") + "</p>" +
+          "</div>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + t("common.close", null, "Đóng") + "</button>" +
+        "</div>" +
         '<div class="app-modal-body">' +
           '<dl class="audit-detail-list">' +
-            '<div><dt>' + t("auditLogs.adminPage.colUser", null, "Người dùng") + '</dt><dd data-audit-detail="user"></dd></div>' +
-            '<div><dt>' + t("auditLogs.adminPage.colAction", null, "Hành động") + '</dt><dd data-audit-detail="action"></dd></div>' +
-            '<div><dt>' + t("auditLogs.adminPage.colEntity", null, "Đối tượng") + '</dt><dd data-audit-detail="entity"></dd></div>' +
-            '<div><dt>' + t("auditLogs.adminPage.colDateTime", null, "Ngày giờ") + '</dt><dd data-audit-detail="dateTime"></dd></div>' +
-            '<div><dt>' + t("auditLogs.adminPage.colDescription", null, "Mô tả") + '</dt><dd data-audit-detail="description"></dd></div>' +
-          '</dl>' +
-        '</div>' +
+            "<div><dt>" + t("auditLogs.adminPage.colUser", null, "Người dùng") + '</dt><dd data-audit-detail="user"></dd></div>' +
+            "<div><dt>" + t("auditLogs.adminPage.colAction", null, "Hành động") + '</dt><dd data-audit-detail="action"></dd></div>' +
+            "<div><dt>" + t("auditLogs.adminPage.colEntity", null, "Đối tượng") + '</dt><dd data-audit-detail="entity"></dd></div>' +
+            "<div><dt>" + t("auditLogs.adminPage.colDateTime", null, "Ngày giờ") + '</dt><dd data-audit-detail="dateTime"></dd></div>' +
+            "<div><dt>" + t("auditLogs.adminPage.colDescription", null, "Mô tả") + '</dt><dd data-audit-detail="description"></dd></div>' +
+          "</dl>" +
+        "</div>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + t("common.close", null, "Đóng") + '</button>' +
-        '</div>' +
-      '</div>'
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + t("common.close", null, "Đóng") + "</button>" +
+        "</div>" +
+      "</div>"
     );
 
     modal.find("[data-audit-detail='user']").text(log.user);
-    modal.find("[data-audit-detail='action']").html('<span class="app-badge ' + getBadgeClass(log.action) + '">' + escapeHtml(log.action) + '</span>');
+    modal.find("[data-audit-detail='action']").html('<span class="app-badge ' + getBadgeClass(log.action) + '">' + escapeHtml(log.action) + "</span>");
     modal.find("[data-audit-detail='entity']").text(log.entity);
     modal.find("[data-audit-detail='dateTime']").text(formatDateTime(log.dateTime));
     modal.find("[data-audit-detail='description']").text(log.description);
@@ -324,10 +324,10 @@
         '<tr><td colspan="6">' +
           '<div class="app-empty-state">' +
             '<div class="app-empty-icon" aria-hidden="true">!</div>' +
-            '<h3 class="app-empty-title">' + t("auditLogs.adminPage.toastLoadErrorTitle", null, "Không thể tải nhật ký hệ thống") + '</h3>' +
-            '<p class="app-empty-copy">' + t("auditLogs.adminPage.toastLoadErrorMessage", null, "Vui lòng kiểm tra mock/audit-logs.json.") + '</p>' +
-          '</div>' +
-        '</td></tr>'
+            '<h3 class="app-empty-title">' + t("auditLogs.adminPage.toastLoadErrorTitle", null, "Không thể tải nhật ký hệ thống") + "</h3>" +
+            '<p class="app-empty-copy">' + t("auditLogs.adminPage.toastLoadErrorMessage", null, "Vui lòng kiểm tra mock/audit-logs.json.") + "</p>" +
+          "</div>" +
+        "</td></tr>"
       );
       showToast("error", t("auditLogs.adminPage.toastLoadErrorTitle", null, "Không thể tải nhật ký hệ thống"), t("auditLogs.adminPage.toastLoadErrorMsgFile", null, "Không thể tải audit-logs.json."));
     });

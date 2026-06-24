@@ -126,13 +126,13 @@
 
   function emptyCoursesMarkup(colspan) {
     const content =
-        '<div class="app-empty-state">' +
+      '<div class="app-empty-state">' +
         '<div class="image-slot image-slot-md image-slot-course u-mb-4" data-image-label="Empty courses illustration 320x180"><img src="/images/placeholders/course-placeholder.svg" alt="" aria-hidden="true" /></div>' +
-        '<h3 class="app-empty-title">' + escapeHtml(t("courses.listPage.noCoursesTitle", null, "Không tìm thấy khóa học")) + '</h3>' +
-        '<p class="app-empty-copy">' + escapeHtml(t("courses.listPage.noCoursesCopy", null, "Thử từ khóa, trạng thái hoặc mức hoàn thành khác.")) + '</p>' +
-      '</div>';
+        '<h3 class="app-empty-title">' + escapeHtml(t("courses.listPage.noCoursesTitle", null, "Không tìm thấy khóa học")) + "</h3>" +
+        '<p class="app-empty-copy">' + escapeHtml(t("courses.listPage.noCoursesCopy", null, "Thử từ khóa, trạng thái hoặc mức hoàn thành khác.")) + "</p>" +
+      "</div>";
 
-    return colspan ? '<tr><td colspan="' + colspan + '">' + content + '</td></tr>' : content;
+    return colspan ? '<tr><td colspan="' + colspan + '">' + content + "</td></tr>" : content;
   }
 
   function renderCards() {
@@ -151,28 +151,28 @@
           '<div class="app-card-body">' +
             '<div class="image-slot image-slot-md image-slot-course admin-course-image" data-image-label="Course card image 320x180">' +
               '<img src="' + getCourseImage(index) + '" alt="" aria-hidden="true" />' +
-            '</div>' +
+            "</div>" +
             '<div class="course-thumb">' +
-              '<span class="course-thumb-code">' + escapeHtml(getInitials(course.name)) + '</span>' +
-              '<span class="app-badge ' + getBadgeClass(course.status) + '">' + escapeHtml(translateStatus(course.status)) + '</span>' +
-            '</div>' +
-            '<h3 class="app-card-title">' + escapeHtml(course.name) + '</h3>' +
-            '<p class="app-card-subtitle">' + escapeHtml(course.description) + '</p>' +
+              '<span class="course-thumb-code">' + escapeHtml(getInitials(course.name)) + "</span>" +
+              '<span class="app-badge ' + getBadgeClass(course.status) + '">' + escapeHtml(translateStatus(course.status)) + "</span>" +
+            "</div>" +
+            '<h3 class="app-card-title">' + escapeHtml(course.name) + "</h3>" +
+            '<p class="app-card-subtitle">' + escapeHtml(course.description) + "</p>" +
             '<div class="admin-summary-line u-mt-4">' +
-              '<span>' + escapeHtml(t("courses.listPage.materials", null, "Tài liệu")) + '</span><strong>' + escapeHtml(course.materialCount) + '</strong>' +
-            '</div>' +
+              "<span>" + escapeHtml(t("courses.listPage.materials", null, "Tài liệu")) + "</span><strong>" + escapeHtml(course.materialCount) + "</strong>" +
+            "</div>" +
             '<div class="admin-summary-line u-mt-4">' +
-              '<span>' + escapeHtml(t("courses.listPage.assigned", null, "Đã giao")) + '</span><strong>' + escapeHtml(course.assignedCount) + '</strong>' +
-            '</div>' +
+              "<span>" + escapeHtml(t("courses.listPage.assigned", null, "Đã giao")) + "</span><strong>" + escapeHtml(course.assignedCount) + "</strong>" +
+            "</div>" +
             '<div class="progress-track u-mt-4"><div class="progress-fill"></div></div>' +
-          '</div>' +
+          "</div>" +
           '<div class="app-card-footer">' +
             '<div class="admin-row-actions">' +
-              '<button class="app-button app-button-secondary" type="button" data-course-action="assign" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.assign", null, "Giao")) + '</button>' +
-              '<button class="app-button app-button-primary" type="button" data-course-action="edit" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.edit", null, "Sửa")) + '</button>' +
-            '</div>' +
-          '</div>' +
-        '</article>'
+              '<button class="app-button app-button-secondary" type="button" data-course-action="assign" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.assign", null, "Giao")) + "</button>" +
+              '<button class="app-button app-button-primary" type="button" data-course-action="edit" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.edit", null, "Sửa")) + "</button>" +
+            "</div>" +
+          "</div>" +
+        "</article>"
       );
 
       setProgress($card.find(".progress-fill"), course.completionRate);
@@ -191,25 +191,25 @@
 
     rows.forEach(function (course) {
       const $row = $(
-        '<tr>' +
-          '<td>' +
+        "<tr>" +
+          "<td>" +
             '<div class="admin-user-cell">' +
               '<span class="app-avatar admin-thumbnail-avatar" aria-hidden="true"><img src="' + getCourseImage(course.id || 0) + '" alt="" /></span>' +
-              '<div><strong>' + escapeHtml(course.name) + '</strong><span>' + escapeHtml(course.description) + '</span></div>' +
-            '</div>' +
-          '</td>' +
-          '<td><span class="app-badge ' + getBadgeClass(course.status) + '">' + escapeHtml(translateStatus(course.status)) + '</span></td>' +
-          '<td>' + escapeHtml(course.materialCount) + '</td>' +
-          '<td>' + escapeHtml(course.assignedCount) + '</td>' +
-          '<td><div class="admin-course-progress"><div class="progress-track"><div class="progress-fill"></div></div><span>' + escapeHtml(course.completionRate) + '%</span></div></td>' +
+              "<div><strong>" + escapeHtml(course.name) + "</strong><span>" + escapeHtml(course.description) + "</span></div>" +
+            "</div>" +
+          "</td>" +
+          '<td><span class="app-badge ' + getBadgeClass(course.status) + '">' + escapeHtml(translateStatus(course.status)) + "</span></td>" +
+          "<td>" + escapeHtml(course.materialCount) + "</td>" +
+          "<td>" + escapeHtml(course.assignedCount) + "</td>" +
+          '<td><div class="admin-course-progress"><div class="progress-track"><div class="progress-fill"></div></div><span>' + escapeHtml(course.completionRate) + "%</span></div></td>" +
           '<td class="u-text-right">' +
             '<div class="admin-row-actions">' +
-              '<button class="app-button app-button-secondary" type="button" data-course-action="detail" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.detail", null, "Chi tiết")) + '</button>' +
-              '<button class="app-button app-button-secondary" type="button" data-course-action="assign" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.assign", null, "Giao")) + '</button>' +
-              '<button class="app-button app-button-secondary" type="button" data-course-action="edit" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.edit", null, "Sửa")) + '</button>' +
-            '</div>' +
-          '</td>' +
-        '</tr>'
+              '<button class="app-button app-button-secondary" type="button" data-course-action="detail" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.detail", null, "Chi tiết")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-course-action="assign" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.assign", null, "Giao")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-course-action="edit" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.edit", null, "Sửa")) + "</button>" +
+            "</div>" +
+          "</td>" +
+        "</tr>"
       );
 
       setProgress($row.find(".progress-fill"), course.completionRate);
@@ -224,7 +224,13 @@
     const endRecord = Math.min(state.page * state.pageSize, state.filteredCourses.length);
 
     $("[data-course-result-count]").text(t("courses.listPage.records", { count: state.filteredCourses.length }, state.filteredCourses.length + " bản ghi"));
-    $("[data-course-page-info]").text(t("courses.listPage.showing", { start: startRecord, end: endRecord, total: state.filteredCourses.length }, "Hiển thị " + startRecord + "-" + endRecord + " trên " + state.filteredCourses.length + " khóa học"));
+    $("[data-course-page-info]").text(
+      t(
+        "courses.listPage.showing",
+        { start: startRecord, end: endRecord, total: state.filteredCourses.length },
+        "Hiển thị " + startRecord + "-" + endRecord + " trên " + state.filteredCourses.length + " khóa học"
+      )
+    );
     $("[data-course-page='prev']").prop("disabled", state.page <= 1);
     $("[data-course-page='next']").prop("disabled", state.page >= pageCount);
 
@@ -328,25 +334,25 @@
   function buildCourseForm(course) {
     const isEdit = Boolean(course);
     const modal = $(
-      '<div>' +
+      "<div>" +
         '<div class="app-modal-header"><div>' +
-          '<h2 class="app-modal-title">' + escapeHtml(isEdit ? t("courses.listPage.editCourse", null, "Sửa khóa học") : t("courses.listPage.createCourseModal", null, "Tạo khóa học")) + '</h2>' +
-          '<p class="app-card-subtitle">' + escapeHtml(isEdit ? t("courses.listPage.editSubtitle", null, "Cập nhật thông tin khóa học mô phỏng.") : t("courses.listPage.createSubtitle", null, "Thêm khóa học mô phỏng mới trong bộ nhớ.")) + '</p>' +
-        '</div><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.close", null, "Đóng")) + '</button></div>' +
+          '<h2 class="app-modal-title">' + escapeHtml(isEdit ? t("courses.listPage.editCourse", null, "Sửa khóa học") : t("courses.listPage.createCourseModal", null, "Tạo khóa học")) + "</h2>" +
+          '<p class="app-card-subtitle">' + escapeHtml(isEdit ? t("courses.listPage.editSubtitle", null, "Cập nhật thông tin khóa học mô phỏng.") : t("courses.listPage.createSubtitle", null, "Thêm khóa học mô phỏng mới trong bộ nhớ.")) + "</p>" +
+        '</div><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.close", null, "Đóng")) + "</button></div>" +
         '<form class="app-modal-body admin-user-form" novalidate>' +
           '<label class="auth-field">' + escapeHtml(t("courses.listPage.courseName", null, "Tên khóa học")) + '<input class="app-input" name="name" type="text" autocomplete="off" /><span class="auth-error" data-course-error="name"></span></label>' +
           '<label class="auth-field">' + escapeHtml(t("courses.listPage.description", null, "Mô tả")) + '<textarea class="app-input admin-course-textarea" name="description" rows="3"></textarea><span class="auth-error" data-course-error="description"></span></label>' +
           '<div class="admin-user-form-grid">' +
             '<label class="auth-field">' + escapeHtml(t("courses.listPage.status", null, "Trạng thái")) + '<select class="app-select" name="status"><option value="">' + escapeHtml(t("courses.listPage.selectStatus", null, "Chọn trạng thái")) + '</option><option value="Published">' + escapeHtml(t("courses.listPage.published", null, "Đã xuất bản")) + '</option><option value="Draft">' + escapeHtml(t("courses.listPage.draft", null, "Bản nháp")) + '</option></select><span class="auth-error" data-course-error="status"></span></label>' +
             '<label class="auth-field">' + escapeHtml(t("courses.listPage.materialCount", null, "Tài liệu")) + '<input class="app-input" name="materialCount" type="number" min="0" step="1" /><span class="auth-error" data-course-error="materialCount"></span></label>' +
-          '</div>' +
+          "</div>" +
           '<div class="admin-user-form-grid">' +
             '<label class="auth-field">' + escapeHtml(t("courses.listPage.assignedCount", null, "Số lượt giao")) + '<input class="app-input" name="assignedCount" type="number" min="0" step="1" /><span class="auth-error" data-course-error="assignedCount"></span></label>' +
             '<label class="auth-field">' + escapeHtml(t("courses.listPage.completionRate", null, "Tỷ lệ hoàn thành")) + '<input class="app-input" name="completionRate" type="number" min="0" max="100" step="1" /><span class="auth-error" data-course-error="completionRate"></span></label>' +
-          '</div>' +
-        '</form>' +
-        '<div class="app-modal-footer"><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.cancel", null, "Hủy")) + '</button><button class="app-button app-button-primary" type="button" data-course-save>' + escapeHtml(isEdit ? t("courses.listPage.saveChanges", null, "Lưu thay đổi") : t("courses.listPage.createCourse", null, "Tạo khóa học")) + '</button></div>' +
-      '</div>'
+          "</div>" +
+        "</form>" +
+        '<div class="app-modal-footer"><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.cancel", null, "Hủy")) + '</button><button class="app-button app-button-primary" type="button" data-course-save>' + escapeHtml(isEdit ? t("courses.listPage.saveChanges", null, "Lưu thay đổi") : t("courses.listPage.createCourse", null, "Tạo khóa học")) + "</button></div>" +
+      "</div>"
     );
 
     modal.find("[name='name']").val(course ? course.name : "");
@@ -393,25 +399,25 @@
 
   function buildAssignForm(course) {
     const modal = $(
-      '<div>' +
-        '<div class="app-modal-header"><div><h2 class="app-modal-title">' + escapeHtml(t("courses.listPage.assignCourseTitle", null, "Giao khóa học")) + '</h2><p class="app-card-subtitle"></p></div><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.close", null, "Đóng")) + '</button></div>' +
+      "<div>" +
+        '<div class="app-modal-header"><div><h2 class="app-modal-title">' + escapeHtml(t("courses.listPage.assignCourseTitle", null, "Giao khóa học")) + '</h2><p class="app-card-subtitle"></p></div><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.close", null, "Đóng")) + "</button></div>" +
         '<form class="app-modal-body admin-user-form" novalidate>' +
           '<label class="auth-field">' + escapeHtml(t("courses.listPage.assignToUser", null, "Giao cho người dùng")) + '<select class="app-select" name="userId"></select></label>' +
           '<label class="auth-field">' + escapeHtml(t("courses.listPage.assignToGroup", null, "Giao cho nhóm")) + '<select class="app-select" name="groupId"></select></label>' +
-          '<p class="page-muted u-mb-0">' + escapeHtml(t("courses.listPage.assignHelp", null, "Thao tác mô phỏng này chỉ tăng số lượt giao trong bộ nhớ.")) + '</p>' +
-        '</form>' +
-        '<div class="app-modal-footer"><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.cancel", null, "Hủy")) + '</button><button class="app-button app-button-primary" type="button" data-course-confirm-assign>' + escapeHtml(t("courses.listPage.assign", null, "Giao")) + '</button></div>' +
-      '</div>'
+          '<p class="page-muted u-mb-0">' + escapeHtml(t("courses.listPage.assignHelp", null, "Thao tác mô phỏng này chỉ tăng số lượng giao trong bộ nhớ.")) + "</p>" +
+        "</form>" +
+        '<div class="app-modal-footer"><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.cancel", null, "Hủy")) + '</button><button class="app-button app-button-primary" type="button" data-course-confirm-assign>' + escapeHtml(t("courses.listPage.assign", null, "Giao")) + "</button></div>" +
+      "</div>"
     );
 
     modal.find(".app-card-subtitle").text(course.name);
-    const $userSelect = modal.find("[name='userId']").append('<option value="">' + escapeHtml(t("courses.listPage.noIndividualUser", null, "Không chọn người dùng riêng lẻ")) + '</option>');
-    const $groupSelect = modal.find("[name='groupId']").append('<option value="">' + escapeHtml(t("courses.listPage.noGroup", null, "Không chọn nhóm")) + '</option>');
+    const $userSelect = modal.find("[name='userId']").append('<option value="">' + escapeHtml(t("courses.listPage.noIndividualUser", null, "Không chọn người dùng riêng lẻ")) + "</option>");
+    const $groupSelect = modal.find("[name='groupId']").append('<option value="">' + escapeHtml(t("courses.listPage.noGroup", null, "Không chọn nhóm")) + "</option>");
     state.users.filter(function (user) { return user.role === "Student"; }).forEach(function (user) {
-      $userSelect.append('<option value="' + user.id + '">' + escapeHtml(user.fullName) + '</option>');
+      $userSelect.append('<option value="' + user.id + '">' + escapeHtml(user.fullName) + "</option>");
     });
     state.groups.forEach(function (group) {
-      $groupSelect.append('<option value="' + group.id + '">' + escapeHtml(group.name) + '</option>');
+      $groupSelect.append('<option value="' + group.id + '">' + escapeHtml(group.name) + "</option>");
     });
     return modal;
   }
@@ -507,9 +513,9 @@
       $("#courseTableRows").html(
         '<tr><td colspan="6"><div class="app-empty-state"><div class="app-empty-icon" aria-hidden="true">!</div><h3 class="app-empty-title">' +
         escapeHtml(t("courses.listPage.loadErrorTitle", null, "Không thể tải khóa học")) +
-        '</h3><p class="app-empty-copy">' +
+        "</h3><p class=\"app-empty-copy\">" +
         escapeHtml(t("courses.listPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/courses.json.")) +
-        '</p></div></td></tr>'
+        "</p></div></td></tr>"
       );
       showToast("error", t("courses.listPage.dataErrorTitle", null, "Lỗi dữ liệu khóa học"), t("courses.listPage.dataErrorMessage", null, "Không thể tải dữ liệu mô phỏng danh sách khóa học."));
     });

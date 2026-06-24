@@ -1,3 +1,20 @@
+@{
+    var currentArea = ViewContext.RouteData.Values["area"]?.ToString() ?? string.Empty;
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString() ?? string.Empty;
+
+    var isAdminArea = string.Equals(currentArea, "Admin", StringComparison.OrdinalIgnoreCase);
+    var isDashboard = isAdminArea && string.Equals(currentController, "Dashboard", StringComparison.OrdinalIgnoreCase);
+    var isUsers = isAdminArea && string.Equals(currentController, "Users", StringComparison.OrdinalIgnoreCase);
+    var isGroups = isAdminArea && string.Equals(currentController, "Groups", StringComparison.OrdinalIgnoreCase);
+    var isCourses = isAdminArea && string.Equals(currentController, "Courses", StringComparison.OrdinalIgnoreCase);
+    var isMaterials = isAdminArea && string.Equals(currentController, "LearningMaterials", StringComparison.OrdinalIgnoreCase);
+    var isQuestions = isAdminArea && string.Equals(currentController, "Questions", StringComparison.OrdinalIgnoreCase);
+    var isExams = isAdminArea && string.Equals(currentController, "Exams", StringComparison.OrdinalIgnoreCase);
+    var isReports = isAdminArea && string.Equals(currentController, "Reports", StringComparison.OrdinalIgnoreCase);
+    var isAuditLogs = isAdminArea && string.Equals(currentController, "AuditLogs", StringComparison.OrdinalIgnoreCase);
+    var isExamAssignment = isExams && string.Equals(currentAction, "Assignment", StringComparison.OrdinalIgnoreCase);
+}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -15,9 +32,9 @@
     <link rel="stylesheet" href="~/css/utilities.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lms.WebMvc.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body class="app-admin-body">
     <div class="app-shell app-shell-admin">
-        <aside class="app-sidebar" aria-label="Điều hướng quản trị" data-i18n-aria="layout.adminNavigation">
+        <aside class="app-sidebar" id="adminSidebar" aria-label="Điều hướng quản trị" data-i18n-aria="layout.adminNavigation">
             <div class="app-brand">
                 <a class="app-brand-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
                     <span class="app-brand-mark">L</span>
@@ -27,7 +44,7 @@
 
             <nav class="app-nav">
                 <div class="app-nav-section">
-                    <a class="app-nav-link active" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                    <a class="app-nav-link@(isDashboard ? " active" : string.Empty)" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
                         <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-speedometer2"></i></span>
                         <span data-i18n="nav.dashboard">Bảng điều khiển</span>
                     </a>
@@ -35,19 +52,19 @@
 
                 <div class="app-nav-section">
                     <div class="app-nav-label" data-i18n="nav.management">Quản lý</div>
-                    <a class="app-nav-link" asp-area="Admin" asp-controller="Users" asp-action="Index">
+                    <a class="app-nav-link@(isUsers ? " active" : string.Empty)" asp-area="Admin" asp-controller="Users" asp-action="Index">
                         <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-people"></i></span>
                         <span data-i18n="nav.userManagement">Quản lý người dùng</span>
                     </a>
-                    <a class="app-nav-link" asp-area="Admin" asp-controller="Groups" asp-action="Index">
+                    <a class="app-nav-link@(isGroups ? " active" : string.Empty)" asp-area="Admin" asp-controller="Groups" asp-action="Index">
                         <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-diagram-3"></i></span>
                         <span data-i18n="nav.groupManagement">Quản lý nhóm</span>
                     </a>
-                    <a class="app-nav-link" asp-area="Admin" asp-controller="Courses" asp-action="Index">
+                    <a class="app-nav-link@(isCourses ? " active" : string.Empty)" asp-area="Admin" asp-controller="Courses" asp-action="Index">
                         <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-journal-bookmark"></i></span>
                         <span data-i18n="nav.courses">Khóa học</span>
                     </a>
-                    <a class="app-nav-link" asp-area="Admin" asp-controller="LearningMaterials" asp-action="Index">
+                    <a class="app-nav-link@(isMaterials ? " active" : string.Empty)" asp-area="Admin" asp-controller="LearningMaterials" asp-action="Index">
                         <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-collection-play"></i></span>
                         <span data-i18n="nav.learningMaterials">Tài liệu học tập</span>
                     </a>
@@ -55,35 +72,27 @@
 
                 <div class="app-nav-section">
                     <div class="app-nav-label" data-i18n="nav.examination">Thi cử</div>
-                    <a class="app-nav-link" asp-area="Admin" asp-controller="Questions" asp-action="Index">
+                    <a class="app-nav-link@(isQuestions ? " active" : string.Empty)" asp-area="Admin" asp-controller="Questions" asp-action="Index">
                         <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-patch-question"></i></span>
                         <span data-i18n="nav.questionBank">Ngân hàng câu hỏi</span>
                     </a>
-                    <a class="app-nav-link" asp-area="Admin" asp-controller="Exams" asp-action="Index">
+                    <a class="app-nav-link@((isExams && !isExamAssignment) ? " active" : string.Empty)" asp-area="Admin" asp-controller="Exams" asp-action="Index">
                         <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-clipboard-check"></i></span>
                         <span data-i18n="nav.examManagement">Quản lý bài thi</span>
                     </a>
-                    <a class="app-nav-link" asp-area="Admin" asp-controller="Exams" asp-action="Assignment">
+                    <a class="app-nav-link@(isExamAssignment ? " active" : string.Empty)" asp-area="Admin" asp-controller="Exams" asp-action="Assignment">
                         <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-send-check"></i></span>
                         <span data-i18n="nav.examAssignment">Giao bài thi</span>
-                    </a>
-                    <a class="app-nav-link" asp-area="Admin" asp-controller="Results" asp-action="Index">
-                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
-                        <span data-i18n="nav.results">Kết quả</span>
-                    </a>
-                    <a class="app-nav-link" asp-area="Admin" asp-controller="Certificates" asp-action="Index">
-                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-award"></i></span>
-                        <span data-i18n="nav.certificates">Chứng chỉ</span>
                     </a>
                 </div>
 
                 <div class="app-nav-section">
                     <div class="app-nav-label" data-i18n="nav.insights">Phân tích</div>
-                    <a class="app-nav-link" asp-area="Admin" asp-controller="Reports" asp-action="Index">
+                    <a class="app-nav-link@(isReports ? " active" : string.Empty)" asp-area="Admin" asp-controller="Reports" asp-action="Index">
                         <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-bar-chart-line"></i></span>
                         <span data-i18n="nav.reports">Báo cáo</span>
                     </a>
-                    <a class="app-nav-link" asp-area="Admin" asp-controller="AuditLogs" asp-action="Index">
+                    <a class="app-nav-link@(isAuditLogs ? " active" : string.Empty)" asp-area="Admin" asp-controller="AuditLogs" asp-action="Index">
                         <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-clock-history"></i></span>
                         <span data-i18n="nav.auditLogs">Nhật ký hệ thống</span>
                     </a>
@@ -91,9 +100,11 @@
             </nav>
         </aside>
 
+        <button class="app-sidebar-backdrop" type="button" aria-label="Đóng menu điều hướng"></button>
+
         <div class="app-main">
             <header class="app-header">
-                <button class="app-sidebar-toggle" type="button" aria-label="Thu gọn menu">
+                <button class="app-sidebar-toggle" type="button" aria-label="Thu gọn menu" aria-controls="adminSidebar" aria-expanded="false">
                     <i class="bi bi-layout-sidebar-inset" aria-hidden="true"></i>
                 </button>
 
@@ -142,7 +153,9 @@
             </header>
 
             <main class="app-content" role="main">
-                @RenderBody()
+                <div class="app-content-inner">
+                    @RenderBody()
+                </div>
             </main>
 
             <footer class="app-footer">

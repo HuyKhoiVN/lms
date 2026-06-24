@@ -84,41 +84,41 @@
 
     if (!rows.length) {
       $rows.append(
-        '<tr>' +
+        "<tr>" +
           '<td colspan="5">' +
             '<div class="app-empty-state">' +
               '<div class="app-empty-icon" aria-hidden="true">G</div>' +
-              '<h3 class="app-empty-title">' + escapeHtml(t("groups.listPage.noGroupsTitle", null, "Không tìm thấy nhóm")) + '</h3>' +
-              '<p class="app-empty-copy">' + escapeHtml(t("groups.listPage.noGroupsCopy", null, "Thử từ khóa, trạng thái giao hoặc quy mô khác.")) + '</p>' +
-            '</div>' +
-          '</td>' +
-        '</tr>'
+              '<h3 class="app-empty-title">' + escapeHtml(t("groups.listPage.noGroupsTitle", null, "Không tìm thấy nhóm")) + "</h3>" +
+              '<p class="app-empty-copy">' + escapeHtml(t("groups.listPage.noGroupsCopy", null, "Thử từ khóa, trạng thái giao hoặc quy mô khác.")) + "</p>" +
+            "</div>" +
+          "</td>" +
+        "</tr>"
       );
       return;
     }
 
     rows.forEach(function (group) {
       $rows.append(
-        '<tr>' +
-          '<td>' +
+        "<tr>" +
+          "<td>" +
             '<div class="admin-user-cell">' +
-              '<span class="app-avatar" aria-hidden="true">' + escapeHtml(group.name.charAt(0).toUpperCase()) + '</span>' +
-              '<div>' +
-                '<strong>' + escapeHtml(group.name) + '</strong>' +
-                '<span>' + escapeHtml(t("groups.listPage.groupId", { id: group.id }, "Mã nhóm #" + group.id)) + '</span>' +
-              '</div>' +
-            '</div>' +
-          '</td>' +
-          '<td><span class="app-badge app-badge-info">' + escapeHtml(t("groups.listPage.memberCount", { count: group.memberCount }, group.memberCount + " thành viên")) + '</span></td>' +
-          '<td>' + escapeHtml(group.assignedCourseCount) + '</td>' +
-          '<td>' + escapeHtml(group.assignedExamCount) + '</td>' +
+              '<span class="app-avatar" aria-hidden="true">' + escapeHtml(group.name.charAt(0).toUpperCase()) + "</span>" +
+              "<div>" +
+                "<strong>" + escapeHtml(group.name) + "</strong>" +
+                "<span>" + escapeHtml(t("groups.listPage.groupId", { id: group.id }, "Mã nhóm #" + group.id)) + "</span>" +
+              "</div>" +
+            "</div>" +
+          "</td>" +
+          '<td><span class="app-badge app-badge-info">' + escapeHtml(t("groups.listPage.memberCount", { count: group.memberCount }, group.memberCount + " thành viên")) + "</span></td>" +
+          "<td>" + escapeHtml(group.assignedCourseCount) + "</td>" +
+          "<td>" + escapeHtml(group.assignedExamCount) + "</td>" +
           '<td class="u-text-right">' +
             '<div class="admin-row-actions">' +
-              '<button class="app-button app-button-secondary" type="button" data-group-action="detail" data-group-id="' + group.id + '">' + escapeHtml(t("groups.listPage.detail", null, "Chi tiết")) + '</button>' +
-              '<button class="app-button app-button-secondary" type="button" data-group-action="edit" data-group-id="' + group.id + '">' + escapeHtml(t("groups.listPage.edit", null, "Sửa")) + '</button>' +
-            '</div>' +
-          '</td>' +
-        '</tr>'
+              '<button class="app-button app-button-secondary" type="button" data-group-action="detail" data-group-id="' + group.id + '">' + escapeHtml(t("groups.listPage.detail", null, "Chi tiết")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-group-action="edit" data-group-id="' + group.id + '">' + escapeHtml(t("groups.listPage.edit", null, "Sửa")) + "</button>" +
+            "</div>" +
+          "</td>" +
+        "</tr>"
       );
     });
   }
@@ -234,39 +234,39 @@
   function buildGroupForm(group) {
     const isEdit = Boolean(group);
     const modal = $(
-      '<div>' +
+      "<div>" +
         '<div class="app-modal-header">' +
-          '<div>' +
-            '<h2 class="app-modal-title">' + escapeHtml(isEdit ? t("groups.listPage.editGroup", null, "Sửa nhóm") : t("groups.listPage.createGroupModal", null, "Tạo nhóm")) + '</h2>' +
-            '<p class="app-card-subtitle">' + escapeHtml(isEdit ? t("groups.listPage.editSubtitle", null, "Cập nhật thông tin nhóm mô phỏng.") : t("groups.listPage.createSubtitle", null, "Thêm nhóm mô phỏng mới trong bộ nhớ.")) + '</p>' +
-          '</div>' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("groups.listPage.close", null, "Đóng")) + '</button>' +
-        '</div>' +
+          "<div>" +
+            '<h2 class="app-modal-title">' + escapeHtml(isEdit ? t("groups.listPage.editGroup", null, "Sửa nhóm") : t("groups.listPage.createGroupModal", null, "Tạo nhóm")) + "</h2>" +
+            '<p class="app-card-subtitle">' + escapeHtml(isEdit ? t("groups.listPage.editSubtitle", null, "Cập nhật thông tin nhóm mô phỏng.") : t("groups.listPage.createSubtitle", null, "Thêm nhóm mô phỏng mới trong bộ nhớ.")) + "</p>" +
+          "</div>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("groups.listPage.close", null, "Đóng")) + "</button>" +
+        "</div>" +
         '<form class="app-modal-body admin-user-form" novalidate>' +
           '<label class="auth-field">' + escapeHtml(t("groups.listPage.groupName", null, "Tên nhóm")) +
             '<input class="app-input" name="name" type="text" autocomplete="off" />' +
             '<span class="auth-error" data-group-error="name"></span>' +
-          '</label>' +
+          "</label>" +
           '<div class="admin-user-form-grid">' +
             '<label class="auth-field">' + escapeHtml(t("groups.listPage.members", null, "Thành viên")) +
               '<input class="app-input" name="memberCount" type="number" min="0" step="1" />' +
               '<span class="auth-error" data-group-error="memberCount"></span>' +
-            '</label>' +
+            "</label>" +
             '<label class="auth-field">' + escapeHtml(t("groups.listPage.assignedCourses", null, "Khóa học được giao")) +
               '<input class="app-input" name="assignedCourseCount" type="number" min="0" step="1" />' +
               '<span class="auth-error" data-group-error="assignedCourseCount"></span>' +
-            '</label>' +
-          '</div>' +
+            "</label>" +
+          "</div>" +
           '<label class="auth-field">' + escapeHtml(t("groups.listPage.assignedExams", null, "Bài thi được giao")) +
             '<input class="app-input" name="assignedExamCount" type="number" min="0" step="1" />' +
             '<span class="auth-error" data-group-error="assignedExamCount"></span>' +
-          '</label>' +
-        '</form>' +
+          "</label>" +
+        "</form>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("groups.listPage.cancel", null, "Hủy")) + '</button>' +
-          '<button class="app-button app-button-primary" type="button" data-group-save>' + escapeHtml(isEdit ? t("groups.listPage.saveChanges", null, "Lưu thay đổi") : t("groups.listPage.createGroup", null, "Tạo nhóm")) + '</button>' +
-        '</div>' +
-      '</div>'
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("groups.listPage.cancel", null, "Hủy")) + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-group-save>' + escapeHtml(isEdit ? t("groups.listPage.saveChanges", null, "Lưu thay đổi") : t("groups.listPage.createGroup", null, "Tạo nhóm")) + "</button>" +
+        "</div>" +
+      "</div>"
     );
 
     modal.find("[name='name']").val(group ? group.name : "");
@@ -316,7 +316,10 @@
       } else {
         const newGroup = {
           id: getNextGroupId(),
-          ...values
+          name: values.name,
+          memberCount: values.memberCount,
+          assignedCourseCount: values.assignedCourseCount,
+          assignedExamCount: values.assignedExamCount
         };
         state.groups.unshift(newGroup);
         state.page = 1;
@@ -429,10 +432,10 @@
         '<tr><td colspan="5">' +
           '<div class="app-empty-state">' +
             '<div class="app-empty-icon" aria-hidden="true">!</div>' +
-            '<h3 class="app-empty-title">' + escapeHtml(t("groups.listPage.loadErrorTitle", null, "Không thể tải nhóm")) + '</h3>' +
-            '<p class="app-empty-copy">' + escapeHtml(t("groups.listPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/groups.json.")) + '</p>' +
-          '</div>' +
-        '</td></tr>'
+            '<h3 class="app-empty-title">' + escapeHtml(t("groups.listPage.loadErrorTitle", null, "Không thể tải nhóm")) + "</h3>" +
+            '<p class="app-empty-copy">' + escapeHtml(t("groups.listPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/groups.json.")) + "</p>" +
+          "</div>" +
+        "</td></tr>"
       );
       showToast(
         "error",

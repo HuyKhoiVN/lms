@@ -11,6 +11,15 @@
     return window.matchMedia("(max-width: 991.98px)").matches;
   }
 
+  function updateSidebarAccessibility() {
+    const isMobile = isMobileSidebar();
+    const isOpen = $(".app-shell-admin").hasClass("is-sidebar-open");
+    const isCollapsed = $(".app-shell-admin").hasClass("is-sidebar-collapsed");
+
+    $(".app-sidebar-toggle").attr("aria-expanded", isMobile ? String(isOpen) : String(!isCollapsed));
+    $(".app-sidebar-backdrop").attr("aria-hidden", isMobile ? String(!isOpen) : "true");
+  }
+
   function setActiveSidebarLink() {
     const currentPath = getCurrentPath();
 
@@ -41,11 +50,13 @@
 
   function restoreSidebarState() {
     if (!Lms.storage || !Lms.config || !Lms.config.ui) {
+      updateSidebarAccessibility();
       return;
     }
 
     const collapsed = Lms.storage.get(Lms.config.ui.sidebarStateKey, false);
     $(".app-shell-admin").toggleClass("is-sidebar-collapsed", Boolean(collapsed) && !isMobileSidebar());
+    updateSidebarAccessibility();
   }
 
   function ensureSidebarBackdrop() {
@@ -61,6 +72,7 @@
 
   function closeMobileSidebar() {
     $(".app-shell-admin").removeClass("is-sidebar-open");
+    updateSidebarAccessibility();
   }
 
   function bindSidebarToggle() {
@@ -71,6 +83,7 @@
 
       if (isMobileSidebar()) {
         $shell.toggleClass("is-sidebar-open");
+        updateSidebarAccessibility();
         return;
       }
 
@@ -79,6 +92,8 @@
       if (Lms.storage && Lms.config && Lms.config.ui) {
         Lms.storage.set(Lms.config.ui.sidebarStateKey, nextState);
       }
+
+      updateSidebarAccessibility();
     });
 
     $(document)

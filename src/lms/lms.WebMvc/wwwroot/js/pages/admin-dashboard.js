@@ -40,7 +40,9 @@
       return;
     }
 
-    const maxAttempts = Math.max(...items.map((item) => item.attempts), 1);
+    const maxAttempts = Math.max(...items.map(function (item) {
+      return item.attempts;
+    }), 1);
     const chart = $("#examActivityChart").empty();
 
     items.forEach(function (item) {
@@ -50,8 +52,8 @@
       const barItem = $(
         '<div class="admin-bar-item">' +
           '<div class="admin-bar"></div>' +
-          '<span>' + label + '</span>' +
-        '</div>'
+          "<span>" + label + "</span>" +
+        "</div>"
       );
 
       barItem.find(".admin-bar").attr("title", title).css("--bar-height", height + "px");
@@ -74,12 +76,12 @@
       const width = Math.round((item.count / total) * 100);
       const row = $(
         '<div class="admin-distribution-row">' +
-          '<span>' + item.range + '</span>' +
+          "<span>" + item.range + "</span>" +
           '<div class="progress-track">' +
             '<div class="progress-fill"></div>' +
-          '</div>' +
-          '<strong>' + item.count + '</strong>' +
-        '</div>'
+          "</div>" +
+          "<strong>" + item.count + "</strong>" +
+        "</div>"
       );
 
       row.find(".progress-fill").css("--progress-width", width + "%");
@@ -100,12 +102,12 @@
 
     items.forEach(function (item) {
       rows.append(
-        '<tr>' +
-          '<td>' + item.user + '</td>' +
-          '<td><span class="app-badge app-badge-info">' + translateAuditAction(item.action) + '</span></td>' +
-          '<td>' + translateAuditEntity(item.entity) + '</td>' +
-          '<td class="u-text-right">' + new Date(item.dateTime).toLocaleString() + '</td>' +
-        '</tr>'
+        "<tr>" +
+          "<td>" + item.user + "</td>" +
+          '<td><span class="app-badge app-badge-info">' + translateAuditAction(item.action) + "</span></td>" +
+          "<td>" + translateAuditEntity(item.entity) + "</td>" +
+          '<td class="u-text-right">' + new Date(item.dateTime).toLocaleString() + "</td>" +
+        "</tr>"
       );
     });
   }

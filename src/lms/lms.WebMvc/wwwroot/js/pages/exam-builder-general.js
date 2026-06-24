@@ -246,18 +246,14 @@
     saveDraft(exam);
     renderSummary();
     renderSettingsSummary();
-    showToast(
-      "success",
-      t("exams.builderPage.toastGeneralSavedTitle", null, "Đã lưu thông tin chung"),
-      t("exams.builderPage.toastGeneralSavedMessage", { name: exam.name }, exam.name + " đã được lưu vào bộ nhớ mô phỏng.")
-    );
+    showToast("success", t("exams.builderPage.toastGeneralSavedTitle", null, "Đã lưu thông tin chung"), t("exams.builderPage.toastGeneralSavedMessage", { name: exam.name }, exam.name + " đã được lưu vào bộ nhớ mô phỏng."));
   }
 
   function setActiveTab(tabName) {
     $("[data-exam-builder-tab]").toggleClass("active", false);
     $("[data-exam-builder-tab='" + tabName + "']").toggleClass("active", true);
-    $("[data-exam-builder-panel]").addClass("d-none");
-    $("[data-exam-builder-panel='" + tabName + "']").removeClass("d-none");
+    $("[data-exam-builder-panel]").addClass("u-hidden");
+    $("[data-exam-builder-panel='" + tabName + "']").removeClass("u-hidden");
   }
 
   function renderQuestionCategoryOptions() {
@@ -271,7 +267,7 @@
 
       $select.find("option:not(:first)").remove();
       categories.forEach(function (category) {
-        $select.append('<option value="' + escapeHtml(category) + '">' + escapeHtml(category) + '</option>');
+        $select.append('<option value="' + escapeHtml(category) + '">' + escapeHtml(category) + "</option>");
       });
       $select.val(currentValue || "");
     });
@@ -300,15 +296,15 @@
 
     if (!state.filteredQuestions.length) {
       $rows.append(
-        '<tr>' +
+        "<tr>" +
           '<td colspan="6">' +
             '<div class="app-empty-state">' +
               '<div class="app-empty-icon" aria-hidden="true">Q</div>' +
-              '<h3 class="app-empty-title">' + t("exams.builderPage.noQuestionsFoundTitle", null, "Không tìm thấy câu hỏi") + '</h3>' +
-              '<p class="app-empty-copy">' + t("exams.builderPage.noQuestionsFoundCopy", null, "Thử bộ lọc từ khóa, danh mục hoặc độ khó khác.") + '</p>' +
-            '</div>' +
-          '</td>' +
-        '</tr>'
+              '<h3 class="app-empty-title">' + t("exams.builderPage.noQuestionsFoundTitle", null, "Không tìm thấy câu hỏi") + "</h3>" +
+              '<p class="app-empty-copy">' + t("exams.builderPage.noQuestionsFoundCopy", null, "Thử bộ lọc từ khóa, danh mục hoặc độ khó khác.") + "</p>" +
+            "</div>" +
+          "</td>" +
+        "</tr>"
       );
       return;
     }
@@ -317,19 +313,19 @@
       const checked = state.selectedQuestionIds.includes(question.id) ? " checked" : "";
 
       $rows.append(
-        '<tr>' +
-          '<td><input type="checkbox" data-exam-question-select="' + question.id + '"' + checked + ' /></td>' +
-          '<td>' +
+        "<tr>" +
+          '<td><input type="checkbox" data-exam-question-select="' + question.id + '"' + checked + " /></td>" +
+          "<td>" +
             '<div class="admin-question-cell">' +
-              '<strong>' + escapeHtml(question.content) + '</strong>' +
-              '<span>' + t("exams.builderPage.questionId", { id: question.id }, "Mã câu hỏi #" + question.id) + '</span>' +
-            '</div>' +
-          '</td>' +
-          '<td><span class="app-badge app-badge-info">' + escapeHtml(question.category) + '</span></td>' +
-          '<td><span class="app-badge ' + getDifficultyBadgeClass(question.difficulty) + '">' + escapeHtml(getDifficultyLabel(question.difficulty)) + '</span></td>' +
-          '<td>' + escapeHtml(getTypeLabel(question.questionType)) + '</td>' +
-          '<td>' + escapeHtml(question.score) + '</td>' +
-        '</tr>'
+              "<strong>" + escapeHtml(question.content) + "</strong>" +
+              "<span>" + t("exams.builderPage.questionId", { id: question.id }, "Mã câu hỏi #" + question.id) + "</span>" +
+            "</div>" +
+          "</td>" +
+          '<td><span class="app-badge app-badge-info">' + escapeHtml(question.category) + "</span></td>" +
+          '<td><span class="app-badge ' + getDifficultyBadgeClass(question.difficulty) + '">' + escapeHtml(getDifficultyLabel(question.difficulty)) + "</span></td>" +
+          "<td>" + escapeHtml(getTypeLabel(question.questionType)) + "</td>" +
+          "<td>" + escapeHtml(question.score) + "</td>" +
+        "</tr>"
       );
     });
   }
@@ -354,21 +350,21 @@
     const $list = $("#examRandomRuleList").empty();
 
     if (!state.randomRules.length) {
-      $list.append('<p class="page-muted u-mb-0">' + t("exams.builderPage.noRandomRules", null, "Chưa thêm quy tắc ngẫu nhiên nào.") + '</p>');
+      $list.append('<p class="page-muted u-mb-0">' + t("exams.builderPage.noRandomRules", null, "Chưa thêm quy tắc ngẫu nhiên nào.") + "</p>");
       return;
     }
 
     state.randomRules.forEach(function (rule, index) {
       $list.append(
         '<div class="question-answer-row exam-random-rule-row">' +
-          '<span class="app-badge app-badge-info">' + t("exams.builderPage.badgeRule", null, "Quy tắc") + '</span>' +
-          '<span>' + t("exams.builderPage.randomRuleText", {
+          '<span class="app-badge app-badge-info">' + t("exams.builderPage.badgeRule", null, "Quy tắc") + "</span>" +
+          "<span>" + t("exams.builderPage.randomRuleText", {
             count: rule.count,
             category: rule.category ? rule.category : t("exams.builderPage.anyCategory", null, "danh mục bất kỳ"),
             difficulty: rule.difficulty ? getDifficultyLabel(rule.difficulty) : t("exams.builderPage.anyDifficulty", null, "độ khó bất kỳ")
-          }, rule.count + " câu hỏi, " + (rule.category || "danh mục bất kỳ") + ", " + (rule.difficulty || "độ khó bất kỳ")) + '</span>' +
-          '<button class="app-button app-button-secondary" type="button" data-random-rule-remove="' + index + '">' + t("exams.builderPage.buttonRemove", null, "Xóa") + '</button>' +
-        '</div>'
+          }, rule.count + " câu hỏi, " + (rule.category || "danh mục bất kỳ") + ", " + (rule.difficulty ? getDifficultyLabel(rule.difficulty) : "độ khó bất kỳ")) + "</span>" +
+          '<button class="app-button app-button-secondary" type="button" data-random-rule-remove="' + index + '">' + t("exams.builderPage.buttonRemove", null, "Xóa") + "</button>" +
+        "</div>"
       );
     });
   }
@@ -377,11 +373,7 @@
     const count = Number($("[data-random-rule-field='count']").val());
 
     if (!Number.isInteger(count) || count < 1) {
-      showToast(
-        "warning",
-        t("exams.builderPage.toastInvalidRule", null, "Quy tắc không hợp lệ"),
-        t("exams.builderPage.toastCountAtLeastOne", null, "Số lượng câu hỏi phải ít nhất là 1.")
-      );
+      showToast("warning", t("exams.builderPage.toastInvalidRule", null, "Quy tắc không hợp lệ"), t("exams.builderPage.toastCountAtLeastOne", null, "Số lượng câu hỏi phải ít nhất là 1."));
       return;
     }
 
@@ -393,22 +385,14 @@
     renderRandomRules();
     renderQuestionSummary();
     renderSettingsSummary();
-    showToast(
-      "success",
-      t("exams.builderPage.toastRuleAddedTitle", null, "Đã thêm quy tắc"),
-      t("exams.builderPage.toastRuleAddedMessage", null, "Quy tắc câu hỏi ngẫu nhiên đã được thêm vào bản nháp bài thi.")
-    );
+    showToast("success", t("exams.builderPage.toastRuleAddedTitle", null, "Đã thêm quy tắc"), t("exams.builderPage.toastRuleAddedMessage", null, "Quy tắc câu hỏi ngẫu nhiên đã được thêm vào bản nháp bài thi."));
   }
 
   function saveQuestions() {
     const draft = getCurrentDraft();
 
     if (!draft) {
-      showToast(
-        "warning",
-        t("exams.builderPage.toastSaveGeneralFirst", null, "Lưu thông tin chung trước"),
-        t("exams.builderPage.toastSaveGeneralBeforeQuestions", null, "Lưu tab Thông tin chung trước khi lưu câu hỏi.")
-      );
+      showToast("warning", t("exams.builderPage.toastSaveGeneralFirst", null, "Lưu thông tin chung trước"), t("exams.builderPage.toastSaveGeneralBeforeQuestions", null, "Lưu tab Thông tin chung trước khi lưu câu hỏi."));
       return;
     }
 
@@ -419,11 +403,7 @@
     }, 0);
     saveDraft(draft);
     renderSettingsSummary();
-    showToast(
-      "success",
-      t("exams.builderPage.toastQuestionsSavedTitle", null, "Đã lưu câu hỏi"),
-      t("exams.builderPage.toastQuestionsSavedMessage", null, "Danh sách câu hỏi đã chọn và các quy tắc ngẫu nhiên đã được lưu.")
-    );
+    showToast("success", t("exams.builderPage.toastQuestionsSavedTitle", null, "Đã lưu câu hỏi"), t("exams.builderPage.toastQuestionsSavedMessage", null, "Danh sách câu hỏi đã chọn và các quy tắc ngẫu nhiên đã được lưu."));
   }
 
   function getById(items, id) {
@@ -439,7 +419,7 @@
     });
 
     if (!available.length) {
-      $select.append('<option value="">' + emptyText + '</option>');
+      $select.append('<option value="">' + emptyText + "</option>");
       $select.prop("disabled", true);
       $(labelSelector).prop("disabled", true);
       return;
@@ -447,9 +427,9 @@
 
     $select.prop("disabled", false);
     $(labelSelector).prop("disabled", false);
-    $select.append('<option value="">' + t("exams.builderPage.selectItem", null, "Chọn mục") + '</option>');
+    $select.append('<option value="">' + t("exams.builderPage.selectItem", null, "Chọn mục") + "</option>");
     available.forEach(function (item) {
-      $select.append('<option value="' + item.id + '">' + escapeHtml(item.fullName || item.name) + '</option>');
+      $select.append('<option value="' + item.id + '">' + escapeHtml(item.fullName || item.name) + "</option>");
     });
   }
 
@@ -467,9 +447,9 @@
       $container.append(
         '<div class="app-empty-state">' +
           '<div class="app-empty-icon" aria-hidden="true">A</div>' +
-          '<h3 class="app-empty-title">' + emptyTitle + '</h3>' +
-          '<p class="app-empty-copy">' + emptyCopy + '</p>' +
-        '</div>'
+          '<h3 class="app-empty-title">' + emptyTitle + "</h3>" +
+          '<p class="app-empty-copy">' + emptyCopy + "</p>" +
+        "</div>"
       );
       return;
     }
@@ -487,14 +467,14 @@
       $container.append(
         '<div class="group-detail-item">' +
           '<div class="admin-user-cell">' +
-            '<span class="app-avatar" aria-hidden="true">' + escapeHtml(title.charAt(0).toUpperCase()) + '</span>' +
-            '<div>' +
-              '<strong>' + escapeHtml(title) + '</strong>' +
-              '<span>' + escapeHtml(subtitle) + '</span>' +
-            '</div>' +
-          '</div>' +
-          '<button class="app-button app-button-secondary" type="button" data-exam-assignment-remove="' + type + '" data-item-id="' + item.id + '">' + t("exams.builderPage.buttonRemove", null, "Xóa") + '</button>' +
-        '</div>'
+            '<span class="app-avatar" aria-hidden="true">' + escapeHtml(title.charAt(0).toUpperCase()) + "</span>" +
+            "<div>" +
+              "<strong>" + escapeHtml(title) + "</strong>" +
+              "<span>" + escapeHtml(subtitle) + "</span>" +
+            "</div>" +
+          "</div>" +
+          '<button class="app-button app-button-secondary" type="button" data-exam-assignment-remove="' + type + '" data-item-id="' + item.id + '">' + t("exams.builderPage.buttonRemove", null, "Xóa") + "</button>" +
+        "</div>"
       );
     });
   }
@@ -528,11 +508,7 @@
     const target = type === "user" ? state.assignedUserIds : state.assignedGroupIds;
 
     if (!value) {
-      showToast(
-        "warning",
-        t("exams.builderPage.toastChooseAssignment", null, "Chọn đối tượng"),
-        t("exams.builderPage.toastSelectBeforeAdding", { type: type === "user" ? t("exams.builderPage.student", null, "học viên") : t("exams.builderPage.group", null, "nhóm") }, "Vui lòng chọn một " + (type === "user" ? "học viên" : "nhóm") + " trước khi thêm.")
-      );
+      showToast("warning", t("exams.builderPage.toastChooseAssignment", null, "Chọn đối tượng"), t("exams.builderPage.toastSelectBeforeAdding", { type: type === "user" ? t("exams.builderPage.student", null, "học viên") : t("exams.builderPage.group", null, "nhóm") }, "Vui lòng chọn một " + (type === "user" ? "học viên" : "nhóm") + " trước khi thêm."));
       return;
     }
 
@@ -541,11 +517,7 @@
     }
 
     renderAssignment();
-    showToast(
-      "success",
-      t("exams.builderPage.toastAssignmentAddedTitle", null, "Đã giao bài"),
-      t("exams.builderPage.toastAssignmentAddedMessage", { type: type === "user" ? t("exams.builderPage.student", null, "học viên") : t("exams.builderPage.group", null, "nhóm") }, "Đã giao bài cho " + (type === "user" ? "học viên" : "nhóm") + " thành công.")
-    );
+    showToast("success", t("exams.builderPage.toastAssignmentAddedTitle", null, "Đã giao bài"), t("exams.builderPage.toastAssignmentAddedMessage", { type: type === "user" ? t("exams.builderPage.student", null, "học viên") : t("exams.builderPage.group", null, "nhóm") }, "Đã giao bài cho " + (type === "user" ? "học viên" : "nhóm") + " thành công."));
   }
 
   function removeAssignment(type, itemId) {
@@ -566,11 +538,7 @@
     const draft = getCurrentDraft();
 
     if (!draft) {
-      showToast(
-        "warning",
-        t("exams.builderPage.toastSaveGeneralFirst", null, "Lưu thông tin chung trước"),
-        t("exams.builderPage.toastSaveGeneralBeforeAssignment", null, "Lưu tab Thông tin chung trước khi lưu thông tin giao bài.")
-      );
+      showToast("warning", t("exams.builderPage.toastSaveGeneralFirst", null, "Lưu thông tin chung trước"), t("exams.builderPage.toastSaveGeneralBeforeAssignment", null, "Lưu tab Thông tin chung trước khi lưu thông tin giao bài."));
       return;
     }
 
@@ -578,11 +546,7 @@
     draft.assignedGroupIds = state.assignedGroupIds;
     draft.assignedCount = state.assignedUserIds.length + state.assignedGroupIds.length;
     saveDraft(draft);
-    showToast(
-      "success",
-      t("exams.builderPage.toastAssignmentSavedTitle", null, "Đã lưu giao bài"),
-      t("exams.builderPage.toastAssignmentSavedMessage", null, "Thông tin giao bài thi đã được lưu vào bộ nhớ mô phỏng.")
-    );
+    showToast("success", t("exams.builderPage.toastAssignmentSavedTitle", null, "Đã lưu giao bài"), t("exams.builderPage.toastAssignmentSavedMessage", null, "Thông tin giao bài thi đã được lưu vào bộ nhớ mô phỏng."));
   }
 
   function getSettingsValues() {
@@ -654,11 +618,7 @@
     const draft = getCurrentDraft();
 
     if (!draft) {
-      showToast(
-        "warning",
-        t("exams.builderPage.toastSaveGeneralFirst", null, "Lưu thông tin chung trước"),
-        t("exams.builderPage.toastSaveGeneralBeforeSettings", null, "Lưu tab Thông tin chung trước khi lưu cài đặt.")
-      );
+      showToast("warning", t("exams.builderPage.toastSaveGeneralFirst", null, "Lưu thông tin chung trước"), t("exams.builderPage.toastSaveGeneralBeforeSettings", null, "Lưu tab Thông tin chung trước khi lưu cài đặt."));
       return false;
     }
 
@@ -670,11 +630,7 @@
     draft.settings = state.settings;
     saveDraft(draft);
     renderSettingsSummary();
-    showToast(
-      "success",
-      t("exams.builderPage.toastSettingsSavedTitle", null, "Đã lưu cài đặt"),
-      t("exams.builderPage.toastSettingsSavedMessage", null, "Cài đặt bài thi đã được lưu vào bộ nhớ mô phỏng.")
-    );
+    showToast("success", t("exams.builderPage.toastSettingsSavedTitle", null, "Đã lưu cài đặt"), t("exams.builderPage.toastSettingsSavedMessage", null, "Cài đặt bài thi đã được lưu vào bộ nhớ mô phỏng."));
     return true;
   }
 
@@ -682,11 +638,7 @@
     const draft = getCurrentDraft();
 
     if (!draft) {
-      showToast(
-        "warning",
-        t("exams.builderPage.toastSaveGeneralFirst", null, "Lưu thông tin chung trước"),
-        t("exams.builderPage.toastSaveGeneralBeforePublish", null, "Lưu tab Thông tin chung trước khi xuất bản.")
-      );
+      showToast("warning", t("exams.builderPage.toastSaveGeneralFirst", null, "Lưu thông tin chung trước"), t("exams.builderPage.toastSaveGeneralBeforePublish", null, "Lưu tab Thông tin chung trước khi xuất bản."));
       return;
     }
 
@@ -695,11 +647,7 @@
     }, 0);
 
     if (questionCount < 1) {
-      showToast(
-        "warning",
-        t("exams.builderPage.toastQuestionsRequiredTitle", null, "Cần có câu hỏi"),
-        t("exams.builderPage.toastQuestionsRequiredMessage", null, "Vui lòng chọn ít nhất một câu hỏi hoặc quy tắc ngẫu nhiên trước khi xuất bản.")
-      );
+      showToast("warning", t("exams.builderPage.toastQuestionsRequiredTitle", null, "Cần có câu hỏi"), t("exams.builderPage.toastQuestionsRequiredMessage", null, "Vui lòng chọn ít nhất một câu hỏi hoặc quy tắc ngẫu nhiên trước khi xuất bản."));
       setActiveTab("questions");
       return;
     }
@@ -709,19 +657,19 @@
     }
 
     const modal = $(
-      '<div>' +
+      "<div>" +
         '<div class="app-modal-header">' +
-          '<h2 class="app-modal-title" data-i18n="exams.builderPage.modalPublishTitle">' + t("exams.builderPage.modalPublishTitle", null, "Xuất bản bài thi") + '</h2>' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="exams.builderPage.buttonClose">' + t("exams.builderPage.buttonClose", null, "Đóng") + '</button>' +
-        '</div>' +
+          '<h2 class="app-modal-title" data-i18n="exams.builderPage.modalPublishTitle">' + t("exams.builderPage.modalPublishTitle", null, "Xuất bản bài thi") + "</h2>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="exams.builderPage.buttonClose">' + t("exams.builderPage.buttonClose", null, "Đóng") + "</button>" +
+        "</div>" +
         '<div class="app-modal-body">' +
           '<p class="u-mb-0"></p>' +
-        '</div>' +
+        "</div>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="exams.builderPage.buttonCancel">' + t("exams.builderPage.buttonCancel", null, "Hủy") + '</button>' +
-          '<button class="app-button app-button-primary" type="button" data-exam-publish-confirm data-i18n="exams.builderPage.buttonPublish">' + t("exams.builderPage.buttonPublish", null, "Xuất bản") + '</button>' +
-        '</div>' +
-      '</div>'
+          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="exams.builderPage.buttonCancel">' + t("exams.builderPage.buttonCancel", null, "Hủy") + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-exam-publish-confirm data-i18n="exams.builderPage.buttonPublish">' + t("exams.builderPage.buttonPublish", null, "Xuất bản") + "</button>" +
+        "</div>" +
+      "</div>"
     );
 
     modal.find(".app-modal-body p").html(
@@ -745,11 +693,7 @@
       Lms.ui.closeModal();
       renderSummary();
       renderSettingsSummary();
-      showToast(
-        "success",
-        t("exams.builderPage.toastExamPublishedTitle", null, "Đã xuất bản bài thi"),
-        t("exams.builderPage.toastExamPublishedMessage", { name: draft.name }, draft.name + " hiện đã được xuất bản trong bộ nhớ mô phỏng.")
-      );
+      showToast("success", t("exams.builderPage.toastExamPublishedTitle", null, "Đã xuất bản bài thi"), t("exams.builderPage.toastExamPublishedMessage", { name: draft.name }, draft.name + " hiện đã được xuất bản trong bộ nhớ mô phỏng."));
     });
 
     Lms.ui.showModal(modal);
@@ -762,10 +706,6 @@
 
     $(document).on("click", "[data-exam-builder-tab]", function () {
       setActiveTab($(this).data("exam-builder-tab"));
-    });
-
-    $(document).on("click", "[data-exam-builder-placeholder]", function () {
-      showToast("info", $(this).data("exam-builder-placeholder"), "This builder tab will be implemented in the next exam tasks.");
     });
 
     $("[data-exam-question-filter='search']").on("input", function () {
@@ -908,11 +848,7 @@
         assignedCount: 0,
         questionCount: 0
       });
-      showToast(
-        "error",
-        t("exams.builderPage.toastLoadErrorTitle", null, "Lỗi tải dữ liệu"),
-        t("exams.builderPage.toastLoadErrorMessage", null, "Không thể tải dữ liệu mô phỏng bài thi.")
-      );
+      showToast("error", t("exams.builderPage.toastLoadErrorTitle", null, "Lỗi tải dữ liệu"), t("exams.builderPage.toastLoadErrorMessage", null, "Không thể tải dữ liệu mô phỏng bài thi."));
     });
   }
 

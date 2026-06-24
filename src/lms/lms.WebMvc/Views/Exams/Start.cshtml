@@ -3,83 +3,104 @@
     var examId = ViewData["ExamId"] ?? 0;
 }
 
-<div class="page-header linear-start-exam-header start-exam-reveal" data-student-start-exam-id="@examId" data-start-exam-reveal>
-    <div class="page-header-main">
-        <nav class="page-breadcrumb" aria-label="Breadcrumb">
-            <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="exams.startPage.breadcrumbHome">Trang chủ</a>
-            <span>/</span>
-            <a asp-area="" asp-controller="Exams" asp-action="Index" data-i18n="exams.startPage.breadcrumbExams">Bài thi</a>
-            <span>/</span>
-            <span data-i18n="exams.startPage.breadcrumbCurrent">Bắt đầu</span>
-        </nav>
-        <h1 class="page-title" data-start-exam-title data-i18n="exams.startPage.title">Bắt đầu bài thi</h1>
-        <p class="page-muted u-mb-0" data-start-exam-subtitle data-i18n="exams.startPage.subtitle">Đang tải thông tin bài thi...</p>
-    </div>
-    <div class="page-header-actions">
-        <a class="app-button app-button-secondary" asp-area="" asp-controller="Exams" asp-action="Index" data-i18n="exams.startPage.backToExams">Quay lại danh sách</a>
-        <button class="app-button app-button-primary" type="button" data-start-exam-action="start" data-i18n="exams.startPage.buttonStart">Bắt đầu làm bài</button>
-    </div>
-</div>
-
-<section class="start-exam-layout linear-start-exam-layout">
-    <article class="app-card start-exam-card linear-start-exam-card start-exam-reveal" data-start-exam-reveal>
-        <div class="app-card-header">
-            <div class="admin-card-header-row">
-                <div>
-                    <h2 class="app-card-title" data-i18n="exams.startPage.cardTitleSummary">Tổng quan bài thi</h2>
-                    <p class="app-card-subtitle" data-i18n="exams.startPage.cardSubtitleSummary">Kiểm tra các thông tin chính trước khi bắt đầu.</p>
-                </div>
-                <span class="app-badge app-badge-success" data-start-exam-status>--</span>
-            </div>
+<section class="lms-workspace-page student-exam-start-page" data-student-start-exam-id="@examId" aria-label="Bắt đầu bài thi">
+    <header class="lms-workspace-header student-exam-start-reveal" data-start-exam-reveal>
+        <div class="lms-workspace-header-main">
+            <nav class="page-breadcrumb" aria-label="Breadcrumb">
+                <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="exams.startPage.breadcrumbHome">Trang chủ</a>
+                <span>/</span>
+                <a asp-area="" asp-controller="Exams" asp-action="Index" data-i18n="exams.startPage.breadcrumbExams">Bài thi</a>
+                <span>/</span>
+                <span data-i18n="exams.startPage.breadcrumbCurrent">Bắt đầu</span>
+            </nav>
+            <p class="lms-workspace-kicker">Chuẩn bị làm bài</p>
+            <h1 data-start-exam-title data-i18n="exams.startPage.title">Bắt đầu bài thi</h1>
+            <p class="lms-workspace-description" data-start-exam-subtitle data-i18n="exams.startPage.subtitle">Đang tải thông tin bài thi...</p>
         </div>
-        <div class="app-card-body">
-            <div class="start-exam-banner linear-start-exam-banner app-animate-fade start-exam-reveal" data-start-exam-reveal>
-                <div class="image-slot image-slot-banner image-slot-exam" data-image-label="Exam start banner 1600x420">
-                    <img src="~/images/placeholders/exam-placeholder.svg" alt="" aria-hidden="true" />
+
+        <div class="student-dashboard-actions">
+            <a class="app-button app-button-secondary" asp-area="" asp-controller="Exams" asp-action="Index" data-i18n="exams.startPage.backToExams">Quay lại danh sách</a>
+            <button class="app-button app-button-primary" type="button" data-start-exam-action="start" data-i18n="exams.startPage.buttonStart">Bắt đầu làm bài</button>
+        </div>
+    </header>
+
+    <section class="student-exam-start-layout">
+        <article class="lms-workspace-card student-exam-start-main student-exam-start-surface student-exam-start-reveal" data-start-exam-reveal>
+            <div class="lms-workspace-section-head">
+                <div>
+                    <p class="lms-workspace-kicker">Tóm tắt bài thi</p>
+                    <h2 data-i18n="exams.startPage.cardTitleSummary">Tổng quan bài thi</h2>
                 </div>
+                <span class="lms-status-success" data-start-exam-status>--</span>
             </div>
-            <div class="start-exam-summary-grid">
-                <div class="admin-summary-line start-exam-stat">
+
+            <div class="student-exam-start-summary">
+                <div class="student-exam-start-summary-item">
                     <span data-i18n="exams.startPage.summaryDuration">Thời lượng</span>
                     <strong data-start-exam-summary="duration">--</strong>
                 </div>
-                <div class="admin-summary-line start-exam-stat">
+                <div class="student-exam-start-summary-item">
                     <span data-i18n="exams.startPage.summaryPassScore">Điểm đạt</span>
                     <strong data-start-exam-summary="passScore">--</strong>
                 </div>
-                <div class="admin-summary-line start-exam-stat">
+                <div class="student-exam-start-summary-item">
                     <span data-i18n="exams.startPage.summaryQuestions">Số câu hỏi</span>
                     <strong data-start-exam-summary="questions">--</strong>
                 </div>
-                <div class="admin-summary-line start-exam-stat">
+                <div class="student-exam-start-summary-item">
                     <span data-i18n="exams.startPage.summaryReview">Chính sách xem lại</span>
                     <strong data-start-exam-summary="review">--</strong>
                 </div>
             </div>
 
-            <div class="start-exam-note u-mt-4">
+            <div class="student-exam-start-notice">
                 <h3 data-i18n="exams.startPage.noticeTitle">Trước khi bắt đầu</h3>
                 <p data-i18n="exams.startPage.noticeText">Không có đáp án đúng nào được hiển thị trước khi nộp bài. Câu trả lời của bạn sẽ được lưu cục bộ trong giai đoạn thử nghiệm UI này.</p>
             </div>
-        </div>
-    </article>
+        </article>
 
-    <aside class="start-exam-side linear-start-exam-side">
-        <article class="app-card linear-start-exam-rules start-exam-reveal" data-start-exam-reveal>
-            <div class="app-card-header">
-                <h2 class="app-card-title" data-i18n="exams.startPage.rulesTitle">Quy định</h2>
-                <p class="app-card-subtitle" data-i18n="exams.startPage.rulesSubtitle">Tuân thủ các quy định sau trong quá trình làm bài.</p>
-            </div>
-            <div class="app-card-body">
-                <div class="start-exam-rule-list" id="startExamRules">
+        <aside class="student-exam-start-side">
+            <article class="lms-workspace-card student-exam-start-widget student-exam-start-reveal" data-start-exam-reveal>
+                <div class="lms-workspace-section-head">
+                    <div>
+                        <p class="lms-workspace-kicker">Quy định</p>
+                        <h2 data-i18n="exams.startPage.rulesTitle">Quy định</h2>
+                    </div>
+                </div>
+
+                <div class="student-exam-rule-list" id="startExamRules">
                     <div class="app-loading">
                         <span class="app-spinner" aria-hidden="true"></span>
                         <span data-i18n="exams.startPage.loadingRules">Đang tải quy định...</span>
                     </div>
                 </div>
-            </div>
-        </article>
-    </aside>
+            </article>
+
+            <article class="lms-workspace-card student-exam-start-widget student-exam-start-reveal" data-start-exam-reveal>
+                <div class="lms-workspace-section-head">
+                    <div>
+                        <p class="lms-workspace-kicker">Sẵn sàng</p>
+                        <h2>Sẵn sàng</h2>
+                    </div>
+                </div>
+
+                <dl class="student-exam-readiness">
+                    <div>
+                        <dt>Trạng thái bài thi</dt>
+                        <dd data-start-exam-readiness-status>--</dd>
+                    </div>
+                    <div>
+                        <dt>Chế độ xem lại</dt>
+                        <dd data-start-exam-readiness-review>--</dd>
+                    </div>
+                    <div>
+                        <dt>Hành động</dt>
+                        <dd data-start-exam-readiness-action">Bạn có thể bắt đầu khi đã sẵn sàng.</dd>
+                    </div>
+                </dl>
+            </article>
+        </aside>
+    </section>
 </section>
 
 @section Scripts {

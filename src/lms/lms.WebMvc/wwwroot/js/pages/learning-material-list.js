@@ -114,7 +114,7 @@
 
     $filter.find("option:not(:first)").remove();
     state.courses.forEach(function (course) {
-      $filter.append('<option value="' + course.id + '">' + escapeHtml(course.name) + '</option>');
+      $filter.append('<option value="' + course.id + '">' + escapeHtml(course.name) + "</option>");
     });
     $filter.val(currentValue);
   }
@@ -142,15 +142,15 @@
 
     if (!rows.length) {
       $rows.append(
-        '<tr>' +
+        "<tr>" +
           '<td colspan="6">' +
             '<div class="app-empty-state">' +
               '<div class="image-slot image-slot-md image-slot-material u-mb-4" data-image-label="Empty materials illustration 320x180"><img src="/images/placeholders/material-placeholder.svg" alt="" aria-hidden="true" /></div>' +
-              '<h3 class="app-empty-title">' + escapeHtml(t("materials.adminListPage.noMaterialsTitle", null, "Không tìm thấy tài liệu")) + '</h3>' +
-              '<p class="app-empty-copy">' + escapeHtml(t("materials.adminListPage.noMaterialsCopy", null, "Thử từ khóa, khóa học, thể loại hoặc bộ lọc trạng thái khác.")) + '</p>' +
-            '</div>' +
-          '</td>' +
-        '</tr>'
+              '<h3 class="app-empty-title">' + escapeHtml(t("materials.adminListPage.noMaterialsTitle", null, "Không tìm thấy tài liệu")) + "</h3>" +
+              '<p class="app-empty-copy">' + escapeHtml(t("materials.adminListPage.noMaterialsCopy", null, "Thử từ khóa, khóa học, thể loại hoặc bộ lọc trạng thái khác.")) + "</p>" +
+            "</div>" +
+          "</td>" +
+        "</tr>"
       );
       return;
     }
@@ -160,27 +160,27 @@
       const courseName = course ? course.name : t("materials.adminListPage.unassignedCourse", null, "Khóa học chưa được gán");
 
       $rows.append(
-        '<tr>' +
-          '<td>' +
+        "<tr>" +
+          "<td>" +
             '<div class="admin-user-cell">' +
               '<span class="app-avatar admin-type-avatar" aria-hidden="true"><i class="bi ' + getTypeIcon(material.contentType) + '"></i></span>' +
-              '<div>' +
-                '<strong>' + escapeHtml(material.title) + '</strong>' +
-                '<span>' + escapeHtml(t("materials.adminListPage.materialId", { id: material.id }, "Mã tài liệu #" + material.id)) + '</span>' +
-              '</div>' +
-            '</div>' +
-          '</td>' +
-          '<td>' + escapeHtml(courseName) + '</td>' +
-          '<td><span class="app-badge ' + getTypeBadgeClass(material.contentType) + '">' + escapeHtml(translateType(material.contentType)) + '</span></td>' +
-          '<td>' + escapeHtml(t("materials.adminListPage.durationMinutesValue", { minutes: material.durationMinutes }, material.durationMinutes + " phút")) + '</td>' +
-          '<td><span class="app-badge ' + getBadgeClass(material.status) + '">' + escapeHtml(translateStatus(material.status)) + '</span></td>' +
+              "<div>" +
+                "<strong>" + escapeHtml(material.title) + "</strong>" +
+                "<span>" + escapeHtml(t("materials.adminListPage.materialId", { id: material.id }, "Mã tài liệu #" + material.id)) + "</span>" +
+              "</div>" +
+            "</div>" +
+          "</td>" +
+          "<td>" + escapeHtml(courseName) + "</td>" +
+          '<td><span class="app-badge ' + getTypeBadgeClass(material.contentType) + '">' + escapeHtml(translateType(material.contentType)) + "</span></td>" +
+          "<td>" + escapeHtml(t("materials.adminListPage.durationMinutesValue", { minutes: material.durationMinutes }, material.durationMinutes + " phút")) + "</td>" +
+          '<td><span class="app-badge ' + getBadgeClass(material.status) + '">' + escapeHtml(translateStatus(material.status)) + "</span></td>" +
           '<td class="u-text-right">' +
             '<div class="admin-row-actions">' +
-              '<button class="app-button app-button-secondary" type="button" data-material-action="edit" data-material-id="' + material.id + '">' + escapeHtml(t("common.edit", null, "Sửa")) + '</button>' +
-              '<button class="app-button app-button-secondary" type="button" data-material-action="delete" data-material-id="' + material.id + '">' + escapeHtml(t("common.delete", null, "Xóa")) + '</button>' +
-            '</div>' +
-          '</td>' +
-        '</tr>'
+              '<button class="app-button app-button-secondary" type="button" data-material-action="edit" data-material-id="' + material.id + '">' + escapeHtml(t("common.edit", null, "Sửa")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-material-action="delete" data-material-id="' + material.id + '">' + escapeHtml(t("common.delete", null, "Xóa")) + "</button>" +
+            "</div>" +
+          "</td>" +
+        "</tr>"
       );
     });
   }
@@ -192,7 +192,13 @@
     const endRecord = Math.min(state.page * state.pageSize, state.filteredMaterials.length);
 
     $("[data-material-result-count]").text(t("materials.adminListPage.records", { count: state.filteredMaterials.length }, state.filteredMaterials.length + " bản ghi"));
-    $("[data-material-page-info]").text(t("materials.adminListPage.showing", { start: startRecord, end: endRecord, total: state.filteredMaterials.length }, "Hiển thị " + startRecord + "-" + endRecord + " trên " + state.filteredMaterials.length + " tài liệu"));
+    $("[data-material-page-info]").text(
+      t(
+        "materials.adminListPage.showing",
+        { start: startRecord, end: endRecord, total: state.filteredMaterials.length },
+        "Hiển thị " + startRecord + "-" + endRecord + " trên " + state.filteredMaterials.length + " tài liệu"
+      )
+    );
     $("[data-material-page='prev']").prop("disabled", state.page <= 1);
     $("[data-material-page='next']").prop("disabled", state.page >= pageCount);
 
@@ -290,63 +296,63 @@
   function buildCourseSelectOptions(selectedCourseId) {
     return state.courses.map(function (course) {
       const selected = course.id === Number(selectedCourseId) ? " selected" : "";
-      return '<option value="' + course.id + '"' + selected + '>' + escapeHtml(course.name) + '</option>';
+      return '<option value="' + course.id + '"' + selected + ">" + escapeHtml(course.name) + "</option>";
     }).join("");
   }
 
   function buildMaterialForm(material) {
     const isEdit = Boolean(material);
     const modal = $(
-      '<div>' +
+      "<div>" +
         '<div class="app-modal-header">' +
-          '<div>' +
-            '<h2 class="app-modal-title">' + escapeHtml(isEdit ? t("materials.adminListPage.editMaterial", null, "Sửa tài liệu") : t("materials.adminListPage.createMaterialModal", null, "Tạo tài liệu")) + '</h2>' +
-            '<p class="app-card-subtitle">' + escapeHtml(isEdit ? t("materials.adminListPage.editSubtitle", null, "Cập nhật thông tin tài liệu học tập mô phỏng.") : t("materials.adminListPage.createSubtitle", null, "Thêm tài liệu học tập mô phỏng mới trong bộ nhớ.")) + '</p>' +
-          '</div>' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.close", null, "Đóng")) + '</button>' +
-        '</div>' +
+          "<div>" +
+            '<h2 class="app-modal-title">' + escapeHtml(isEdit ? t("materials.adminListPage.editMaterial", null, "Sửa tài liệu") : t("materials.adminListPage.createMaterialModal", null, "Tạo tài liệu")) + "</h2>" +
+            '<p class="app-card-subtitle">' + escapeHtml(isEdit ? t("materials.adminListPage.editSubtitle", null, "Cập nhật thông tin tài liệu học tập mô phỏng.") : t("materials.adminListPage.createSubtitle", null, "Thêm tài liệu học tập mô phỏng mới trong bộ nhớ.")) + "</p>" +
+          "</div>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.close", null, "Đóng")) + "</button>" +
+        "</div>" +
         '<form class="app-modal-body admin-user-form" novalidate>' +
           '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.formTitle", null, "Tiêu đề")) +
             '<input class="app-input" name="title" type="text" autocomplete="off" />' +
             '<span class="auth-error" data-material-error="title"></span>' +
-          '</label>' +
+          "</label>" +
           '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.formCourse", null, "Khóa học")) +
             '<select class="app-select" name="courseId">' +
-              '<option value="">' + escapeHtml(t("materials.adminListPage.selectCoursePlaceholder", null, "Chọn khóa học")) + '</option>' +
+              '<option value="">' + escapeHtml(t("materials.adminListPage.selectCoursePlaceholder", null, "Chọn khóa học")) + "</option>" +
               buildCourseSelectOptions(material ? material.courseId : "") +
-            '</select>' +
+            "</select>" +
             '<span class="auth-error" data-material-error="courseId"></span>' +
-          '</label>' +
+          "</label>" +
           '<div class="admin-user-form-grid">' +
             '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.formType", null, "Thể loại")) +
               '<select class="app-select" name="contentType">' +
-                '<option value="">' + escapeHtml(t("materials.adminListPage.selectTypePlaceholder", null, "Chọn thể loại")) + '</option>' +
-                '<option value="Text">' + escapeHtml(t("materials.adminListPage.typeOptionText", null, "Văn bản")) + '</option>' +
-                '<option value="Pdf">' + escapeHtml(t("materials.adminListPage.typeOptionPdf", null, "PDF")) + '</option>' +
-                '<option value="File">' + escapeHtml(t("materials.adminListPage.typeOptionFile", null, "Tệp")) + '</option>' +
-                '<option value="Link">' + escapeHtml(t("materials.adminListPage.typeOptionLink", null, "Liên kết")) + '</option>' +
-              '</select>' +
+                '<option value="">' + escapeHtml(t("materials.adminListPage.selectTypePlaceholder", null, "Chọn thể loại")) + "</option>" +
+                '<option value="Text">' + escapeHtml(t("materials.adminListPage.typeOptionText", null, "Văn bản")) + "</option>" +
+                '<option value="Pdf">' + escapeHtml(t("materials.adminListPage.typeOptionPdf", null, "PDF")) + "</option>" +
+                '<option value="File">' + escapeHtml(t("materials.adminListPage.typeOptionFile", null, "Tệp")) + "</option>" +
+                '<option value="Link">' + escapeHtml(t("materials.adminListPage.typeOptionLink", null, "Liên kết")) + "</option>" +
+              "</select>" +
               '<span class="auth-error" data-material-error="contentType"></span>' +
-            '</label>' +
+            "</label>" +
             '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.formDuration", null, "Thời lượng (phút)")) +
               '<input class="app-input" name="durationMinutes" type="number" min="1" step="1" />' +
               '<span class="auth-error" data-material-error="durationMinutes"></span>' +
-            '</label>' +
-          '</div>' +
+            "</label>" +
+          "</div>" +
           '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.formStatus", null, "Trạng thái")) +
             '<select class="app-select" name="status">' +
-              '<option value="">' + escapeHtml(t("materials.adminListPage.selectStatusPlaceholder", null, "Chọn trạng thái")) + '</option>' +
-              '<option value="Published">' + escapeHtml(t("materials.adminListPage.published", null, "Đã xuất bản")) + '</option>' +
-              '<option value="Draft">' + escapeHtml(t("materials.adminListPage.draft", null, "Bản nháp")) + '</option>' +
-            '</select>' +
+              '<option value="">' + escapeHtml(t("materials.adminListPage.selectStatusPlaceholder", null, "Chọn trạng thái")) + "</option>" +
+              '<option value="Published">' + escapeHtml(t("materials.adminListPage.published", null, "Đã xuất bản")) + "</option>" +
+              '<option value="Draft">' + escapeHtml(t("materials.adminListPage.draft", null, "Bản nháp")) + "</option>" +
+            "</select>" +
             '<span class="auth-error" data-material-error="status"></span>' +
-          '</label>' +
-        '</form>' +
+          "</label>" +
+        "</form>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.cancel", null, "Hủy")) + '</button>' +
-          '<button class="app-button app-button-primary" type="button" data-material-save>' + escapeHtml(isEdit ? t("materials.adminListPage.saveChanges", null, "Lưu thay đổi") : t("materials.adminListPage.createMaterial", null, "Tạo tài liệu")) + '</button>' +
-        '</div>' +
-      '</div>'
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.cancel", null, "Hủy")) + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-material-save>' + escapeHtml(isEdit ? t("materials.adminListPage.saveChanges", null, "Lưu thay đổi") : t("materials.adminListPage.createMaterial", null, "Tạo tài liệu")) + "</button>" +
+        "</div>" +
+      "</div>"
     );
 
     modal.find("[name='title']").val(material ? material.title : "");
@@ -407,19 +413,19 @@
     }
 
     const modal = $(
-      '<div>' +
+      "<div>" +
         '<div class="app-modal-header">' +
-          '<h2 class="app-modal-title">' + escapeHtml(t("materials.adminListPage.deleteMaterialTitle", null, "Xóa tài liệu")) + '</h2>' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.close", null, "Đóng")) + '</button>' +
-        '</div>' +
+          '<h2 class="app-modal-title">' + escapeHtml(t("materials.adminListPage.deleteMaterialTitle", null, "Xóa tài liệu")) + "</h2>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.close", null, "Đóng")) + "</button>" +
+        "</div>" +
         '<div class="app-modal-body">' +
-          '<p class="u-mb-0">' + escapeHtml(t("materials.adminListPage.deleteConfirmPrefix", null, "Xóa ")) + '<strong></strong>' + escapeHtml(t("materials.adminListPage.deleteConfirmSuffix", null, "? Thao tác mô phỏng này chỉ xóa khỏi bộ nhớ.")) + '</p>' +
-        '</div>' +
+          '<p class="u-mb-0">' + escapeHtml(t("materials.adminListPage.deleteConfirmPrefix", null, "Xóa ")) + "<strong></strong>" + escapeHtml(t("materials.adminListPage.deleteConfirmSuffix", null, "? Thao tác mô phỏng này chỉ xóa khỏi bộ nhớ.")) + "</p>" +
+        "</div>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.cancel", null, "Hủy")) + '</button>' +
-          '<button class="app-button app-button-primary" type="button" data-material-confirm-delete>' + escapeHtml(t("materials.adminListPage.delete", null, "Xóa")) + '</button>' +
-        '</div>' +
-      '</div>'
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.cancel", null, "Hủy")) + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-material-confirm-delete>' + escapeHtml(t("materials.adminListPage.delete", null, "Xóa")) + "</button>" +
+        "</div>" +
+      "</div>"
     );
 
     modal.find("strong").text(material.title);
@@ -529,10 +535,10 @@
         '<tr><td colspan="6">' +
           '<div class="app-empty-state">' +
             '<div class="app-empty-icon" aria-hidden="true">!</div>' +
-            '<h3 class="app-empty-title">' + escapeHtml(t("materials.adminListPage.loadErrorTitle", null, "Không thể tải tài liệu")) + '</h3>' +
-            '<p class="app-empty-copy">' + escapeHtml(t("materials.adminListPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/learning-materials.json.")) + '</p>' +
-          '</div>' +
-        '</td></tr>'
+            '<h3 class="app-empty-title">' + escapeHtml(t("materials.adminListPage.loadErrorTitle", null, "Không thể tải tài liệu")) + "</h3>" +
+            '<p class="app-empty-copy">' + escapeHtml(t("materials.adminListPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/learning-materials.json.")) + "</p>" +
+          "</div>" +
+        "</td></tr>"
       );
       showToast("error", t("materials.adminListPage.dataErrorTitle", null, "Lỗi dữ liệu tài liệu"), t("materials.adminListPage.dataErrorMessage", null, "Không thể tải dữ liệu mô phỏng tài liệu học tập."));
     });

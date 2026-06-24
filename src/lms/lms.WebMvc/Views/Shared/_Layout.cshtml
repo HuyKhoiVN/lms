@@ -1,3 +1,12 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
+    var isHome = string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase);
+    var isCourses = string.Equals(currentController, "Courses", StringComparison.OrdinalIgnoreCase);
+    var isMaterials = string.Equals(currentController, "LearningMaterials", StringComparison.OrdinalIgnoreCase);
+    var isExams = string.Equals(currentController, "Exams", StringComparison.OrdinalIgnoreCase);
+    var isResults = string.Equals(currentController, "Results", StringComparison.OrdinalIgnoreCase);
+    var isCertificates = string.Equals(currentController, "Certificates", StringComparison.OrdinalIgnoreCase);
+}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -28,12 +37,12 @@
                 </a>
 
                 <div class="learning-menu">
-                    <a class="learning-menu-link active" asp-area="" asp-controller="Home" asp-action="Index" data-i18n="nav.home">Trang chủ</a>
-                    <a class="learning-menu-link" asp-area="" asp-controller="Courses" asp-action="Index" data-i18n="nav.courses">Khóa học</a>
-                    <a class="learning-menu-link" asp-area="" asp-controller="LearningMaterials" asp-action="Index" data-i18n="nav.materials">Tài liệu</a>
-                    <a class="learning-menu-link" asp-area="" asp-controller="Exams" asp-action="Index" data-i18n="nav.exams">Bài thi</a>
-                    <a class="learning-menu-link" asp-area="" asp-controller="Results" asp-action="Index" data-i18n="nav.results">Kết quả</a>
-                    <a class="learning-menu-link" asp-area="" asp-controller="Certificates" asp-action="Index" data-i18n="nav.certificates">Chứng chỉ</a>
+                    <a class="learning-menu-link @(isHome ? "active" : null)" asp-area="" asp-controller="Home" asp-action="Index" data-i18n="nav.home">Trang chủ</a>
+                    <a class="learning-menu-link @(isCourses ? "active" : null)" asp-area="" asp-controller="Courses" asp-action="Index" data-i18n="nav.courses">Khóa học</a>
+                    <a class="learning-menu-link @(isMaterials ? "active" : null)" asp-area="" asp-controller="LearningMaterials" asp-action="Index" data-i18n="nav.materials">Tài liệu</a>
+                    <a class="learning-menu-link @(isExams ? "active" : null)" asp-area="" asp-controller="Exams" asp-action="Index" data-i18n="nav.exams">Bài thi</a>
+                    <a class="learning-menu-link @(isResults ? "active" : null)" asp-area="" asp-controller="Results" asp-action="Index" data-i18n="nav.results">Kết quả</a>
+                    <a class="learning-menu-link @(isCertificates ? "active" : null)" asp-area="" asp-controller="Certificates" asp-action="Index" data-i18n="nav.certificates">Chứng chỉ</a>
                 </div>
 
                 <div class="learning-actions">

@@ -2,34 +2,34 @@
     ViewData["Title"] = "Tài liệu học tập";
 }
 
-<div class="page-header student-material-page-header student-material-reveal" data-material-reveal>
-    <div class="page-header-main">
-        <nav class="page-breadcrumb" aria-label="Breadcrumb">
-            <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="materials.studentListPage.breadcrumbHome">Trang chủ</a>
-            <span>/</span>
-            <span data-i18n="materials.studentListPage.breadcrumbMaterials">Tài liệu</span>
-        </nav>
-        <h1 class="page-title" data-i18n="materials.studentListPage.title">Tài liệu học tập</h1>
-        <p class="page-muted u-mb-0" data-i18n="materials.studentListPage.subtitle">Mở các tài liệu dạng văn bản, PDF, tệp tin và liên kết được giao trong không gian học tập của bạn.</p>
-    </div>
-</div>
-
-<section class="image-slot image-slot-banner image-slot-material student-material-banner linear-material-banner student-material-reveal" data-image-label="Materials banner 1600x420" data-material-reveal>
-    <img src="~/images/placeholders/material-placeholder.svg" alt="" aria-hidden="true" />
-</section>
-
-<section class="app-card student-material-library-card student-material-reveal" data-material-reveal>
-    <div class="app-card-header">
-        <div class="admin-card-header-row">
-            <div>
-                <h2 class="app-card-title" data-i18n="materials.studentListPage.assignedMaterials">Tài liệu được giao</h2>
-                <p class="app-card-subtitle" data-i18n="materials.studentListPage.progressNotice">Tiến trình học tập được lưu cục bộ trong giai đoạn thử nghiệm này.</p>
-            </div>
-            <span class="app-badge app-badge-info" data-student-material-count data-i18n="materials.studentListPage.records">-- tài liệu</span>
+<section class="lms-workspace-page student-material-assigned-page" aria-label="Tài liệu học tập được giao">
+    <header class="lms-workspace-header student-material-reveal" data-material-reveal>
+        <div class="lms-workspace-header-main">
+            <nav class="page-breadcrumb" aria-label="Breadcrumb">
+                <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="materials.studentListPage.breadcrumbHome">Trang chủ</a>
+                <span>/</span>
+                <span data-i18n="materials.studentListPage.breadcrumbMaterials">Tài liệu</span>
+            </nav>
+            <p class="lms-workspace-kicker">Assigned Learning Content</p>
+            <h1 data-i18n="materials.studentListPage.title">Tài liệu học tập</h1>
+            <p class="lms-workspace-description" data-i18n="materials.studentListPage.subtitle">
+                Danh sách học liệu được giao theo khóa học, trạng thái và tiến độ của bạn.
+            </p>
         </div>
-    </div>
-    <div class="app-card-body">
-        <div class="app-filter-bar admin-user-filter student-material-filter-bar">
+
+        <a class="app-button app-button-primary" asp-area="" asp-controller="LearningMaterials" asp-action="Viewer" asp-route-id="1">Tiếp tục học</a>
+    </header>
+
+    <section class="lms-workspace-card student-material-reveal" data-material-reveal>
+        <div class="lms-workspace-section-head">
+            <div>
+                <p class="lms-workspace-kicker">Materials</p>
+                <h2 data-i18n="materials.studentListPage.assignedMaterials">Tài liệu được giao</h2>
+            </div>
+            <span class="lms-workspace-count" data-student-material-count data-i18n="materials.studentListPage.records">-- tài liệu</span>
+        </div>
+
+        <div class="lms-task-filter-bar" role="search" aria-label="Bộ lọc tài liệu học tập">
             <label class="visually-hidden" for="studentMaterialSearch" data-i18n="materials.studentListPage.searchLabel">Tìm kiếm tài liệu</label>
             <input class="app-input" id="studentMaterialSearch" type="search" placeholder="Tìm kiếm tài liệu..." data-student-material-filter="search" data-i18n-placeholder="materials.studentListPage.searchPlaceholder" />
 
@@ -50,17 +50,18 @@
             <button class="app-button app-button-secondary" type="button" data-student-material-action="clear-filters" data-i18n="materials.studentListPage.clearFilters">Xóa bộ lọc</button>
         </div>
 
-        <div class="student-material-grid linear-material-grid u-mt-4" id="studentMaterialGrid">
-            <article class="app-card student-material-card student-material-reveal" data-material-reveal>
-                <div class="app-card-body">
-                    <span class="app-skeleton app-skeleton-card u-mb-4"></span>
-                    <span class="app-skeleton u-mb-4"></span>
-                    <span class="app-skeleton u-mb-4"></span>
-                    <span class="app-skeleton"></span>
+        <div class="student-material-grid" id="studentMaterialGrid">
+            <article class="student-material-card student-material-reveal" data-material-reveal>
+                <div class="student-material-type-row">
+                    <span class="app-skeleton" style="width: 42px; height: 42px; border-radius: 8px;"></span>
+                    <span class="app-skeleton" style="width: 80px; height: 26px; border-radius: 999px;"></span>
                 </div>
+                <span class="app-skeleton u-mt-4" style="height: 24px;"></span>
+                <span class="app-skeleton u-mt-4"></span>
+                <span class="app-skeleton u-mt-4"></span>
             </article>
         </div>
-    </div>
+    </section>
 </section>
 
 @section Scripts {

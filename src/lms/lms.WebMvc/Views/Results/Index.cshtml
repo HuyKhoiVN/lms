@@ -2,114 +2,121 @@
     ViewData["Title"] = "Kết quả học tập";
 }
 
-<div class="page-header linear-result-list-header result-list-reveal" data-result-list-reveal>
-    <div class="page-header-main">
-        <nav class="page-breadcrumb" aria-label="Breadcrumb">
-            <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="results.listPage.breadcrumbHome">Trang chủ</a>
-            <span>/</span>
-            <span data-i18n="results.listPage.breadcrumbResults">Kết quả</span>
-        </nav>
-        <h1 class="page-title" data-i18n="results.listPage.title">Kết quả học tập</h1>
-        <p class="page-muted u-mb-0" data-i18n="results.listPage.subtitle">Xem kết quả các bài thi đã nộp và trạng thái đạt/không đạt của bạn.</p>
-    </div>
-</div>
+<section class="lms-workspace-page student-result-page" aria-label="Kết quả học tập">
+    <header class="lms-workspace-header student-result-reveal" data-result-list-reveal>
+        <div class="lms-workspace-header-main">
+            <nav class="page-breadcrumb" aria-label="Breadcrumb">
+                <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="results.listPage.breadcrumbHome">Trang chủ</a>
+                <span>/</span>
+                <span data-i18n="results.listPage.breadcrumbResults">Kết quả</span>
+            </nav>
+            <p class="lms-workspace-kicker">Learning Results</p>
+            <h1 data-i18n="results.listPage.title">Kết quả học tập</h1>
+            <p class="lms-workspace-description" data-i18n="results.listPage.subtitle">
+                Xem lịch sử nộp bài, điểm số, trạng thái đạt/không đạt và mở nhanh vào màn review.
+            </p>
+        </div>
 
-<section class="student-result-banner linear-result-banner app-animate-slide-up result-list-reveal" data-result-list-reveal>
-    <div class="image-slot image-slot-banner image-slot-result" data-image-label="Results banner 1600x420">
-        <img src="~/images/placeholders/result-placeholder.svg" alt="" aria-hidden="true" />
-    </div>
-</section>
+        <div class="student-dashboard-actions">
+            <a class="app-button app-button-secondary" asp-area="" asp-controller="Exams" asp-action="Index">Xem bài thi</a>
+            <a class="app-button app-button-primary" asp-area="" asp-controller="Certificates" asp-action="Index">Mở chứng chỉ</a>
+        </div>
+    </header>
 
-<section class="page-grid page-grid-4 u-mb-4 app-animate-stagger linear-result-metrics" aria-label="Result summary">
-    <article class="app-card app-card-clickable linear-result-metric result-list-reveal" data-result-list-reveal>
-        <div class="app-card-body app-metric">
-            <div>
-                <p class="app-metric-label" data-i18n="results.listPage.metricTotal">Tổng số lượt làm</p>
-                <p class="app-metric-value" data-result-metric="total">--</p>
+    <section class="student-result-metrics student-result-reveal" data-result-list-reveal>
+        <article class="lms-workspace-card student-result-metric-card">
+            <span data-i18n="results.listPage.metricTotal">Tổng số lượt làm</span>
+            <strong data-result-metric="total">--</strong>
+        </article>
+        <article class="lms-workspace-card student-result-metric-card">
+            <span data-i18n="results.listPage.metricPassed">Đạt</span>
+            <strong data-result-metric="passed">--</strong>
+        </article>
+        <article class="lms-workspace-card student-result-metric-card">
+            <span data-i18n="results.listPage.metricAverage">Điểm trung bình</span>
+            <strong data-result-metric="average">--</strong>
+        </article>
+        <article class="lms-workspace-card student-result-metric-card">
+            <span data-i18n="results.listPage.metricLatest">Điểm gần nhất</span>
+            <strong data-result-metric="latest">--</strong>
+        </article>
+    </section>
+
+    <section class="student-result-layout">
+        <main class="lms-workspace-card student-result-main student-result-reveal" data-result-list-reveal>
+            <div class="lms-workspace-section-head">
+                <div>
+                    <p class="lms-workspace-kicker">History</p>
+                    <h2 data-i18n="results.listPage.cardTitleHistory">Lịch sử kết quả</h2>
+                    <p class="lms-workspace-description" data-i18n="results.listPage.cardSubtitleHistory">
+                        Bao gồm kết quả mô phỏng và các bài thi vừa nộp được lưu cục bộ.
+                    </p>
+                </div>
+                <span class="lms-workspace-count" data-result-count data-i18n="results.listPage.records">-- bản ghi</span>
             </div>
-            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-clipboard2-data"></i></span>
-        </div>
-    </article>
-    <article class="app-card app-card-clickable linear-result-metric result-list-reveal" data-result-list-reveal>
-        <div class="app-card-body app-metric">
-            <div>
-                <p class="app-metric-label" data-i18n="results.listPage.metricPassed">Đạt</p>
-                <p class="app-metric-value" data-result-metric="passed">--</p>
+
+            <div class="lms-task-filter-bar" role="search" aria-label="Bộ lọc kết quả">
+                <label class="visually-hidden" for="resultSearch" data-i18n="results.listPage.searchLabel">Tìm kiếm kết quả</label>
+                <input class="app-input" id="resultSearch" type="search" placeholder="Tìm tên bài thi..." data-result-filter="search" data-i18n-placeholder="results.listPage.searchPlaceholder" />
+
+                <label class="visually-hidden" for="resultStatusFilter" data-i18n="results.listPage.statusLabel">Trạng thái</label>
+                <select class="app-select" id="resultStatusFilter" data-result-filter="status">
+                    <option value="" data-i18n="results.listPage.optionAllStatus">Tất cả trạng thái</option>
+                    <option value="passed" data-i18n="results.listPage.optionPassed">Đạt</option>
+                    <option value="failed" data-i18n="results.listPage.optionFailed">Không đạt</option>
+                </select>
+
+                <div></div>
+
+                <button class="app-button app-button-secondary" type="button" data-result-action="clear-filters" data-i18n="results.listPage.clearFilters">Xóa bộ lọc</button>
             </div>
-            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-check2-circle"></i></span>
-        </div>
-    </article>
-    <article class="app-card app-card-clickable linear-result-metric result-list-reveal" data-result-list-reveal>
-        <div class="app-card-body app-metric">
-            <div>
-                <p class="app-metric-label" data-i18n="results.listPage.metricAverage">Điểm trung bình</p>
-                <p class="app-metric-value" data-result-metric="average">--</p>
+
+            <div class="student-result-list" id="studentResultRows">
+                <article class="student-result-row student-result-reveal" data-result-list-reveal>
+                    <span class="app-skeleton" style="height: 24px;"></span>
+                    <span class="app-skeleton u-mt-4"></span>
+                </article>
             </div>
-            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
-        </div>
-    </article>
-    <article class="app-card app-card-clickable linear-result-metric result-list-reveal" data-result-list-reveal>
-        <div class="app-card-body app-metric">
-            <div>
-                <p class="app-metric-label" data-i18n="results.listPage.metricLatest">Điểm gần nhất</p>
-                <p class="app-metric-value" data-result-metric="latest">--</p>
-            </div>
-            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-stars"></i></span>
-        </div>
-    </article>
-</section>
+        </main>
 
-<section class="app-card linear-result-history-card result-list-reveal" data-result-list-reveal>
-    <div class="app-card-header">
-        <div class="admin-card-header-row">
-            <div>
-                <h2 class="app-card-title" data-i18n="results.listPage.cardTitleHistory">Lịch sử kết quả</h2>
-                <p class="app-card-subtitle" data-i18n="results.listPage.cardSubtitleHistory">Bao gồm kết quả mô phỏng JSON và kết quả thi thực tế được nộp cục bộ.</p>
-            </div>
-            <span class="app-badge app-badge-info" data-result-count data-i18n="results.listPage.records">-- bản ghi</span>
-        </div>
-    </div>
+        <aside class="student-result-side">
+            <article class="lms-workspace-card student-result-side-card student-result-reveal" data-result-list-reveal>
+                <div class="lms-workspace-section-head">
+                    <div>
+                        <p class="lms-workspace-kicker">Latest</p>
+                        <h2>Lần nộp gần nhất</h2>
+                    </div>
+                </div>
 
-    <div class="app-card-body">
-        <div class="app-filter-bar admin-user-filter linear-result-filter-bar">
-            <label class="visually-hidden" for="resultSearch" data-i18n="results.listPage.searchLabel">Tìm kiếm kết quả</label>
-            <input class="app-input" id="resultSearch" type="search" placeholder="Tìm tên bài thi..." data-result-filter="search" data-i18n-placeholder="results.listPage.searchPlaceholder" />
+                <div class="student-result-spotlight" id="studentResultSpotlight">
+                    <div class="app-loading">
+                        <span class="app-spinner" aria-hidden="true"></span>
+                        <span>Đang tải kết quả mới nhất...</span>
+                    </div>
+                </div>
+            </article>
 
-            <label class="visually-hidden" for="resultStatusFilter" data-i18n="results.listPage.statusLabel">Trạng thái</label>
-            <select class="app-select" id="resultStatusFilter" data-result-filter="status">
-                <option value="" data-i18n="results.listPage.optionAllStatus">Tất cả trạng thái</option>
-                <option value="passed" data-i18n="results.listPage.optionPassed">Đạt</option>
-                <option value="failed" data-i18n="results.listPage.optionFailed">Không đạt</option>
-            </select>
+            <article class="lms-workspace-card student-result-side-card student-result-reveal" data-result-list-reveal>
+                <div class="lms-workspace-section-head">
+                    <div>
+                        <p class="lms-workspace-kicker">Shortcuts</p>
+                        <h2>Đi nhanh</h2>
+                    </div>
+                </div>
 
-            <button class="app-button app-button-secondary" type="button" data-result-action="clear-filters" data-i18n="results.listPage.clearFilters">Xóa bộ lọc</button>
-        </div>
-
-        <div class="app-table-wrapper linear-result-table-wrapper u-mt-4">
-            <table class="app-table table student-result-table">
-                <thead>
-                    <tr>
-                        <th scope="col" data-i18n="results.listPage.tableHeaderExam">Bài thi</th>
-                        <th scope="col" data-i18n="results.listPage.tableHeaderScore">Điểm số</th>
-                        <th scope="col" data-i18n="results.listPage.tableHeaderStatus">Trạng thái</th>
-                        <th scope="col" data-i18n="results.listPage.tableHeaderDuration">Thời gian làm bài</th>
-                        <th scope="col" data-i18n="results.listPage.tableHeaderSubmitted">Thời gian nộp</th>
-                        <th scope="col" class="u-text-right" data-i18n="results.listPage.tableHeaderActions">Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody id="studentResultRows">
-                    <tr>
-                        <td colspan="6">
-                            <div class="app-loading">
-                                <span class="app-spinner" aria-hidden="true"></span>
-                                <span data-i18n="results.listPage.loadingResults">Đang tải kết quả...</span>
-                            </div>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </div>
+                <div class="student-result-shortcuts">
+                    <a class="student-result-shortcut" asp-area="" asp-controller="Exams" asp-action="Index">
+                        <strong>Bài thi được giao</strong>
+                        <span>Quay lại danh sách bài thi và tiếp tục những bài chưa làm.</span>
+                    </a>
+                    <a class="student-result-shortcut" asp-area="" asp-controller="Certificates" asp-action="Index">
+                        <strong>Chứng chỉ</strong>
+                        <span>Xem các chứng chỉ đã đủ điều kiện tải xuống.</span>
+                    </a>
+                </div>
+            </article>
+        </aside>
+    </section>
 </section>
 
 @section Scripts {
