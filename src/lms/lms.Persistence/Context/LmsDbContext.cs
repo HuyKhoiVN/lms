@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using lms.Domain.Common;
 using lms.Domain.Entities;
 
 namespace lms.Persistence.Context;
@@ -46,5 +47,17 @@ public class LmsDbContext : DbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(LmsDbContext).Assembly);
+
+        // Convention chung: mọi entity kế thừa AuditableEntity có cột IsDelete default 0.
+        // Giải quyết gap "IsDelete nên có default constraint 0" trong doc/17_BACKEND_MODULE_DESIGN/README.md.
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            if (typeof(AuditableEntity).IsAssignableFrom(entityType.ClrType))
+            {
+                modelBuilder.Entity(entityType.ClrType)
+                    .Property(nameof(AuditableEntity.IsDelete))
+                    .HasDefaultValue(false);
+            }
+        }
     }
 }

@@ -1,30 +1,29 @@
-using Microsoft.EntityFrameworkCore;
-using lms.Persistence.Context;
+using lms.Api.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddDbContext<LmsDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("LmsDb"));
-});
-
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services
+    .AddLmsPersistence(builder.Configuration)
+    .AddLmsApplication()
+    .AddLmsInfrastructure()
+    .AddLmsAuthentication(builder.Configuration)
+    .AddLmsControllers()
+    .AddLmsSwagger();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-}
+// Bắt mọi exception bubble và map sang ApiResponse + HTTP status chuẩn.
+app.UseLmsExceptionHandling();
+
+app.UseLmsSwagger();
 
 app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+
+// Chạy migration + seed dữ liệu cơ bản.
+await app.Services.MigrateAndSeedAsync();
 
 app.Run();

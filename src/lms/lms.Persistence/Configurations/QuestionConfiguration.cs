@@ -17,6 +17,7 @@ public sealed class QuestionConfiguration : IEntityTypeConfiguration<Question>
         builder.Property(x => x.QuestionType).IsRequired().HasMaxLength(50);
         builder.Property(x => x.Difficulty).IsRequired().HasMaxLength(50);
         builder.Property(x => x.Order).IsRequired();
+        builder.Property(x => x.Score).HasColumnType("decimal(18,2)").HasDefaultValue(0m);
 
         builder.HasIndex(x => x.CategoryId);
         builder.HasIndex(x => x.QuestionType);

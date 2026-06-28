@@ -45,7 +45,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("Order")
                         .HasColumnType("int");
@@ -247,7 +249,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -299,7 +303,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<DateTime>("IssuedDate")
                         .HasColumnType("datetime2");
@@ -385,7 +391,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("bit");
@@ -493,7 +501,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsPublished")
                         .HasColumnType("bit");
@@ -593,7 +603,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<bool?>("Passed")
                         .HasColumnType("bit");
@@ -692,7 +704,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("QuestionCount")
                         .HasColumnType("int");
@@ -739,7 +753,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("int");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("Passed")
                         .HasColumnType("bit");
@@ -829,7 +845,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("bigint");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("OriginalFileName")
                         .IsRequired()
@@ -889,7 +907,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1021,7 +1041,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("nvarchar(1000)");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("Order")
                         .HasColumnType("int");
@@ -1117,7 +1139,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("LearningMaterialId")
                         .HasColumnType("int");
@@ -1175,7 +1199,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<int>("Order")
                         .HasColumnType("int");
@@ -1184,6 +1210,11 @@ namespace lms.Persistence.Migrations
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("Score")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("decimal(18,2)")
+                        .HasDefaultValue(0m);
 
                     b.Property<DateTime?>("UpdateDate")
                         .HasColumnType("datetime2");
@@ -1221,7 +1252,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1283,7 +1316,10 @@ namespace lms.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Token");
+                    b.HasIndex("Token")
+                        .IsUnique()
+                        .HasDatabaseName("UX_RefreshTokens_Token_Active")
+                        .HasFilter("[Revoked] IS NULL");
 
                     b.HasIndex("UserId");
 
@@ -1309,7 +1345,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -1353,7 +1391,9 @@ namespace lms.Persistence.Migrations
                         .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("IsDelete")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
 
                     b.Property<bool>("IsLocked")
                         .HasColumnType("bit");

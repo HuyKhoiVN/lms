@@ -19,6 +19,13 @@ public sealed class RefreshTokenConfiguration : IEntityTypeConfiguration<Refresh
         builder.Property(x => x.ReplacedByToken).HasMaxLength(255);
 
         builder.HasIndex(x => x.UserId);
-        builder.HasIndex(x => x.Token);
+
+        // Theo doc/17_BACKEND_MODULE_DESIGN/README.md (gap "RefreshTokens.Token nen unique"):
+        // Filtered unique index trên Token chỉ áp dụng cho token chưa thu hồi.
+        // Cho phép giữ lại lịch sử token đã revoke có cùng giá trị (rất hiếm) mà không vi phạm uniqueness.
+        builder.HasIndex(x => x.Token)
+            .IsUnique()
+            .HasDatabaseName("UX_RefreshTokens_Token_Active")
+            .HasFilter("[Revoked] IS NULL");
     }
 }
