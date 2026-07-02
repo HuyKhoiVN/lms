@@ -7,6 +7,51 @@
     return window.location.pathname.toLowerCase().replace(/\/$/, "") || "/";
   }
 
+  function normalizePath(path) {
+    if (!path) {
+      return "/";
+    }
+
+    return path
+      .toLowerCase()
+      .replace(/[?#].*$/, "")
+      .replace(/\/$/, "") || "/";
+  }
+
+  function isPathMatch(currentPath, targetPath) {
+    if (targetPath === "/") {
+      return currentPath === "/";
+    }
+
+    return currentPath === targetPath || currentPath.startsWith(targetPath + "/");
+  }
+
+  function setActiveLinkGroup(selector) {
+    const currentPath = getCurrentPath();
+    let bestMatch = null;
+    let bestLength = -1;
+
+    $(selector).each(function () {
+      const link = $(this);
+      const href = normalizePath(link.attr("href"));
+
+      link.removeClass("active").removeAttr("aria-current");
+
+      if (!href || href === "#" || href.startsWith("javascript:")) {
+        return;
+      }
+
+      if (isPathMatch(currentPath, href) && href.length > bestLength) {
+        bestMatch = link;
+        bestLength = href.length;
+      }
+    });
+
+    if (bestMatch) {
+      bestMatch.addClass("active").attr("aria-current", "page");
+    }
+  }
+
   function isMobileSidebar() {
     return window.matchMedia("(max-width: 991.98px)").matches;
   }
@@ -21,31 +66,8 @@
   }
 
   function setActiveSidebarLink() {
-    const currentPath = getCurrentPath();
-
-    $(".app-nav-link").each(function () {
-      const link = $(this);
-      const href = (link.attr("href") || "").toLowerCase().replace(/\/$/, "") || "/";
-      const isActive = href === currentPath || (href !== "/" && currentPath.startsWith(href));
-      link.toggleClass("active", isActive);
-      if (isActive) {
-        link.attr("aria-current", "page");
-      } else {
-        link.removeAttr("aria-current");
-      }
-    });
-
-    $(".learning-menu-link").each(function () {
-      const link = $(this);
-      const href = (link.attr("href") || "").toLowerCase().replace(/\/$/, "") || "/";
-      const isActive = href === currentPath || (href !== "/" && currentPath.startsWith(href));
-      link.toggleClass("active", isActive);
-      if (isActive) {
-        link.attr("aria-current", "page");
-      } else {
-        link.removeAttr("aria-current");
-      }
-    });
+    setActiveLinkGroup(".app-nav-link");
+    setActiveLinkGroup(".learning-menu-link");
   }
 
   function restoreSidebarState() {

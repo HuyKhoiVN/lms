@@ -129,6 +129,15 @@
     if (type === "Link") {
       return "app-badge-info";
     }
+    if (type === "Image") {
+      return "app-badge-info";
+    }
+    if (type === "Video") {
+      return "app-badge-danger";
+    }
+    if (type === "Mixed") {
+      return "app-badge-muted";
+    }
     return "app-badge-success";
   }
 
@@ -140,6 +149,9 @@
     if (type === "Pdf") return "bi-filetype-pdf";
     if (type === "File") return "bi-paperclip";
     if (type === "Link") return "bi-link-45deg";
+    if (type === "Image") return "bi-image";
+    if (type === "Video") return "bi-play-btn";
+    if (type === "Mixed") return "bi-collection";
     return "bi-fonts";
   }
 
@@ -187,6 +199,7 @@
           '<td><span class="app-badge ' + getFileBadgeClass(material.hasFile) + '">' + escapeHtml(material.hasFile ? t("materials.adminListPage.hasFile", null, "Co file") : t("materials.adminListPage.noFile", null, "Khong co file")) + "</span></td>" +
           '<td class="u-text-right">' +
             '<div class="admin-row-actions">' +
+              '<button class="app-button app-button-secondary" type="button" data-material-action="blocks" data-material-id="' + material.id + '">' + escapeHtml(t("materials.adminListPage.contentBlocks", null, "Noi dung")) + "</button>" +
               '<button class="app-button app-button-secondary" type="button" data-material-action="edit" data-material-id="' + material.id + '">' + escapeHtml(t("common.edit", null, "Sua")) + "</button>" +
               '<button class="app-button app-button-secondary" type="button" data-material-action="delete" data-material-id="' + material.id + '">' + escapeHtml(t("common.delete", null, "Xoa")) + "</button>" +
             "</div>" +
@@ -361,6 +374,9 @@
                 '<option value="Pdf">' + escapeHtml(t("materials.adminListPage.typeOptionPdf", null, "PDF")) + "</option>" +
                 '<option value="File">' + escapeHtml(t("materials.adminListPage.typeOptionFile", null, "Tep")) + "</option>" +
                 '<option value="Link">' + escapeHtml(t("materials.adminListPage.typeOptionLink", null, "Lien ket")) + "</option>" +
+                '<option value="Image">' + escapeHtml(t("materials.adminListPage.typeOptionImage", null, "Hinh anh")) + "</option>" +
+                '<option value="Video">' + escapeHtml(t("materials.adminListPage.typeOptionVideo", null, "Video")) + "</option>" +
+                '<option value="Mixed">' + escapeHtml(t("materials.adminListPage.typeOptionMixed", null, "Tong hop")) + "</option>" +
               "</select>" +
               '<span class="auth-error" data-material-error="contentType"></span>' +
             "</label>" +
@@ -438,6 +454,272 @@
   function getMaterialForEdit(materialId) {
     return Lms.apiClient.get("api/learning-materials/" + materialId).then(function (response) {
       return mapMaterial(getResponseData(response));
+    });
+  }
+
+  function loadMaterialDetail(materialId) {
+    return Lms.apiClient.get("api/learning-materials/" + materialId).then(function (response) {
+      return getResponseData(response);
+    });
+  }
+
+  function getBlockTypeLabel(type) {
+    const labels = {
+      Text: t("materials.adminListPage.blockText", null, "Van ban"),
+      Image: t("materials.adminListPage.blockImage", null, "Hinh anh"),
+      Video: t("materials.adminListPage.blockVideo", null, "Video"),
+      Pdf: t("materials.adminListPage.blockPdf", null, "PDF"),
+      File: t("materials.adminListPage.blockFile", null, "Tep tai xuong"),
+      Link: t("materials.adminListPage.blockLink", null, "Lien ket")
+    };
+    return labels[type] || type;
+  }
+
+  function renderBlockBuilder(modal, material) {
+    const blocks = Array.isArray(material.blocks) ? material.blocks.slice().sort(function (a, b) {
+      return Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
+    }) : [];
+    const $list = modal.find("[data-material-block-list]").empty();
+
+    if (!blocks.length) {
+      $list.html(
+        '<div class="app-empty-state">' +
+          '<div class="app-empty-icon" aria-hidden="true"><i class="bi bi-layers"></i></div>' +
+          '<h3 class="app-empty-title">' + escapeHtml(t("materials.adminListPage.noBlocksTitle", null, "Chua co khoi noi dung")) + "</h3>" +
+          '<p class="app-empty-copy">' + escapeHtml(t("materials.adminListPage.noBlocksCopy", null, "Them van ban, hinh anh, video, PDF, tep hoac lien ket cho tai lieu nay.")) + "</p>" +
+        "</div>"
+      );
+      return;
+    }
+
+    blocks.forEach(function (block, index) {
+      const title = block.caption || block.originalFileName || block.url || (block.textContent ? block.textContent.slice(0, 80) : getBlockTypeLabel(block.blockType));
+      $list.append(
+        '<div class="group-detail-item" data-material-block-id="' + block.id + '">' +
+          '<div class="admin-user-cell">' +
+            '<span class="app-avatar admin-type-avatar" aria-hidden="true"><i class="bi ' + getTypeIcon(block.blockType) + '"></i></span>' +
+            "<div>" +
+              "<strong>" + escapeHtml(getBlockTypeLabel(block.blockType)) + "</strong>" +
+              "<span>" + escapeHtml(title || "") + "</span>" +
+            "</div>" +
+          "</div>" +
+          '<div class="admin-row-actions">' +
+            '<button class="app-button app-button-secondary" type="button" data-material-block-action="up" data-block-index="' + index + '"' + (index === 0 ? " disabled" : "") + '><i class="bi bi-arrow-up" aria-hidden="true"></i></button>' +
+            '<button class="app-button app-button-secondary" type="button" data-material-block-action="down" data-block-index="' + index + '"' + (index === blocks.length - 1 ? " disabled" : "") + '><i class="bi bi-arrow-down" aria-hidden="true"></i></button>' +
+            '<button class="app-button app-button-secondary" type="button" data-material-block-action="edit" data-block-id="' + block.id + '">' + escapeHtml(t("common.edit", null, "Sua")) + "</button>" +
+            '<button class="app-button app-button-secondary" type="button" data-material-block-action="delete" data-block-id="' + block.id + '">' + escapeHtml(t("common.delete", null, "Xoa")) + "</button>" +
+          "</div>" +
+        "</div>"
+      );
+    });
+  }
+
+  function refreshBlockBuilder(modal, materialId) {
+    return loadMaterialDetail(materialId).done(function (material) {
+      modal.data("material-detail", material);
+      renderBlockBuilder(modal, material);
+      const mapped = mapMaterial(material);
+      upsertMaterial(mapped);
+      applyFilters();
+    });
+  }
+
+  function updateBlockFormFields(modal) {
+    const type = modal.find("[name='blockType']").val();
+    modal.find("[data-material-block-field='text']").toggle(type === "Text");
+    modal.find("[data-material-block-field='link']").toggle(type === "Link");
+    modal.find("[data-material-block-field='file']").toggle(["Image", "Video", "Pdf", "File"].includes(type));
+  }
+
+  function submitBlockForm(modal) {
+    const material = modal.data("material-detail");
+    if (!material) {
+      return;
+    }
+
+    const type = modal.find("[name='blockType']").val();
+    const caption = modal.find("[name='caption']").val().trim();
+    let request;
+
+    if (type === "Text") {
+      const textContent = modal.find("[name='blockText']").val().trim();
+      if (!textContent) {
+        showToast("warning", t("materials.adminListPage.blockTextRequiredTitle", null, "Nhap noi dung"), t("materials.adminListPage.blockTextRequiredMessage", null, "Khoi van ban can co noi dung."));
+        return;
+      }
+      request = Lms.apiClient.post("api/learning-materials/" + material.id + "/blocks/text", {
+        textContent: textContent,
+        caption: caption || null
+      });
+    } else if (type === "Link") {
+      const url = modal.find("[name='blockUrl']").val().trim();
+      if (!url) {
+        showToast("warning", t("materials.adminListPage.blockLinkRequiredTitle", null, "Nhap lien ket"), t("materials.adminListPage.blockLinkRequiredMessage", null, "Khoi lien ket can co URL."));
+        return;
+      }
+      request = Lms.apiClient.post("api/learning-materials/" + material.id + "/blocks/link", {
+        url: url,
+        caption: caption || null
+      });
+    } else {
+      const fileInput = modal.find("[name='blockFile']")[0];
+      const file = fileInput && fileInput.files ? fileInput.files[0] : null;
+      if (!file) {
+        showToast("warning", t("materials.adminListPage.blockFileRequiredTitle", null, "Chon tep"), t("materials.adminListPage.blockFileRequiredMessage", null, "Vui long chon tep de upload."));
+        return;
+      }
+      const formData = new FormData();
+      formData.append("blockType", type);
+      formData.append("caption", caption || "");
+      formData.append("file", file);
+      request = Lms.apiClient.post("api/learning-materials/" + material.id + "/blocks/file", formData, {
+        contentType: false,
+        processData: false
+      });
+    }
+
+    request.done(function () {
+      modal.find("[name='blockText'], [name='blockUrl'], [name='caption']").val("");
+      modal.find("[name='blockFile']").val("");
+      refreshBlockBuilder(modal, material.id);
+      showToast("success", t("materials.adminListPage.blockAddedTitle", null, "Da them noi dung"), t("materials.adminListPage.blockAddedMessage", null, "Khoi noi dung da duoc them vao tai lieu."));
+    }).fail(function (error) {
+      showToast("error", t("materials.adminListPage.blockSaveFailedTitle", null, "Khong the luu noi dung"), error && error.message ? error.message : t("materials.adminListPage.blockSaveFailedMessage", null, "Vui long thu lai."));
+    });
+  }
+
+  function reorderBlocks(modal, direction, index) {
+    const material = modal.data("material-detail");
+    const blocks = material && Array.isArray(material.blocks) ? material.blocks.slice().sort(function (a, b) {
+      return Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
+    }) : [];
+    const swapIndex = direction === "up" ? index - 1 : index + 1;
+
+    if (swapIndex < 0 || swapIndex >= blocks.length) {
+      return;
+    }
+
+    const temp = blocks[index];
+    blocks[index] = blocks[swapIndex];
+    blocks[swapIndex] = temp;
+
+    Lms.apiClient.put("api/learning-materials/" + material.id + "/blocks/reorder", {
+      blocks: blocks.map(function (block, blockIndex) {
+        return { id: block.id, sortOrder: blockIndex + 1 };
+      })
+    }).done(function () {
+      refreshBlockBuilder(modal, material.id);
+    }).fail(function (error) {
+      showToast("error", t("materials.adminListPage.reorderFailedTitle", null, "Khong the sap xep"), error && error.message ? error.message : t("materials.adminListPage.reorderFailedMessage", null, "Vui long thu lai."));
+    });
+  }
+
+  function editBlock(modal, blockId) {
+    const material = modal.data("material-detail");
+    const block = material && Array.isArray(material.blocks)
+      ? material.blocks.find(function (item) { return Number(item.id) === Number(blockId); })
+      : null;
+    if (!block) {
+      return;
+    }
+
+    const caption = window.prompt(t("materials.adminListPage.blockCaptionPrompt", null, "Chu thich"), block.caption || "") || "";
+    const payload = { caption: caption };
+
+    if (block.blockType === "Text") {
+      const text = window.prompt(t("materials.adminListPage.blockTextPrompt", null, "Noi dung van ban"), block.textContent || "");
+      if (text === null) return;
+      payload.textContent = text;
+    } else if (block.blockType === "Link") {
+      const url = window.prompt(t("materials.adminListPage.blockUrlPrompt", null, "Lien ket"), block.url || "");
+      if (url === null) return;
+      payload.url = url;
+    }
+
+    Lms.apiClient.put("api/learning-materials/" + material.id + "/blocks/" + block.id, payload).done(function () {
+      refreshBlockBuilder(modal, material.id);
+    }).fail(function (error) {
+      showToast("error", t("materials.adminListPage.blockSaveFailedTitle", null, "Khong the luu noi dung"), error && error.message ? error.message : t("materials.adminListPage.blockSaveFailedMessage", null, "Vui long thu lai."));
+    });
+  }
+
+  function deleteBlock(modal, blockId) {
+    const material = modal.data("material-detail");
+    if (!material || !window.confirm(t("materials.adminListPage.deleteBlockConfirm", null, "Xoa khoi noi dung nay?"))) {
+      return;
+    }
+
+    Lms.apiClient.delete("api/learning-materials/" + material.id + "/blocks/" + blockId).done(function () {
+      refreshBlockBuilder(modal, material.id);
+    }).fail(function (error) {
+      showToast("error", t("materials.adminListPage.deleteBlockFailedTitle", null, "Khong the xoa noi dung"), error && error.message ? error.message : t("materials.adminListPage.deleteBlockFailedMessage", null, "Vui long thu lai."));
+    });
+  }
+
+  function openBlockBuilder(material) {
+    const modal = $(
+      "<div>" +
+        '<div class="app-modal-header">' +
+          "<div>" +
+            '<h2 class="app-modal-title">' + escapeHtml(t("materials.adminListPage.contentBuilderTitle", null, "Noi dung tai lieu")) + "</h2>" +
+            '<p class="app-card-subtitle">' + escapeHtml(material.title) + "</p>" +
+          "</div>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.close", null, "Dong")) + "</button>" +
+        "</div>" +
+        '<div class="app-modal-body admin-user-form">' +
+          '<div class="group-detail-list" data-material-block-list></div>' +
+          '<div class="app-card u-mt-4">' +
+            '<div class="app-card-body admin-user-form">' +
+              '<div class="admin-user-form-grid">' +
+                '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.blockType", null, "Loai noi dung")) +
+                  '<select class="app-select" name="blockType">' +
+                    '<option value="Text">' + escapeHtml(getBlockTypeLabel("Text")) + "</option>" +
+                    '<option value="Image">' + escapeHtml(getBlockTypeLabel("Image")) + "</option>" +
+                    '<option value="Video">' + escapeHtml(getBlockTypeLabel("Video")) + "</option>" +
+                    '<option value="Pdf">' + escapeHtml(getBlockTypeLabel("Pdf")) + "</option>" +
+                    '<option value="File">' + escapeHtml(getBlockTypeLabel("File")) + "</option>" +
+                    '<option value="Link">' + escapeHtml(getBlockTypeLabel("Link")) + "</option>" +
+                  "</select>" +
+                "</label>" +
+                '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.blockCaption", null, "Chu thich")) +
+                  '<input class="app-input" name="caption" type="text" autocomplete="off" />' +
+                "</label>" +
+              "</div>" +
+              '<label class="auth-field" data-material-block-field="text">' + escapeHtml(t("materials.adminListPage.blockTextContent", null, "Noi dung van ban")) +
+                '<textarea class="app-input" name="blockText" rows="4"></textarea>' +
+              "</label>" +
+              '<label class="auth-field" data-material-block-field="link">' + escapeHtml(t("materials.adminListPage.blockUrl", null, "Lien ket")) +
+                '<input class="app-input" name="blockUrl" type="url" autocomplete="off" />' +
+              "</label>" +
+              '<label class="auth-field" data-material-block-field="file">' + escapeHtml(t("materials.adminListPage.blockFileUpload", null, "Tep dinh kem")) +
+                '<input class="app-input" name="blockFile" type="file" />' +
+              "</label>" +
+              '<button class="app-button app-button-primary" type="button" data-material-block-add>' + escapeHtml(t("materials.adminListPage.addBlock", null, "Them noi dung")) + "</button>" +
+            "</div>" +
+          "</div>" +
+        "</div>" +
+      "</div>"
+    );
+
+    modal.data("material-detail", material);
+    modal.find("[data-modal-close]").on("click", Lms.ui.closeModal);
+    modal.find("[name='blockType']").on("change", function () { updateBlockFormFields(modal); });
+    modal.find("[data-material-block-add]").on("click", function () { submitBlockForm(modal); });
+    modal.on("click", "[data-material-block-action='up']", function () { reorderBlocks(modal, "up", Number($(this).data("block-index"))); });
+    modal.on("click", "[data-material-block-action='down']", function () { reorderBlocks(modal, "down", Number($(this).data("block-index"))); });
+    modal.on("click", "[data-material-block-action='edit']", function () { editBlock(modal, $(this).data("block-id")); });
+    modal.on("click", "[data-material-block-action='delete']", function () { deleteBlock(modal, $(this).data("block-id")); });
+
+    updateBlockFormFields(modal);
+    renderBlockBuilder(modal, material);
+    Lms.ui.showModal(modal);
+  }
+
+  function showBlockBuilder(materialId) {
+    loadMaterialDetail(materialId).done(function (material) {
+      openBlockBuilder(material);
+    }).fail(function (error) {
+      showToast("error", t("materials.adminListPage.materialNotFoundTitle", null, "Khong tim thay tai lieu"), error && error.message ? error.message : t("materials.adminListPage.materialNotFoundMessage", null, "Khong tim thay tai lieu duoc chon."));
     });
   }
 
@@ -594,6 +876,10 @@
 
     $(document).on("click", "[data-material-action='edit']", function () {
       showMaterialForm($(this).data("material-id"));
+    });
+
+    $(document).on("click", "[data-material-action='blocks']", function () {
+      showBlockBuilder($(this).data("material-id"));
     });
 
     $(document).on("click", "[data-material-action='delete']", function () {

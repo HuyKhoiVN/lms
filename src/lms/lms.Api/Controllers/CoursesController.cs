@@ -115,6 +115,54 @@ public class CoursesController : ControllerBase
     }
 
     [Authorize(Roles = "Admin")]
+    [HttpPost("{id}/thumbnail")]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(ApiResponse<CourseDetailResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> UploadThumbnail(int id, [FromForm] UploadCourseThumbnailForm form)
+    {
+        if (form.File == null || form.File.Length == 0)
+        {
+            return BadRequest(ApiResponse<object>.FailureResult("Tep anh trong hoac khong hop le."));
+        }
+
+        await using var stream = form.File.OpenReadStream();
+        var result = await _courseService.UploadThumbnailAsync(
+            id, stream, form.File.FileName, form.File.ContentType, form.File.Length, _currentUserService.UserId);
+
+        if (!result.Success)
+        {
+            if (result.Message != null && result.Message.Contains("Khong tim thay"))
+            {
+                return NotFound(result);
+            }
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}/thumbnail")]
+    [ProducesResponseType(typeof(ApiResponse<CourseDetailResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteThumbnail(int id)
+    {
+        var result = await _courseService.DeleteThumbnailAsync(id, _currentUserService.UserId);
+        if (!result.Success)
+        {
+            if (result.Message != null && result.Message.Contains("Khong tim thay"))
+            {
+                return NotFound(result);
+            }
+            return BadRequest(result);
+        }
+
+        return Ok(result);
+    }
+
+    [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace lms.Application.DTOs.Courses;
 
@@ -27,6 +28,9 @@ public class CourseDetailResponse
     public string? Code { get; set; }
     public bool IsPublished { get; set; }
     public DateTime? CreatedDate { get; set; }
+    public string? ThumbnailUrl { get; set; }
+    public string? ThumbnailContentType { get; set; }
+    public string? ThumbnailOriginalFileName { get; set; }
 }
 
 public class CourseListItemResponse
@@ -36,6 +40,14 @@ public class CourseListItemResponse
     public string? Description { get; set; }
     public string? Code { get; set; }
     public bool IsPublished { get; set; }
+    public string? ThumbnailUrl { get; set; }
+    public string? ThumbnailContentType { get; set; }
+    public string? ThumbnailOriginalFileName { get; set; }
+}
+
+public sealed class UploadCourseThumbnailForm
+{
+    public IFormFile? File { get; set; }
 }
 
 public class CourseFilterRequest

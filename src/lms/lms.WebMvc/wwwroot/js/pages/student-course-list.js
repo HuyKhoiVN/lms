@@ -62,13 +62,31 @@
     return status === "Published" ? "lms-status-success" : "lms-status-muted";
   }
 
+  function getApiOrigin() {
+    return String(Lms.config && Lms.config.apiBaseUrl || "").replace(/\/api\/v1\/?$/i, "");
+  }
+
+  function resolveAssetUrl(url) {
+    if (!url) {
+      return "";
+    }
+    if (/^https?:\/\//i.test(url)) {
+      return url;
+    }
+    return getApiOrigin() + (url.charAt(0) === "/" ? url : "/" + url);
+  }
+
   function translateStatus(status) {
     return status === "Published"
       ? t("courses.listPage.statuses.Published", null, "Đang học")
       : t("courses.listPage.statuses.Draft", null, "Chưa xuất bản");
   }
 
-  function getCourseImage(index) {
+  function getCourseImage(course, index) {
+    if (course && course.thumbnailUrl) {
+      return resolveAssetUrl(course.thumbnailUrl);
+    }
+
     const images = [
       "/images/course-programming.jpg",
       "/images/course-ai-tech.jpg",
@@ -126,7 +144,7 @@
     $container.html(
       '<div class="student-course-focus-card">' +
         '<div class="student-course-focus-media image-slot image-slot-md image-slot-course" data-image-label="Course focus 320x180">' +
-          '<img src="' + getCourseImage(Number(focusCourse.id) || 0) + '" alt="" aria-hidden="true" />' +
+          '<img src="' + getCourseImage(focusCourse, Number(focusCourse.id) || 0) + '" alt="" aria-hidden="true" />' +
         "</div>" +
         '<div class="student-course-focus-copy">' +
           '<span class="' + getBadgeClass(focusCourse.status) + '">' + escapeHtml(translateStatus(focusCourse.status)) + "</span>" +
@@ -171,7 +189,7 @@
       const $card = $(
         '<article class="student-course-card student-course-reveal" data-student-course-reveal>' +
           '<div class="student-course-card-media image-slot image-slot-md image-slot-course" data-image-label="Course card 320x180">' +
-            '<img src="' + getCourseImage(index) + '" alt="" aria-hidden="true" />' +
+            '<img src="' + getCourseImage(course, index) + '" alt="" aria-hidden="true" />' +
           "</div>" +
           '<div class="student-course-card-body">' +
             '<div class="student-course-card-top">' +
@@ -341,6 +359,9 @@
           name: item.name || "",
           description: item.description || "",
           code: item.code || "",
+          thumbnailUrl: item.thumbnailUrl || "",
+          thumbnailContentType: item.thumbnailContentType || "",
+          thumbnailOriginalFileName: item.thumbnailOriginalFileName || "",
           status: item.isPublished ? "Published" : "Draft",
           materialCount: 0,
           completedMaterials: 0,

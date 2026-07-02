@@ -22,6 +22,7 @@ public class LmsDbContext : DbContext
     public DbSet<GroupCourseAssignment> GroupCourseAssignments => Set<GroupCourseAssignment>();
     public DbSet<LearningMaterial> LearningMaterials => Set<LearningMaterial>();
     public DbSet<LearningMaterialFile> LearningMaterialFiles => Set<LearningMaterialFile>();
+    public DbSet<LearningMaterialBlock> LearningMaterialBlocks => Set<LearningMaterialBlock>();
     public DbSet<LearningProgress> LearningProgress => Set<LearningProgress>();
     public DbSet<QuestionCategory> QuestionCategories => Set<QuestionCategory>();
     public DbSet<Question> Questions => Set<Question>();

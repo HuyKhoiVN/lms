@@ -38,7 +38,7 @@
       }
     };
 
-    if (options.contentType) {
+    if (typeof options.contentType !== "undefined") {
       requestOptions.contentType = options.contentType;
     }
 
@@ -46,8 +46,13 @@
       requestOptions.dataType = options.dataType;
     }
 
+    if (typeof options.processData !== "undefined") {
+      requestOptions.processData = options.processData;
+    }
+
     if (options.data !== undefined && requestOptions.method !== "GET") {
-      requestOptions.data = requestOptions.contentType === "application/json"
+      const isFormData = typeof window !== "undefined" && window.FormData && options.data instanceof window.FormData;
+      requestOptions.data = requestOptions.contentType === "application/json" && !isFormData
         ? JSON.stringify(options.data)
         : options.data;
     }

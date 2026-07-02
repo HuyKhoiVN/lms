@@ -46,6 +46,20 @@
     }
   }
 
+  function getApiOrigin() {
+    return String(Lms.config && Lms.config.apiBaseUrl || "").replace(/\/api\/v1\/?$/i, "");
+  }
+
+  function resolveAssetUrl(url) {
+    if (!url) {
+      return "";
+    }
+    if (/^https?:\/\//i.test(url)) {
+      return url;
+    }
+    return getApiOrigin() + (url.charAt(0) === "/" ? url : "/" + url);
+  }
+
   function getMaterialProgress(materialId) {
     const details = state.progress && Array.isArray(state.progress.details) ? state.progress.details : [];
     return details.find(function (item) {
@@ -88,6 +102,10 @@
         ? t("courses.detailStudentPage.statusPublished", null, "Đang học")
         : t("courses.detailStudentPage.statusDraft", null, "Chưa mở")
     );
+
+    if (state.course && state.course.thumbnailUrl) {
+      $(".student-course-focus-media img").attr("src", resolveAssetUrl(state.course.thumbnailUrl));
+    }
   }
 
   function renderMetrics() {
@@ -121,6 +139,9 @@
     if (contentType === "Link") {
       return "lms-status-info";
     }
+    if (contentType === "Image" || contentType === "Video" || contentType === "Mixed") {
+      return "lms-status-info";
+    }
     return "lms-status-success";
   }
 
@@ -130,6 +151,10 @@
       Pdf: t("materials.studentListPage.typePdf", null, "PDF"),
       File: t("materials.studentListPage.typeFile", null, "Tệp tin"),
       Link: t("materials.studentListPage.typeLink", null, "Liên kết")
+      ,
+      Image: t("materials.studentListPage.typeImage", null, "Hinh anh"),
+      Video: t("materials.studentListPage.typeVideo", null, "Video"),
+      Mixed: t("materials.studentListPage.typeMixed", null, "Tong hop")
     };
     return labels[contentType] || contentType || "--";
   }

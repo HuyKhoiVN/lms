@@ -139,13 +139,16 @@
 
 .app-shell-admin {
   background: var(--color-app-bg);
+  align-items: flex-start;
 }
 
 .app-sidebar {
   width: 280px;
   flex: 0 0 280px;
+  align-self: flex-start;
   display: flex;
   flex-direction: column;
+  height: 100vh;
   min-height: 100vh;
   background: var(--color-sidebar-bg);
   color: var(--color-sidebar-text);
@@ -245,7 +248,7 @@
 }
 
 .app-nav-link:hover,
-.app-nav-link:focus {
+.app-nav-link:focus-visible {
   color: var(--color-sidebar-text-active);
   background: rgba(255, 255, 255, 0.1);
   transform: translateX(2px);
@@ -776,6 +779,7 @@
 }
 
 .app-shell-admin .app-main {
+  min-height: 100vh;
   background:
     radial-gradient(circle at 86% 2%, rgba(99, 91, 255, 0.08), transparent 28%),
     radial-gradient(circle at 42% 100%, rgba(0, 167, 167, 0.06), transparent 34%);

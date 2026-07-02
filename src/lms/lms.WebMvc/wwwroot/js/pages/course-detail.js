@@ -53,6 +53,20 @@
       .join("");
   }
 
+  function getApiOrigin() {
+    return String(Lms.config && Lms.config.apiBaseUrl || "").replace(/\/api\/v1\/?$/i, "");
+  }
+
+  function resolveAssetUrl(url) {
+    if (!url) {
+      return "";
+    }
+    if (/^https?:\/\//i.test(url)) {
+      return url;
+    }
+    return getApiOrigin() + (url.charAt(0) === "/" ? url : "/" + url);
+  }
+
   function getBadgeClass(status) {
     return status === "Published" ? "app-badge-success" : "app-badge-muted";
   }
@@ -113,6 +127,9 @@
     );
     $("[data-course-detail-title]").text(state.course.name);
     $("[data-course-detail-copy]").text(state.course.description || state.course.code || "");
+    if (state.course.thumbnailUrl) {
+      $(".admin-course-detail-image img").attr("src", resolveAssetUrl(state.course.thumbnailUrl));
+    }
     setProgress(percent);
     $("[data-course-detail-action='publish']").text(
       state.course.isPublished

@@ -1,8 +1,10 @@
 using System;
 using System.Reflection;
 using System.Text;
+using System.Threading.Tasks;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -49,6 +51,7 @@ public static class ServiceCollectionExtensions
         // Repository Phase 3
         services.AddScoped<ILearningMaterialRepository, LearningMaterialRepository>();
         services.AddScoped<ILearningMaterialFileRepository, LearningMaterialFileRepository>();
+        services.AddScoped<ILearningMaterialBlockRepository, LearningMaterialBlockRepository>();
         services.AddScoped<ILearningProgressRepository, LearningProgressRepository>();
 
         // Repository Phase 4 – Question Bank
@@ -187,6 +190,24 @@ public static class ServiceCollectionExtensions
                     ValidAudience = options.Audience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Secret)),
                     ClockSkew = TimeSpan.Zero
+                };
+                jwtOptions.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"].ToString();
+                        var path = context.HttpContext.Request.Path;
+
+                        if (!string.IsNullOrWhiteSpace(accessToken)
+                            && path.StartsWithSegments("/api/v1/learning-materials")
+                            && (path.Value?.Contains("/stream", StringComparison.OrdinalIgnoreCase) == true
+                                || path.Value?.Contains("/download", StringComparison.OrdinalIgnoreCase) == true))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    }
                 };
             });
 

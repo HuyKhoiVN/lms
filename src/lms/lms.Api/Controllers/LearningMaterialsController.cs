@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -8,10 +9,6 @@ using lms.Application.Interfaces.Services;
 
 namespace lms.Api.Controllers;
 
-/// <summary>
-/// Quản lý học liệu (Admin CRUD, Student read assigned).
-/// Theo doc/17_BACKEND_MODULE_DESIGN/02_MODULE_DESIGN_SPEC.md mục 5 Learning Material.
-/// </summary>
 [Authorize]
 [ApiController]
 [Route("api/v1/learning-materials")]
@@ -20,18 +17,20 @@ public class LearningMaterialsController : ControllerBase
     private readonly ILearningMaterialService _service;
     private readonly IMaterialAccessService _accessService;
     private readonly ICurrentUserService _currentUser;
+    private readonly IFileStorageService _fileStorage;
 
     public LearningMaterialsController(
         ILearningMaterialService service,
         IMaterialAccessService accessService,
-        ICurrentUserService currentUser)
+        ICurrentUserService currentUser,
+        IFileStorageService fileStorage)
     {
         _service = service;
         _accessService = accessService;
         _currentUser = currentUser;
+        _fileStorage = fileStorage;
     }
 
-    /// <summary>Danh sách học liệu có phân trang. Student chỉ thấy course được assign.</summary>
     [HttpGet]
     [ProducesResponseType(typeof(ApiResponse<PagedResult<LearningMaterialListItemResponse>>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetPaged([FromQuery] LearningMaterialFilterRequest filter)
@@ -43,31 +42,32 @@ public class LearningMaterialsController : ControllerBase
         return Ok(result);
     }
 
-    /// <summary>Chi tiết học liệu (có file đính kèm). Student cần được assign course.</summary>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(ApiResponse<LearningMaterialDetailResponse>), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(int id)
     {
-        var role = _currentUser.Role;
-        if (role == "Student")
-        {
-            var uid = _currentUser.UserId;
-            if (!uid.HasValue || !await _accessService.HasAccessAsync(uid.Value, id))
-            {
-                return StatusCode(
-                    StatusCodes.Status403Forbidden,
-                    ApiResponse<object>.FailureResult("Bạn không có quyền truy cập học liệu này."));
-            }
-        }
+        var forbidden = await ForbidIfNoAccessAsync(id);
+        if (forbidden != null) return forbidden;
 
         var result = await _service.GetByIdAsync(id);
-        if (!result.Success) return NotFound(result);
-        return Ok(result);
+        return result.Success ? Ok(result) : NotFound(result);
     }
 
-    /// <summary>Tạo học liệu mới (Admin only).</summary>
+    [HttpGet("{id}/blocks")]
+    [ProducesResponseType(typeof(ApiResponse<List<LearningMaterialBlockResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetBlocks(int id)
+    {
+        var forbidden = await ForbidIfNoAccessAsync(id);
+        if (forbidden != null) return forbidden;
+
+        var result = await _service.GetBlocksAsync(id);
+        return result.Success ? Ok(result) : NotFound(result);
+    }
+
     [Authorize(Roles = "Admin")]
     [HttpPost]
     [ProducesResponseType(typeof(ApiResponse<LearningMaterialDetailResponse>), StatusCodes.Status201Created)]
@@ -75,16 +75,16 @@ public class LearningMaterialsController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Create([FromBody] CreateLearningMaterialRequest request)
     {
-        var adminId = _currentUser.UserId;
-        var result = await _service.CreateAsync(request, adminId);
+        var result = await _service.CreateAsync(request, _currentUser.UserId);
         if (!result.Success)
         {
-            return result.Message!.Contains("tìm thấy") ? NotFound(result) : BadRequest(result);
+            return result.Message != null && result.Message.Contains("Khong tim thay")
+                ? NotFound(result)
+                : BadRequest(result);
         }
         return CreatedAtAction(nameof(GetById), new { id = result.Data!.Id }, result);
     }
 
-    /// <summary>Cập nhật học liệu (Admin only). Không thay đổi ContentType.</summary>
     [Authorize(Roles = "Admin")]
     [HttpPut("{id}")]
     [ProducesResponseType(typeof(ApiResponse<LearningMaterialDetailResponse>), StatusCodes.Status200OK)]
@@ -92,16 +92,138 @@ public class LearningMaterialsController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Update(int id, [FromBody] UpdateLearningMaterialRequest request)
     {
-        var adminId = _currentUser.UserId;
-        var result = await _service.UpdateAsync(id, request, adminId);
+        var result = await _service.UpdateAsync(id, request, _currentUser.UserId);
         if (!result.Success)
         {
-            return result.Message!.Contains("tìm thấy") ? NotFound(result) : BadRequest(result);
+            return result.Message != null && result.Message.Contains("Khong tim thay")
+                ? NotFound(result)
+                : BadRequest(result);
         }
         return Ok(result);
     }
 
-    /// <summary>Soft delete học liệu (Admin only). Trả 204 No Content.</summary>
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{id}/blocks/text")]
+    [ProducesResponseType(typeof(ApiResponse<LearningMaterialBlockResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> AddTextBlock(int id, [FromBody] CreateTextMaterialBlockRequest request)
+    {
+        var result = await _service.AddTextBlockAsync(id, request, _currentUser.UserId);
+        return MapBlockWriteResult(result);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{id}/blocks/link")]
+    [ProducesResponseType(typeof(ApiResponse<LearningMaterialBlockResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> AddLinkBlock(int id, [FromBody] CreateLinkMaterialBlockRequest request)
+    {
+        var result = await _service.AddLinkBlockAsync(id, request, _currentUser.UserId);
+        return MapBlockWriteResult(result);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost("{id}/blocks/file")]
+    [Consumes("multipart/form-data")]
+    [ProducesResponseType(typeof(ApiResponse<LearningMaterialBlockResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> AddFileBlock(int id, [FromForm] UploadMaterialBlockFileForm form)
+    {
+        if (form.File == null || form.File.Length == 0)
+        {
+            return BadRequest(ApiResponse<object>.FailureResult("Tep tin trong hoac khong hop le."));
+        }
+
+        await using var stream = form.File.OpenReadStream();
+        var result = await _service.AddFileBlockAsync(
+            id, form, stream, form.File.FileName, form.File.ContentType, form.File.Length, _currentUser.UserId);
+        return MapBlockWriteResult(result);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}/blocks/{blockId}")]
+    [ProducesResponseType(typeof(ApiResponse<LearningMaterialBlockResponse>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> UpdateBlock(int id, int blockId, [FromBody] UpdateLearningMaterialBlockRequest request)
+    {
+        var result = await _service.UpdateBlockAsync(id, blockId, request, _currentUser.UserId);
+        return MapBlockWriteResult(result);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}/blocks/reorder")]
+    [ProducesResponseType(typeof(ApiResponse<List<LearningMaterialBlockResponse>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> ReorderBlocks(int id, [FromBody] ReorderLearningMaterialBlocksRequest request)
+    {
+        var result = await _service.ReorderBlocksAsync(id, request, _currentUser.UserId);
+        return result.Success ? Ok(result) : BadRequest(result);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpDelete("{id}/blocks/{blockId}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> DeleteBlock(int id, int blockId)
+    {
+        var result = await _service.DeleteBlockAsync(id, blockId, _currentUser.UserId);
+        if (!result.Success)
+        {
+            return result.Message != null && result.Message.Contains("Khong tim thay")
+                ? NotFound(result)
+                : BadRequest(result);
+        }
+
+        return NoContent();
+    }
+
+    [HttpGet("{materialId}/blocks/{blockId}/stream")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> StreamBlock(int materialId, int blockId)
+    {
+        var forbidden = await ForbidIfNoAccessAsync(materialId);
+        if (forbidden != null) return forbidden;
+
+        var result = await _service.GetBlockAsync(materialId, blockId);
+        if (!result.Success || result.Data == null) return NotFound(result);
+        if (!result.Data.CanStream || string.IsNullOrWhiteSpace(result.Data.FileKey))
+            return BadRequest(ApiResponse<object>.FailureResult("Khoi noi dung nay khong ho tro xem truc tiep."));
+
+        try
+        {
+            var stream = await _fileStorage.GetFileAsync(result.Data.FileKey);
+            return File(stream, result.Data.ContentType ?? "application/octet-stream", enableRangeProcessing: true);
+        }
+        catch (System.IO.FileNotFoundException)
+        {
+            return NotFound(ApiResponse<object>.FailureResult("Khong tim thay file vat ly."));
+        }
+    }
+
+    [HttpGet("{materialId}/blocks/{blockId}/download")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DownloadBlock(int materialId, int blockId)
+    {
+        var forbidden = await ForbidIfNoAccessAsync(materialId);
+        if (forbidden != null) return forbidden;
+
+        var result = await _service.GetBlockAsync(materialId, blockId);
+        if (!result.Success || result.Data == null) return NotFound(result);
+        if (!result.Data.CanDownload || string.IsNullOrWhiteSpace(result.Data.FileKey))
+            return BadRequest(ApiResponse<object>.FailureResult("Khoi noi dung nay khong co file de tai."));
+
+        try
+        {
+            var stream = await _fileStorage.GetFileAsync(result.Data.FileKey);
+            return File(
+                stream,
+                result.Data.ContentType ?? "application/octet-stream",
+                result.Data.OriginalFileName ?? $"material-block-{blockId}");
+        }
+        catch (System.IO.FileNotFoundException)
+        {
+            return NotFound(ApiResponse<object>.FailureResult("Khong tim thay file vat ly."));
+        }
+    }
+
     [Authorize(Roles = "Admin")]
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
@@ -109,12 +231,43 @@ public class LearningMaterialsController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status409Conflict)]
     public async Task<IActionResult> Delete(int id)
     {
-        var adminId = _currentUser.UserId;
-        var result = await _service.DeleteAsync(id, adminId);
+        var result = await _service.DeleteAsync(id, _currentUser.UserId);
         if (!result.Success)
         {
-            return result.Message!.Contains("tìm thấy") ? NotFound(result) : BadRequest(result);
+            return result.Message != null && result.Message.Contains("Khong tim thay")
+                ? NotFound(result)
+                : BadRequest(result);
         }
         return NoContent();
+    }
+
+    private async Task<IActionResult?> ForbidIfNoAccessAsync(int materialId)
+    {
+        if (_currentUser.Role != "Student")
+        {
+            return null;
+        }
+
+        var userId = _currentUser.UserId;
+        if (!userId.HasValue || !await _accessService.HasAccessAsync(userId.Value, materialId))
+        {
+            return StatusCode(
+                StatusCodes.Status403Forbidden,
+                ApiResponse<object>.FailureResult("Ban khong co quyen truy cap hoc lieu nay."));
+        }
+
+        return null;
+    }
+
+    private IActionResult MapBlockWriteResult(ApiResponse<LearningMaterialBlockResponse> result)
+    {
+        if (result.Success)
+        {
+            return Ok(result);
+        }
+
+        return result.Message != null && result.Message.Contains("Khong tim thay")
+            ? NotFound(result)
+            : BadRequest(result);
     }
 }

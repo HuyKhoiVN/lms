@@ -56,6 +56,9 @@
       description: raw.description || "",
       isPublished: Boolean(raw.isPublished),
       status: raw.isPublished ? "Published" : "Draft",
+      thumbnailUrl: raw.thumbnailUrl || "",
+      thumbnailContentType: raw.thumbnailContentType || "",
+      thumbnailOriginalFileName: raw.thumbnailOriginalFileName || "",
       materialCount: 0,
       assignedCount: null,
       completionRate: 0
@@ -85,7 +88,25 @@
       .join("");
   }
 
-  function getCourseImage(index) {
+  function getApiOrigin() {
+    return String(Lms.config && Lms.config.apiBaseUrl || "").replace(/\/api\/v1\/?$/i, "");
+  }
+
+  function resolveAssetUrl(url) {
+    if (!url) {
+      return "";
+    }
+    if (/^https?:\/\//i.test(url)) {
+      return url;
+    }
+    return getApiOrigin() + (url.charAt(0) === "/" ? url : "/" + url);
+  }
+
+  function getCourseImage(course, index) {
+    if (course && course.thumbnailUrl) {
+      return resolveAssetUrl(course.thumbnailUrl);
+    }
+
     const images = [
       "/images/course-programming.jpg",
       "/images/course-ai-tech.jpg",
@@ -181,7 +202,7 @@
         '<article class="app-card learning-card admin-course-card ' + cardClass + '">' +
           '<div class="app-card-body">' +
             '<div class="image-slot image-slot-md image-slot-course admin-course-image" data-image-label="Course card image 320x180">' +
-              '<img src="' + getCourseImage(index) + '" alt="" aria-hidden="true" />' +
+              '<img src="' + getCourseImage(course, index) + '" alt="" aria-hidden="true" />' +
             "</div>" +
             '<div class="course-thumb">' +
               '<span class="course-thumb-code">' + escapeHtml(getInitials(course.name)) + "</span>" +
@@ -225,7 +246,7 @@
         "<tr>" +
           "<td>" +
             '<div class="admin-user-cell">' +
-              '<span class="app-avatar admin-thumbnail-avatar" aria-hidden="true"><img src="' + getCourseImage(course.id || 0) + '" alt="" /></span>' +
+              '<span class="app-avatar admin-thumbnail-avatar" aria-hidden="true"><img src="' + getCourseImage(course, course.id || 0) + '" alt="" /></span>' +
               "<div><strong>" + escapeHtml(course.name) + "</strong><span>" + escapeHtml(course.description || course.code || "") + "</span></div>" +
             "</div>" +
           "</td>" +
@@ -311,7 +332,10 @@
       name: $form.find("[name='name']").val().trim(),
       description: $form.find("[name='description']").val().trim(),
       code: $form.find("[name='code']").val().trim(),
-      status: $form.find("[name='status']").val()
+      status: $form.find("[name='status']").val(),
+      thumbnailFile: $form.find("[name='thumbnail']")[0] && $form.find("[name='thumbnail']")[0].files
+        ? $form.find("[name='thumbnail']")[0].files[0]
+        : null
     };
   }
 
@@ -379,6 +403,8 @@
             '<label class="auth-field">' + escapeHtml(t("courses.listPage.courseCode", null, "Ma khoa hoc")) + '<input class="app-input" name="code" type="text" autocomplete="off" /><span class="auth-error" data-course-error="code"></span></label>' +
             '<label class="auth-field">' + escapeHtml(t("courses.listPage.status", null, "Trang thai")) + '<select class="app-select" name="status"><option value="">' + escapeHtml(t("courses.listPage.selectStatus", null, "Chon trang thai")) + '</option><option value="Published">' + escapeHtml(t("courses.listPage.published", null, "Da xuat ban")) + '</option><option value="Draft">' + escapeHtml(t("courses.listPage.draft", null, "Ban nhap")) + '</option></select><span class="auth-error" data-course-error="status"></span></label>' +
           "</div>" +
+          '<label class="auth-field">' + escapeHtml(t("courses.listPage.thumbnail", null, "Anh minh hoa")) + '<input class="app-input" name="thumbnail" type="file" accept="image/png,image/jpeg,image/webp" /><span class="auth-error" data-course-error="thumbnail"></span></label>' +
+          '<div class="image-slot image-slot-md image-slot-course" data-course-thumbnail-preview><img src="' + escapeHtml(course && course.thumbnailUrl ? resolveAssetUrl(course.thumbnailUrl) : "/images/course-programming.jpg") + '" alt="" aria-hidden="true" /></div>' +
         "</form>" +
         '<div class="app-modal-footer"><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.cancel", null, "Huy")) + '</button><button class="app-button app-button-primary" type="button" data-course-save>' + escapeHtml(isEdit ? t("courses.listPage.saveChanges", null, "Luu thay doi") : t("courses.listPage.createCourse", null, "Tao khoa hoc")) + "</button></div>" +
       "</div>"
@@ -388,7 +414,53 @@
     modal.find("[name='description']").val(course ? course.description : "");
     modal.find("[name='code']").val(course ? course.code : "");
     modal.find("[name='status']").val(course ? course.status : "Draft");
+    modal.find("[name='thumbnail']").on("change", function () {
+      const file = this.files && this.files[0];
+      if (!file) {
+        return;
+      }
+      const objectUrl = window.URL.createObjectURL(file);
+      modal.find("[data-course-thumbnail-preview] img").attr("src", objectUrl);
+    });
     return modal;
+  }
+
+  function uploadCourseThumbnail(courseId, file) {
+    if (!file) {
+      return $.Deferred().resolve(null).promise();
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    return Lms.apiClient.post("api/courses/" + courseId + "/thumbnail", formData, {
+      contentType: false,
+      processData: false
+    });
+  }
+
+  function commitSavedCourse(editingCourseId, saved) {
+    const existing = editingCourseId ? findCourse(editingCourseId) : null;
+
+    if (existing) {
+      saved.materialCount = existing.materialCount;
+      saved.assignedCount = existing.assignedCount;
+      saved.completionRate = existing.completionRate;
+      Object.assign(existing, saved);
+    } else {
+      state.courses.unshift(saved);
+      state.page = 1;
+    }
+
+    Lms.ui.closeModal();
+    applyFilters();
+    showToast(
+      "success",
+      editingCourseId ? t("courses.listPage.courseUpdatedTitle", null, "Da cap nhat khoa hoc") : t("courses.listPage.courseCreatedTitle", null, "Da tao khoa hoc"),
+      editingCourseId
+        ? t("courses.listPage.courseUpdatedMessage", { name: saved.name }, saved.name + " da duoc cap nhat.")
+        : t("courses.listPage.courseCreatedMessage", { name: saved.name }, saved.name + " da duoc them.")
+    );
   }
 
   function saveCourse(editingCourseId, values) {
@@ -405,28 +477,18 @@
 
     action.done(function (response) {
       const data = getResponseData(response);
-      const saved = mapCourse(data || request);
-      const existing = editingCourseId ? findCourse(editingCourseId) : null;
+      let saved = mapCourse(data || request);
 
-      if (existing) {
-        saved.materialCount = existing.materialCount;
-        saved.assignedCount = existing.assignedCount;
-        saved.completionRate = existing.completionRate;
-        Object.assign(existing, saved);
-      } else {
-        state.courses.unshift(saved);
-        state.page = 1;
-      }
-
-      Lms.ui.closeModal();
-      applyFilters();
-      showToast(
-        "success",
-        editingCourseId ? t("courses.listPage.courseUpdatedTitle", null, "Da cap nhat khoa hoc") : t("courses.listPage.courseCreatedTitle", null, "Da tao khoa hoc"),
-        editingCourseId
-          ? t("courses.listPage.courseUpdatedMessage", { name: saved.name }, saved.name + " da duoc cap nhat.")
-          : t("courses.listPage.courseCreatedMessage", { name: saved.name }, saved.name + " da duoc them.")
-      );
+      uploadCourseThumbnail(saved.id, values.thumbnailFile).done(function (thumbnailResponse) {
+        const thumbnailData = getResponseData(thumbnailResponse);
+        if (thumbnailData) {
+          saved = mapCourse(thumbnailData);
+        }
+      }).fail(function (error) {
+        showToast("warning", t("courses.listPage.thumbnailWarningTitle", null, "Chua upload duoc anh"), error && error.message ? error.message : t("courses.listPage.thumbnailWarningMessage", null, "Khoa hoc da luu, nhung anh minh hoa chua duoc cap nhat."));
+      }).always(function () {
+        commitSavedCourse(editingCourseId, saved);
+      });
     }).fail(function (xhr) {
       const message = xhr && xhr.responseJSON && xhr.responseJSON.message
         ? xhr.responseJSON.message

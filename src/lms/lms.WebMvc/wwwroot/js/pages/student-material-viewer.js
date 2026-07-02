@@ -7,7 +7,8 @@
     materialId: 0,
     material: null,
     course: null,
-    progress: null
+    progress: null,
+    objectUrls: []
   };
 
   function t(key, params, fallback) {
@@ -43,6 +44,45 @@
     return data && Array.isArray(data.items) ? data.items : [];
   }
 
+  function getApiUrl(path) {
+    return String(Lms.config && Lms.config.apiBaseUrl || "").replace(/\/$/, "") + "/" + String(path || "").replace(/^\//, "");
+  }
+
+  function getAccessToken() {
+    return Lms.auth && Lms.auth.getAccessToken ? Lms.auth.getAccessToken() : null;
+  }
+
+  function fetchAuthorizedBlob(url) {
+    const token = getAccessToken();
+    if (!token || !url) {
+      return Promise.reject(new Error("Missing access token"));
+    }
+
+    return window.fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + token
+      }
+    }).then(function (response) {
+      if (!response.ok) {
+        throw new Error("Download failed");
+      }
+      return response.blob();
+    });
+  }
+
+  function revokeObjectUrls() {
+    state.objectUrls.forEach(function (url) {
+      window.URL.revokeObjectURL(url);
+    });
+    state.objectUrls = [];
+  }
+
+  function trackObjectUrl(url) {
+    state.objectUrls.push(url);
+    return url;
+  }
+
   function getNotes() {
     return Lms.storage ? Lms.storage.get(notesKey, {}) : {};
   }
@@ -66,7 +106,10 @@
       Text: t("materials.viewerPage.typeText", null, "Van ban"),
       Pdf: t("materials.viewerPage.typePdf", null, "PDF"),
       File: t("materials.viewerPage.typeFile", null, "Tep tin"),
-      Link: t("materials.viewerPage.typeLink", null, "Lien ket")
+      Link: t("materials.viewerPage.typeLink", null, "Lien ket"),
+      Image: t("materials.viewerPage.typeImage", null, "Hinh anh"),
+      Video: t("materials.viewerPage.typeVideo", null, "Video"),
+      Mixed: t("materials.viewerPage.typeMixed", null, "Tong hop")
     };
     return labels[type] || type;
   }
@@ -79,6 +122,9 @@
       return "lms-status-warning";
     }
     if (type === "Link") {
+      return "lms-status-info";
+    }
+    if (type === "Image" || type === "Video" || type === "Mixed") {
       return "lms-status-info";
     }
     return "lms-status-success";
@@ -147,9 +193,168 @@
     );
   }
 
+  function getBlocks() {
+    const blocks = state.material && Array.isArray(state.material.blocks) ? state.material.blocks.slice() : [];
+    return blocks.sort(function (a, b) {
+      return Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
+    });
+  }
+
+  function getBlockEndpoint(block, action) {
+    return getApiUrl("learning-materials/" + state.material.id + "/blocks/" + block.id + "/" + action);
+  }
+
+  function getAuthenticatedBlockEndpoint(block, action) {
+    const token = getAccessToken();
+    const endpoint = getBlockEndpoint(block, action);
+    return token ? endpoint + "?access_token=" + encodeURIComponent(token) : endpoint;
+  }
+
+  function renderBlockCaption(block) {
+    if (!block.caption) {
+      return "";
+    }
+
+    return '<p class="student-material-block-caption">' + escapeHtml(block.caption) + "</p>";
+  }
+
+  function renderTextBlock(block) {
+    const text = block.textContent || "";
+    const paragraphs = text.split(/\r?\n/).filter(function (line) {
+      return line.trim().length > 0;
+    });
+
+    return (
+      '<section class="student-material-block student-material-block-text student-material-viewer-reveal" data-viewer-reveal>' +
+        renderBlockCaption(block) +
+        '<article class="material-reader">' +
+          (paragraphs.length
+            ? paragraphs.map(function (line) { return "<p>" + escapeHtml(line) + "</p>"; }).join("")
+            : "<p>" + escapeHtml(t("materials.viewerPage.textFallback", null, "No text content available.")) + "</p>") +
+        "</article>" +
+      "</section>"
+    );
+  }
+
+  function renderImageBlock(block) {
+    return (
+      '<section class="student-material-block student-material-viewer-reveal" data-viewer-reveal>' +
+        renderBlockCaption(block) +
+        '<img class="student-material-block-media" alt="' + escapeHtml(block.caption || block.originalFileName || state.material.title) + '" data-material-block-stream data-block-id="' + block.id + '" />' +
+      "</section>"
+    );
+  }
+
+  function renderVideoBlock(block) {
+    return (
+      '<section class="student-material-block student-material-viewer-reveal" data-viewer-reveal>' +
+        renderBlockCaption(block) +
+        '<video class="student-material-block-media" controls preload="metadata" src="' + escapeHtml(getAuthenticatedBlockEndpoint(block, "stream")) + '"></video>' +
+      "</section>"
+    );
+  }
+
+  function renderPdfBlock(block) {
+    return (
+      '<section class="student-material-block student-material-viewer-reveal" data-viewer-reveal>' +
+        renderBlockCaption(block) +
+        '<iframe class="student-material-block-pdf" title="' + escapeHtml(block.caption || block.originalFileName || state.material.title) + '" src="' + escapeHtml(getAuthenticatedBlockEndpoint(block, "stream")) + '"></iframe>' +
+      "</section>"
+    );
+  }
+
+  function renderFileBlock(block) {
+    return (
+      '<section class="student-material-block student-material-viewer-reveal" data-viewer-reveal>' +
+        '<div class="student-material-viewer-placeholder">' +
+          '<span class="student-material-viewer-placeholder-icon is-file" aria-hidden="true"><i class="bi bi-paperclip"></i></span>' +
+          '<div><h3>' + escapeHtml(block.originalFileName || t("materials.viewerPage.filePlaceholderTitle", null, "File material")) + "</h3>" +
+          renderBlockCaption(block) +
+          '<p>' + escapeHtml(t("materials.viewerPage.fileDownloadCopy", null, "Download this file to view it on your device.")) + "</p></div>" +
+          '<button class="app-button app-button-secondary" type="button" data-material-viewer-action="download-block" data-block-id="' + block.id + '">' + escapeHtml(t("materials.viewerPage.buttonDownload", null, "Download")) + "</button>" +
+        "</div>" +
+      "</section>"
+    );
+  }
+
+  function renderLinkBlock(block) {
+    return (
+      '<section class="student-material-block student-material-viewer-reveal" data-viewer-reveal>' +
+        '<div class="student-material-viewer-placeholder">' +
+          '<span class="student-material-viewer-placeholder-icon is-link" aria-hidden="true"><i class="bi bi-link-45deg"></i></span>' +
+          '<div><h3>' + escapeHtml(block.caption || t("materials.viewerPage.linkPlaceholderTitle", null, "External resource")) + "</h3>" +
+          '<p>' + escapeHtml(block.url || "") + "</p></div>" +
+          '<button class="app-button app-button-secondary" type="button" data-material-viewer-action="open-block-link" data-block-id="' + block.id + '">' + escapeHtml(t("materials.viewerPage.buttonOpenLinkPlaceholder", null, "Open link")) + "</button>" +
+        "</div>" +
+      "</section>"
+    );
+  }
+
+  function renderBlock(block) {
+    if (block.blockType === "Image") {
+      return renderImageBlock(block);
+    }
+    if (block.blockType === "Video") {
+      return renderVideoBlock(block);
+    }
+    if (block.blockType === "Pdf") {
+      return renderPdfBlock(block);
+    }
+    if (block.blockType === "File") {
+      return renderFileBlock(block);
+    }
+    if (block.blockType === "Link") {
+      return renderLinkBlock(block);
+    }
+    return renderTextBlock(block);
+  }
+
+  function renderBlocksContent() {
+    const blocks = getBlocks();
+    if (!blocks.length) {
+      return "";
+    }
+
+    return blocks.map(renderBlock).join("");
+  }
+
+  function hydrateBlockMedia() {
+    $("#materialViewerContent [data-material-block-stream]").each(function () {
+      const element = this;
+      const blockId = Number($(element).data("block-id"));
+      const block = getBlocks().find(function (item) {
+        return Number(item.id) === blockId;
+      });
+
+      if (!block) {
+        return;
+      }
+
+      fetchAuthorizedBlob(getBlockEndpoint(block, "stream")).then(function (blob) {
+        const objectUrl = trackObjectUrl(window.URL.createObjectURL(blob));
+        $(element).attr("src", objectUrl);
+        if (element.tagName.toLowerCase() === "video") {
+          element.load();
+        }
+      }).catch(function () {
+        $(element).replaceWith(
+          '<div class="student-material-viewer-placeholder">' +
+            '<span class="student-material-viewer-placeholder-icon is-file" aria-hidden="true"><i class="bi bi-exclamation-triangle"></i></span>' +
+            '<p>' + escapeHtml(t("materials.viewerPage.mediaLoadFailed", null, "Could not load this media block.")) + "</p>" +
+          "</div>"
+        );
+      });
+    });
+  }
+
   function renderContent() {
     if (!state.material) {
       return "";
+    }
+
+    const blockContent = renderBlocksContent();
+    if (blockContent) {
+      return blockContent;
     }
 
     if (state.material.contentType === "Pdf") {
@@ -233,8 +438,10 @@
       complete ? t("materials.viewerPage.statusCompleted", null, "Da hoan thanh") : t("materials.viewerPage.buttonComplete", null, "Danh dau hoan thanh")
     );
     $("[data-material-viewer-note]").val(getNotes()[state.materialId] || "");
+    revokeObjectUrls();
     $("#materialViewerContent").html(renderContent());
     initViewerReveal();
+    hydrateBlockMedia();
   }
 
   function initViewerReveal() {
@@ -305,6 +512,30 @@
     });
   }
 
+  function downloadMaterialBlock(blockId) {
+    const block = getBlocks().find(function (item) {
+      return Number(item.id) === Number(blockId);
+    });
+
+    if (!block) {
+      showToast("error", t("materials.viewerPage.toastDownloadTitle", null, "Could not download"), t("materials.viewerPage.toastDownloadEmptyMessage", null, "No file is available for download."));
+      return;
+    }
+
+    fetchAuthorizedBlob(getBlockEndpoint(block, "download")).then(function (blob) {
+      const objectUrl = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = objectUrl;
+      anchor.download = block.originalFileName || ("material-block-" + block.id);
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      window.URL.revokeObjectURL(objectUrl);
+    }).catch(function () {
+      showToast("error", t("materials.viewerPage.toastDownloadTitle", null, "Could not download"), t("materials.viewerPage.toastDownloadMessage", null, "File download failed. Please try again."));
+    });
+  }
+
   function bindEvents() {
     $(document).on("click", "[data-material-viewer-action='complete']", function () {
       if (!state.material || !state.course) {
@@ -369,6 +600,10 @@
       downloadAuthenticatedFile(fileId, file ? file.originalFileName : null);
     });
 
+    $(document).on("click", "[data-material-viewer-action='download-block']", function () {
+      downloadMaterialBlock(Number($(this).data("block-id")));
+    });
+
     $(document).on("click", "[data-material-viewer-action='open-link']", function () {
       if (state.material && state.material.externalLink) {
         window.open(state.material.externalLink, "_blank", "noopener,noreferrer");
@@ -380,6 +615,17 @@
         t("materials.viewerPage.toastLinkTitle", null, "Chua co lien ket"),
         t("materials.viewerPage.toastLinkMessage", null, "Tai lieu nay hien chua co lien ket ngoai.")
       );
+    });
+
+    $(document).on("click", "[data-material-viewer-action='open-block-link']", function () {
+      const blockId = Number($(this).data("block-id"));
+      const block = getBlocks().find(function (item) {
+        return Number(item.id) === blockId;
+      });
+
+      if (block && block.url) {
+        window.open(block.url, "_blank", "noopener,noreferrer");
+      }
     });
 
     $(document).on("lms:i18n:changed", render);

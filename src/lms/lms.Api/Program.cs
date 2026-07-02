@@ -19,6 +19,7 @@ app.UseLmsExceptionHandling();
 app.UseLmsSwagger();
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 app.UseCors("LmsWebMvc");
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,12 +1,11 @@
+using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
 using lms.Application.DTOs.Common;
 using lms.Application.DTOs.LearningMaterials;
 
 namespace lms.Application.Interfaces.Services;
 
-/// <summary>
-/// CRUD hoc lieu, theo doc/17_BACKEND_MODULE_DESIGN/02_MODULE_DESIGN_SPEC.md mục 5.
-/// </summary>
 public interface ILearningMaterialService
 {
     Task<ApiResponse<LearningMaterialDetailResponse>> GetByIdAsync(int id);
@@ -14,4 +13,13 @@ public interface ILearningMaterialService
     Task<ApiResponse<LearningMaterialDetailResponse>> CreateAsync(CreateLearningMaterialRequest request, int? adminId);
     Task<ApiResponse<LearningMaterialDetailResponse>> UpdateAsync(int id, UpdateLearningMaterialRequest request, int? adminId);
     Task<ApiResponse<object>> DeleteAsync(int id, int? adminId);
+
+    Task<ApiResponse<List<LearningMaterialBlockResponse>>> GetBlocksAsync(int materialId);
+    Task<ApiResponse<LearningMaterialBlockResponse>> GetBlockAsync(int materialId, int blockId);
+    Task<ApiResponse<LearningMaterialBlockResponse>> AddTextBlockAsync(int materialId, CreateTextMaterialBlockRequest request, int? adminId);
+    Task<ApiResponse<LearningMaterialBlockResponse>> AddLinkBlockAsync(int materialId, CreateLinkMaterialBlockRequest request, int? adminId);
+    Task<ApiResponse<LearningMaterialBlockResponse>> AddFileBlockAsync(int materialId, UploadMaterialBlockFileForm request, Stream fileStream, string fileName, string contentType, long fileSize, int? adminId);
+    Task<ApiResponse<LearningMaterialBlockResponse>> UpdateBlockAsync(int materialId, int blockId, UpdateLearningMaterialBlockRequest request, int? adminId);
+    Task<ApiResponse<List<LearningMaterialBlockResponse>>> ReorderBlocksAsync(int materialId, ReorderLearningMaterialBlocksRequest request, int? adminId);
+    Task<ApiResponse<object>> DeleteBlockAsync(int materialId, int blockId, int? adminId);
 }

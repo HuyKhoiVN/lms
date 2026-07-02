@@ -15,6 +15,10 @@ public sealed class CourseConfiguration : IEntityTypeConfiguration<Course>
         builder.Property(x => x.Name).IsRequired().HasMaxLength(255);
         builder.Property(x => x.Code).HasMaxLength(50);
         builder.Property(x => x.Description); // Defaults to nvarchar(max)
+        builder.Property(x => x.ThumbnailFileKey).HasMaxLength(500);
+        builder.Property(x => x.ThumbnailUrl).HasMaxLength(1000);
+        builder.Property(x => x.ThumbnailContentType).HasMaxLength(100);
+        builder.Property(x => x.ThumbnailOriginalFileName).HasMaxLength(255);
 
         builder.HasIndex(x => x.Code).IsUnique().HasFilter("[Code] IS NOT NULL");
     }

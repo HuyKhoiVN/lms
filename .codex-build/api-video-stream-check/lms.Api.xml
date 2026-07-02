@@ -1,0 +1,256 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>lms.Api</name>
+    </assembly>
+    <members>
+        <member name="T:lms.Api.Configuration.JwtOptions">
+            <summary>
+            Tham số JWT bind từ section "Jwt" của appsettings.
+            </summary>
+        </member>
+        <member name="P:lms.Api.Configuration.JwtOptions.AccessTokenExpiryMinutes">
+            <summary>Thời gian sống access token (phút). Mặc định 60.</summary>
+        </member>
+        <member name="P:lms.Api.Configuration.JwtOptions.RefreshTokenExpiryDays">
+            <summary>Thời gian sống refresh token (ngày). Mặc định 7.</summary>
+        </member>
+        <member name="T:lms.Api.Controllers.AuditLogsController">
+            <summary>
+            Truy vấn audit log — Admin only.
+            Theo doc/17_BACKEND_MODULE_DESIGN/02_MODULE_DESIGN_SPEC.md mục 15 Audit Logging.
+            AuditLogs là append-only; controller chỉ cung cấp các endpoint đọc.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.AuditLogsController.GetPaged(lms.Application.DTOs.AuditLogs.AuditLogFilterRequest)">
+            <summary>
+            Lấy danh sách audit log có phân trang và filter.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.AuditLogsController.GetById(System.Int32)">
+            <summary>
+            Lấy chi tiết 1 bản ghi audit log (bao gồm BeforeData/AfterData đã mask).
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.AuthController.Me">
+            <summary>
+            Lấy thông tin user hiện tại từ JWT claims.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.CoursesController.Publish(System.Int32)">
+            <summary>
+            Publish course (Admin only).
+            Spec: POST /api/v1/courses/{id}/publish → 200.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.CoursesController.Unpublish(System.Int32)">
+            <summary>
+            Unpublish course (Admin only).
+            Spec: POST /api/v1/courses/{id}/unpublish → 200.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.CoursesController.AddCourseExam(System.Int32,lms.Application.DTOs.Exams.AddCourseExamRequest)">
+            <summary>Thêm bài thi vào course (Admin). Trả 200 + CourseExamResponse.</summary>
+        </member>
+        <member name="M:lms.Api.Controllers.CoursesController.GetCourseExams(System.Int32)">
+            <summary>Đọc danh sách bài thi gắn với course.</summary>
+        </member>
+        <member name="M:lms.Api.Controllers.CoursesController.GetProgress(System.Int32)">
+            <summary>Course progress summary — Admin xem tất cả, Student chỉ xem của mình.</summary>
+        </member>
+        <member name="T:lms.Api.Controllers.ExamAttemptsController">
+            <summary>
+            Exam runtime: start → autosave → submit.
+            Theo doc/17_BACKEND_MODULE_DESIGN/02_MODULE_DESIGN_SPEC.md mục 10.
+            IsCorrect KHÔNG bao giờ trả về trước submit/review hợp lệ.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.ExamAttemptsController.Start(lms.Application.DTOs.ExamAttempts.StartExamRequest)">
+            <summary>Bắt đầu bài thi — tạo attempt + snapshot.</summary>
+        </member>
+        <member name="M:lms.Api.Controllers.ExamAttemptsController.GetActive(System.Int32)">
+            <summary>Lấy attempt đang thi (bao gồm questions + saved answers).</summary>
+        </member>
+        <member name="M:lms.Api.Controllers.ExamAttemptsController.Autosave(System.Int32,lms.Application.DTOs.ExamAttempts.AutosaveAttemptRequest)">
+            <summary>Lưu tự động đáp án đang chọn.</summary>
+        </member>
+        <member name="M:lms.Api.Controllers.ExamAttemptsController.Submit(System.Int32,lms.Application.DTOs.ExamAttempts.SubmitAttemptRequest)">
+            <summary>Nộp bài thi. Idempotent: submit lần 2 trả result cũ.</summary>
+        </member>
+        <member name="T:lms.Api.Controllers.ExamsController">
+            <summary>
+            Quản lý bài thi — Admin CRUD/publish, Student xem danh sách được assign.
+            Theo doc/17_BACKEND_MODULE_DESIGN/02_MODULE_DESIGN_SPEC.md mục 8.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.ExamsController.AddQuestion(System.Int32,lms.Application.DTOs.Exams.AddExamQuestionRequest)">
+            <summary>Thêm câu hỏi manual vào bài thi (Admin).</summary>
+        </member>
+        <member name="M:lms.Api.Controllers.ExamsController.RemoveQuestion(System.Int32,System.Int32)">
+            <summary>Xóa câu hỏi khỏi bài thi (Admin). Trả 204.</summary>
+        </member>
+        <member name="M:lms.Api.Controllers.ExamsController.SaveRandomRules(System.Int32,lms.Application.DTOs.Exams.SaveExamRandomRulesRequest)">
+            <summary>Lưu random rules (replace strategy). Admin only.</summary>
+        </member>
+        <member name="M:lms.Api.Controllers.ExamsController.Publish(System.Int32)">
+            <summary>Publish bài thi. Admin only.</summary>
+        </member>
+        <member name="M:lms.Api.Controllers.ExamsController.Unpublish(System.Int32)">
+            <summary>Unpublish bài thi. Admin only.</summary>
+        </member>
+        <member name="M:lms.Api.Controllers.ExamsController.Assign(System.Int32,lms.Application.DTOs.Exams.AssignExamRequest)">
+            <summary>Assign exam cho users/groups. Admin only.</summary>
+        </member>
+        <member name="T:lms.Api.Controllers.ExamAssignmentsController">
+            <summary>
+            Exam assignments management — Admin only.
+            Theo doc/17_BACKEND_MODULE_DESIGN/02_MODULE_DESIGN_SPEC.md mục 9.
+            </summary>
+        </member>
+        <member name="T:lms.Api.Controllers.GroupExamAssignmentsController">
+            <summary>
+            Group exam assignments management — Admin only.
+            </summary>
+        </member>
+        <member name="T:lms.Api.Controllers.FilesController">
+            <summary>
+            Quản lý metadata file và cung cấp upload/download.
+            Theo doc/17_BACKEND_MODULE_DESIGN/02_MODULE_DESIGN_SPEC.md mục 16 File Management.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.FilesController.Upload(lms.Application.DTOs.Common.UploadFileForm)">
+            <summary>
+            Upload file (Admin only). Trả 201 + metadata.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.FilesController.GetPaged(lms.Application.DTOs.Common.FileFilterRequest)">
+            <summary>
+            Lấy danh sách file có phân trang (Admin only).
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.FilesController.GetMetadata(System.Int32)">
+            <summary>
+            Lấy metadata file theo id (Admin only).
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.FilesController.Download(System.Int32)">
+            <summary>
+            Download file — kiểm tra quyền truy cập theo purpose/owner.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.FilesController.Delete(System.Int32)">
+            <summary>
+            Soft delete / mark archive file metadata (Admin only).
+            Không xóa physical file trừ khi không còn reference.
+            </summary>
+        </member>
+        <member name="T:lms.Api.Controllers.LearningProgressController">
+            <summary>
+            Theo dõi tiến độ học tập của học viên.
+            Theo doc/17_BACKEND_MODULE_DESIGN/02_MODULE_DESIGN_SPEC.md mục 6 Learning Progress.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.LearningProgressController.UpdateProgress(lms.Application.DTOs.LearningProgress.UpdateLearningProgressRequest)">
+            <summary>
+            Học viên tự cập nhật tiến độ học (upsert).
+            Chỉ Student, chỉ với course/material của chính mình.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.LearningProgressController.GetMyProgress(lms.Application.DTOs.LearningProgress.LearningProgressFilterRequest)">
+            <summary>
+            Học viên xem tiến độ học của bản thân (có filter theo courseId).
+            </summary>
+        </member>
+        <member name="T:lms.Api.Controllers.QuestionCategoriesController">
+            <summary>
+            Ngân hàng câu hỏi — Admin only.
+            Theo doc/17_BACKEND_MODULE_DESIGN/02_MODULE_DESIGN_SPEC.md mục 7.
+            IsCorrect không lộ ra ngoài qua bất kỳ endpoint nào dành cho Student.
+            </summary>
+        </member>
+        <member name="T:lms.Api.Controllers.QuestionsController">
+            <summary>
+            Câu hỏi + đáp án — Admin only.
+            </summary>
+        </member>
+        <member name="T:lms.Api.Controllers.ResultsController">
+            <summary>
+            Kết quả thi — Student xem result/review của mình, Admin xem tất cả.
+            Theo doc/17_BACKEND_MODULE_DESIGN/02_MODULE_DESIGN_SPEC.md mục 12.
+            ReviewMode enforcement: NoReview/ResultOnly/AnswerOnly/FullReview.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Controllers.ResultsController.GetMyResults(lms.Application.DTOs.Results.MyResultFilterRequest)">
+            <summary>Kết quả của tôi (Student).</summary>
+        </member>
+        <member name="M:lms.Api.Controllers.ResultsController.GetAll(lms.Application.DTOs.Results.ResultFilterRequest)">
+            <summary>Admin query tất cả results.</summary>
+        </member>
+        <member name="M:lms.Api.Controllers.ResultsController.GetById(System.Int32)">
+            <summary>Chi tiết result (owner hoặc Admin).</summary>
+        </member>
+        <member name="M:lms.Api.Controllers.ResultsController.GetReview(System.Int32)">
+            <summary>
+            Review attempt (theo ReviewMode).
+            NoReview → 403/400. ResultOnly → chỉ score. AnswerOnly → selected answers. FullReview → đầy đủ.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Extensions.ApplicationBuilderExtensions.UseLmsExceptionHandling(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Đặt <see cref="T:lms.Api.Middlewares.ExceptionHandlingMiddleware"/> ở vị trí đầu pipeline.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Extensions.ApplicationBuilderExtensions.UseLmsSwagger(Microsoft.AspNetCore.Builder.IApplicationBuilder)">
+            <summary>
+            Bật Swagger + Swagger UI tại /swagger.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Extensions.ServiceCollectionExtensions.AddLmsPersistence(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Đăng ký <see cref="T:lms.Persistence.Context.LmsDbContext"/> với SQL Server và toàn bộ repository.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Extensions.ServiceCollectionExtensions.AddLmsApplication(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Đăng ký Application services + FluentValidation.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Extensions.ServiceCollectionExtensions.AddLmsInfrastructure(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Đăng ký Infrastructure services (clock, audit dispatcher, password, token, file storage, current user).
+            </summary>
+        </member>
+        <member name="M:lms.Api.Extensions.ServiceCollectionExtensions.AddLmsAuthentication(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Đăng ký JWT Bearer với <see cref="T:lms.Api.Configuration.JwtOptions"/>.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Extensions.ServiceCollectionExtensions.AddLmsControllers(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Đăng ký Controllers + tắt ModelState filter mặc định + bật ValidationActionFilter.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Extensions.ServiceCollectionExtensions.AddLmsSwagger(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Đăng ký Swagger + Authorize button cho JWT.
+            </summary>
+        </member>
+        <member name="M:lms.Api.Extensions.ServiceCollectionExtensions.AddLmsCors(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            Allow WebMvc host call API from browser during local development.
+            </summary>
+        </member>
+        <member name="T:lms.Api.Filters.ValidationActionFilter">
+            <summary>
+            Action filter chuyển ModelState lỗi (sau khi FluentValidation gắn vào model state)
+            thành <see cref="T:lms.Application.Common.Exceptions.ValidationException"/> để ExceptionHandlingMiddleware xử lý.
+            </summary>
+        </member>
+        <member name="T:lms.Api.Middlewares.ExceptionHandlingMiddleware">
+            <summary>
+            Bắt mọi exception bubble từ controller/service và map sang HTTP status + envelope ApiResponse.
+            Theo doc/17_BACKEND_MODULE_DESIGN/README.md "REST response standard" và "Common HTTP status codes".
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -580,7 +580,10 @@
       "progressWarningTitle": "Progress unavailable",
       "progressWarningMessage": "Could not load course progress.",
       "saveErrorTitle": "Save failed",
-      "saveErrorMessage": "Could not save course information."
+      "saveErrorMessage": "Could not save course information.",
+      "thumbnail": "Course thumbnail",
+      "thumbnailWarningTitle": "Thumbnail upload skipped",
+      "thumbnailWarningMessage": "The course was saved, but its thumbnail could not be updated."
     },
     "detailPage": {
       "title": "Course Detail",

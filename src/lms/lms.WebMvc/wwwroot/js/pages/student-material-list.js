@@ -64,7 +64,10 @@
       Text: t("materials.studentListPage.typeText", null, "Van ban"),
       Pdf: t("materials.studentListPage.typePdf", null, "PDF"),
       File: t("materials.studentListPage.typeFile", null, "Tep tin"),
-      Link: t("materials.studentListPage.typeLink", null, "Lien ket")
+      Link: t("materials.studentListPage.typeLink", null, "Lien ket"),
+      Image: t("materials.studentListPage.typeImage", null, "Hinh anh"),
+      Video: t("materials.studentListPage.typeVideo", null, "Video"),
+      Mixed: t("materials.studentListPage.typeMixed", null, "Tong hop")
     };
     return labels[type] || type;
   }
@@ -79,6 +82,9 @@
     if (type === "Link") {
       return "lms-status-info";
     }
+    if (type === "Image" || type === "Video" || type === "Mixed") {
+      return "lms-status-info";
+    }
     return "lms-status-success";
   }
 
@@ -87,7 +93,10 @@
       Text: "is-text",
       Pdf: "is-pdf",
       File: "is-file",
-      Link: "is-link"
+      Link: "is-link",
+      Image: "is-image",
+      Video: "is-video",
+      Mixed: "is-mixed"
     };
     return classes[type] || "is-text";
   }
@@ -97,7 +106,10 @@
       Text: "bi-file-text",
       Pdf: "bi-file-earmark-pdf",
       File: "bi-paperclip",
-      Link: "bi-link-45deg"
+      Link: "bi-link-45deg",
+      Image: "bi-image",
+      Video: "bi-play-btn",
+      Mixed: "bi-collection"
     };
     return icons[type] || "bi-file-earmark";
   }
