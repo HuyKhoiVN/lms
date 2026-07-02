@@ -151,6 +151,58 @@ public sealed class ExamAssignmentService : IExamAssignmentService
             new PagedResult<ExamAssignmentResponse>(items, list.Count, page, size));
     }
 
+    public async Task<ApiResponse<PagedResult<GroupExamAssignmentResponse>>> GetGroupAssignmentsAsync(GroupExamAssignmentFilterRequest filter)
+    {
+        if (!filter.ExamId.HasValue)
+            return ApiResponse<PagedResult<GroupExamAssignmentResponse>>.FailureResult("Cần filter theo ExamId.");
+
+        var list = await _groupRepo.GetByExamIdAsync(filter.ExamId.Value);
+        var page = filter.Page < 1 ? 1 : filter.Page;
+        var size = filter.PageSize is < 1 or > 200 ? 20 : filter.PageSize;
+
+        var paged = list.Skip((page - 1) * size).Take(size).ToList();
+        var items = paged.Select(a => new GroupExamAssignmentResponse
+        {
+            Id = a.Id,
+            ExamId = a.ExamId,
+            GroupId = a.GroupId,
+            StartDate = a.StartDate,
+            EndDate = a.EndDate
+        }).ToList();
+
+        return ApiResponse<PagedResult<GroupExamAssignmentResponse>>.SuccessResult(
+            new PagedResult<GroupExamAssignmentResponse>(items, list.Count, page, size));
+    }
+
+    public async Task<ApiResponse<List<CourseExamResponse>>> GetCourseExamsAsync(int courseId)
+    {
+        var course = await _courseRepo.GetByIdAsync(courseId);
+        if (course is null) return ApiResponse<List<CourseExamResponse>>.FailureResult("Không tìm thấy khóa học.");
+
+        var courseExams = await _courseExamRepo.GetExamsByCourseIdAsync(courseId);
+        var items = new List<CourseExamResponse>();
+
+        foreach (var courseExam in courseExams)
+        {
+            var exam = await _examRepo.GetByIdAsync(courseExam.ExamId);
+            if (exam is null)
+            {
+                continue;
+            }
+
+            items.Add(new CourseExamResponse
+            {
+                Id = courseExam.Id,
+                CourseId = courseExam.CourseId,
+                ExamId = courseExam.ExamId,
+                ExamName = exam.Name,
+                Order = courseExam.Order
+            });
+        }
+
+        return ApiResponse<List<CourseExamResponse>>.SuccessResult(items);
+    }
+
     public async Task<ApiResponse<CourseExamResponse>> AddCourseExamAsync(int courseId, AddCourseExamRequest request, int? adminId)
     {
         var course = await _courseRepo.GetByIdAsync(courseId);

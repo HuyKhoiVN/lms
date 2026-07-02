@@ -22,33 +22,6 @@
             <div class="image-slot image-slot-hero auth-visual-image" data-image-label="Auth learning visual 640x360">
                 <img src="~/images/study-collaboration.jpg" alt="" aria-hidden="true" />
             </div>
-
-            <div class="auth-preview-card app-animate-slide-up">
-                <div class="app-metric">
-                    <div>
-                        <p class="app-metric-label" data-i18n="auth.loginPage.latestScore">Điểm gần nhất</p>
-                        <p class="app-metric-value">86</p>
-                        <span class="app-badge app-badge-success" data-i18n="auth.loginPage.passed">Đạt</span>
-                    </div>
-                    <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
-                </div>
-                <div class="progress-track u-mt-4">
-                    <div class="progress-fill progress-fill-86"></div>
-                </div>
-            </div>
-
-            <div class="auth-spotlight-grid app-animate-stagger">
-                <article class="auth-spotlight-card">
-                    <span data-i18n="auth.loginPage.studentAccount">Học viên</span>
-                    <strong>student01</strong>
-                    <small>123456</small>
-                </article>
-                <article class="auth-spotlight-card">
-                    <span data-i18n="auth.loginPage.adminAccount">Quản trị</span>
-                    <strong>admin</strong>
-                    <small>123456</small>
-                </article>
-            </div>
         </div>
     </div>
 
@@ -57,30 +30,13 @@
             <div class="auth-panel-header">
                 <span class="learning-eyebrow" data-i18n="auth.loginPage.welcome">Chào mừng trở lại</span>
                 <h2 class="section-title" data-i18n="auth.loginPage.signInTitle">Đăng nhập vào lms</h2>
-                <p class="page-muted u-mb-0" data-i18n="auth.loginPage.mockCopy">Sử dụng tài khoản mô phỏng trong giai đoạn chưa tích hợp API.</p>
-            </div>
-
-            <div class="auth-demo-grid" aria-label="Tài khoản mô phỏng" data-i18n-aria="auth.loginPage.mockAccounts">
-                <button class="auth-demo-account" type="button" data-login-role="Student">
-                    <span class="app-avatar" aria-hidden="true"><i class="bi bi-person"></i></span>
-                    <span>
-                        <strong data-i18n="auth.loginPage.studentAccount">Học viên</strong>
-                        <small>student01 / 123456</small>
-                    </span>
-                </button>
-                <button class="auth-demo-account" type="button" data-login-role="Admin">
-                    <span class="app-avatar" aria-hidden="true"><i class="bi bi-shield-lock"></i></span>
-                    <span>
-                        <strong data-i18n="auth.loginPage.adminAccount">Quản trị</strong>
-                        <small>admin / 123456</small>
-                    </span>
-                </button>
+                <p class="page-muted u-mb-0">Nhập tài khoản và mật khẩu của bạn để tiếp tục.</p>
             </div>
 
             <div class="u-flex-column u-gap-3">
                 <label class="auth-field">
                     <span data-i18n="auth.loginPage.username">Tên đăng nhập</span>
-                    <input class="app-input" id="username" name="username" type="text" autocomplete="username" required />
+                    <input class="app-input" id="username" name="username" type="text" autocomplete="username" required autofocus />
                     <small class="auth-error" data-valmsg-for="username"></small>
                 </label>
 

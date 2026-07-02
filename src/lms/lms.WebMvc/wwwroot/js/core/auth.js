@@ -20,6 +20,10 @@
     return Boolean(getAccessToken() && getCurrentUser());
   }
 
+  function getHomePath(user) {
+    return user && user.role === "Admin" ? "/admin" : "/";
+  }
+
   function setSession(session) {
     if (!session) {
       return;
@@ -60,8 +64,18 @@
   }
 
   function logout() {
-    clearSession();
-    window.location.href = "/Auth/Login";
+    const refreshToken = getRefreshToken();
+    const finalize = function () {
+      clearSession();
+      window.location.href = "/Auth/Login";
+    };
+
+    if (!Lms.apiClient || !refreshToken) {
+      finalize();
+      return;
+    }
+
+    Lms.apiClient.post("api/auth/logout", { refreshToken: refreshToken }).always(finalize);
   }
 
   function guardRoute() {
@@ -77,12 +91,12 @@
     }
 
     if (isAdminPath() && user.role !== "Admin") {
-      window.location.href = "/";
+      window.location.href = getHomePath(user);
       return false;
     }
 
     if (!isAdminPath() && user.role === "Admin" && getCurrentPath() === "/") {
-      window.location.href = "/admin";
+      window.location.href = getHomePath(user);
       return false;
     }
 
@@ -96,9 +110,18 @@
       return;
     }
 
-    $(".app-user-name").text(user.fullName || user.userName || "User");
+    const displayName = user.fullName || user.userName || "User";
+
+    $(".app-user-name").text(displayName);
     $(".app-user-role").text(user.role || "User");
-    $(".app-avatar").text((user.fullName || user.userName || "U").trim().charAt(0).toUpperCase());
+    $(".app-avatar").text(displayName.trim().charAt(0).toUpperCase());
+    $("[data-current-user-name]").text(displayName);
+  }
+
+  function bindUserRendering() {
+    $(document).on("lms:i18n:changed", function () {
+      renderCurrentUser();
+    });
   }
 
   Lms.auth = {
@@ -106,6 +129,7 @@
     getRefreshToken,
     getCurrentUser,
     isAuthenticated,
+    getHomePath,
     setSession,
     clearSession,
     handleUnauthorized,
@@ -114,5 +138,6 @@
     renderCurrentUser
   };
 
+  $(bindUserRendering);
   window.Lms = Lms;
 })(window);

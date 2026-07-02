@@ -40,8 +40,22 @@
     }
   }
 
+  function normalizeCertificate(item) {
+    return {
+      id: item.id,
+      examId: item.examId,
+      examName: item.examName || t("common.exam", null, "Bai thi"),
+      studentId: item.userId,
+      studentName: item.userName || t("common.student", null, "Hoc vien"),
+      certificateCode: item.certificateCode || "",
+      issueDate: item.issuedDate,
+      expiryDate: item.expiryDate || null,
+      downloadUrl: "api/certificates/" + encodeURIComponent(item.id) + "/download"
+    };
+  }
+
   function renderPageTitle() {
-    document.title = t("certificates.listPage.title", null, "Chứng chỉ") + " - " + t("common.appName", null, "lms");
+    document.title = t("certificates.listPage.title", null, "Chung chi") + " - " + t("common.appName", null, "lms");
   }
 
   function renderMetrics() {
@@ -67,8 +81,8 @@
       $container.html(
         '<div class="lms-empty-compact">' +
           '<i class="bi bi-award" aria-hidden="true"></i>' +
-          "<h3>Chưa có chứng chỉ</h3>" +
-          "<p>Chứng chỉ sẽ xuất hiện tại đây sau khi bạn đạt điều kiện của bài thi.</p>" +
+          "<h3>Chua co chung chi</h3>" +
+          "<p>Chung chi se xuat hien tai day sau khi ban dat dieu kien cua bai thi.</p>" +
         "</div>"
       );
       return;
@@ -85,7 +99,7 @@
           "<span>" + escapeHtml(latest.certificateCode) + "</span>" +
           "<strong>" + escapeHtml(formatDate(latest.issueDate)) + "</strong>" +
         "</div>" +
-        '<button class="app-button app-button-primary" type="button" data-certificate-action="preview" data-certificate-id="' + latest.id + '">' + escapeHtml(t("certificates.listPage.buttonPreview", null, "Xem trước")) + "</button>" +
+        '<button class="app-button app-button-primary" type="button" data-certificate-action="preview" data-certificate-id="' + latest.id + '">' + escapeHtml(t("certificates.listPage.buttonPreview", null, "Xem truoc")) + "</button>" +
       "</div>"
     );
   }
@@ -94,15 +108,15 @@
     $("#certificateGrid").html(
       '<div class="lms-empty-compact student-certificate-reveal is-visible" data-certificate-reveal>' +
         '<i class="bi bi-search" aria-hidden="true"></i>' +
-        "<h3>" + escapeHtml(t("certificates.listPage.noCertificatesTitle", null, "Không tìm thấy chứng chỉ")) + "</h3>" +
-        "<p>" + escapeHtml(t("certificates.listPage.noCertificatesCopy", null, "Hãy thử tìm bằng mã chứng chỉ hoặc tên bài thi khác.")) + "</p>" +
+        "<h3>" + escapeHtml(t("certificates.listPage.noCertificatesTitle", null, "Khong tim thay chung chi")) + "</h3>" +
+        "<p>" + escapeHtml(t("certificates.listPage.noCertificatesCopy", null, "Hay thu tim bang ma chung chi hoac ten bai thi khac.")) + "</p>" +
       "</div>"
     );
   }
 
   function renderCards() {
     const $grid = $("#certificateGrid").empty();
-    $("[data-certificate-count]").text(t("certificates.listPage.records", { count: state.filteredCertificates.length }, state.filteredCertificates.length + " bản ghi"));
+    $("[data-certificate-count]").text(t("certificates.listPage.records", { count: state.filteredCertificates.length }, state.filteredCertificates.length + " ban ghi"));
 
     if (!state.filteredCertificates.length) {
       renderEmpty();
@@ -117,17 +131,17 @@
           "</div>" +
           '<div class="student-certificate-card-top">' +
             '<span class="student-certificate-seal" aria-hidden="true"><i class="bi bi-award"></i></span>' +
-            '<span class="lms-status-success">' + escapeHtml(t("certificates.listPage.statusIssued", null, "Đã cấp")) + "</span>" +
+            '<span class="lms-status-success">' + escapeHtml(t("certificates.listPage.statusIssued", null, "Da cap")) + "</span>" +
           "</div>" +
           '<h3 class="student-certificate-title">' + escapeHtml(certificate.examName) + "</h3>" +
           '<dl class="student-certificate-meta">' +
-            "<div><dt>" + escapeHtml(t("certificates.listPage.metaCode", null, "Mã chứng chỉ")) + "</dt><dd>" + escapeHtml(certificate.certificateCode) + "</dd></div>" +
-            "<div><dt>" + escapeHtml(t("certificates.listPage.metaStudent", null, "Cấp cho")) + "</dt><dd>" + escapeHtml(certificate.studentName) + "</dd></div>" +
-            "<div><dt>" + escapeHtml(t("certificates.listPage.metaDate", null, "Ngày cấp")) + "</dt><dd>" + escapeHtml(formatDate(certificate.issueDate)) + "</dd></div>" +
+            "<div><dt>" + escapeHtml(t("certificates.listPage.metaCode", null, "Ma chung chi")) + "</dt><dd>" + escapeHtml(certificate.certificateCode) + "</dd></div>" +
+            "<div><dt>" + escapeHtml(t("certificates.listPage.metaStudent", null, "Cap cho")) + "</dt><dd>" + escapeHtml(certificate.studentName) + "</dd></div>" +
+            "<div><dt>" + escapeHtml(t("certificates.listPage.metaDate", null, "Ngay cap")) + "</dt><dd>" + escapeHtml(formatDate(certificate.issueDate)) + "</dd></div>" +
           "</dl>" +
           '<div class="student-certificate-actions">' +
-            '<button class="app-button app-button-secondary" type="button" data-certificate-action="preview" data-certificate-id="' + certificate.id + '">' + escapeHtml(t("certificates.listPage.buttonPreview", null, "Xem trước")) + "</button>" +
-            '<button class="app-button app-button-primary" type="button" data-certificate-action="download" data-certificate-id="' + certificate.id + '">' + escapeHtml(t("certificates.listPage.buttonDownload", null, "Tải xuống")) + "</button>" +
+            '<button class="app-button app-button-secondary" type="button" data-certificate-action="preview" data-certificate-id="' + certificate.id + '">' + escapeHtml(t("certificates.listPage.buttonPreview", null, "Xem truoc")) + "</button>" +
+            '<button class="app-button app-button-primary" type="button" data-certificate-action="download" data-certificate-id="' + certificate.id + '">' + escapeHtml(t("certificates.listPage.buttonDownload", null, "Tai xuong")) + "</button>" +
           "</div>" +
         "</article>"
       );
@@ -161,6 +175,60 @@
     }) || null;
   }
 
+  function buildApiUrl(path) {
+    const normalizedPath = String(path || "").replace(/^\/+/, "");
+    const apiBaseUrl = (Lms.config && Lms.config.apiBaseUrl) || "";
+    return apiBaseUrl.replace(/\/$/, "") + "/" + normalizedPath.replace(/^api\//i, "");
+  }
+
+  function downloadCertificate(certificate) {
+    if (!certificate) {
+      return;
+    }
+
+    const accessToken = Lms.auth && Lms.auth.getAccessToken ? Lms.auth.getAccessToken() : null;
+    fetch(buildApiUrl(certificate.downloadUrl), {
+      method: "GET",
+      headers: accessToken ? { Authorization: "Bearer " + accessToken } : {}
+    }).then(function (response) {
+      if (response.status === 401 && Lms.auth && Lms.auth.handleUnauthorized) {
+        Lms.auth.handleUnauthorized();
+        return null;
+      }
+
+      if (!response.ok) {
+        throw new Error("DOWNLOAD_FAILED");
+      }
+
+      return Promise.all([response.blob(), response.headers.get("Content-Disposition")]);
+    }).then(function (payload) {
+      if (!payload) {
+        return;
+      }
+
+      const blob = payload[0];
+      const contentDisposition = payload[1] || "";
+      const match = /filename\*?=(?:UTF-8''|")?([^\";]+)/i.exec(contentDisposition);
+      const fileName = match
+        ? decodeURIComponent(match[1].replace(/"/g, ""))
+        : (certificate.certificateCode || "certificate") + ".html";
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    }).catch(function () {
+      showToast(
+        "error",
+        t("certificates.listPage.toastDownloadErrorTitle", null, "Khong tai duoc chung chi"),
+        t("certificates.listPage.toastDownloadErrorMessage", null, "Khong the tai tep chung chi tu he thong.")
+      );
+    });
+  }
+
   function showPreview(certificate) {
     if (!certificate || !Lms.ui || !Lms.ui.showModal) {
       return;
@@ -169,8 +237,8 @@
     const modal = $(
       '<div class="linear-certificate-modal">' +
         '<div class="app-modal-header">' +
-          '<h2 class="app-modal-title" data-i18n="certificates.listPage.modalPreviewTitle">' + t("certificates.listPage.modalPreviewTitle", null, "Xem trước chứng chỉ") + "</h2>" +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="certificates.listPage.buttonClose">' + t("certificates.listPage.buttonClose", null, "Đóng") + "</button>" +
+          '<h2 class="app-modal-title" data-i18n="certificates.listPage.modalPreviewTitle">' + t("certificates.listPage.modalPreviewTitle", null, "Xem truoc chung chi") + "</h2>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="certificates.listPage.buttonClose">' + t("certificates.listPage.buttonClose", null, "Dong") + "</button>" +
         "</div>" +
         '<div class="app-modal-body">' +
           '<div class="certificate-preview linear-certificate-preview">' +
@@ -178,7 +246,7 @@
               '<img src="/images/placeholders/certificate-placeholder.svg" alt="" aria-hidden="true" />' +
             "</div>" +
             '<span class="certificate-preview-seal" aria-hidden="true">LMS</span>' +
-            '<p class="certificate-preview-kicker" data-i18n="certificates.listPage.modalAwardTitle">' + t("certificates.listPage.modalAwardTitle", null, "Chứng nhận hoàn thành") + "</p>" +
+            '<p class="certificate-preview-kicker" data-i18n="certificates.listPage.modalAwardTitle">' + t("certificates.listPage.modalAwardTitle", null, "Chung nhan hoan thanh") + "</p>" +
             "<h3></h3>" +
             '<p class="certificate-preview-copy"></p>' +
             '<div class="certificate-preview-meta">' +
@@ -188,25 +256,27 @@
           "</div>" +
         "</div>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="certificates.listPage.buttonClose">' + t("certificates.listPage.buttonClose", null, "Đóng") + "</button>" +
-          '<button class="app-button app-button-primary" type="button" data-certificate-preview-download data-i18n="certificates.listPage.buttonDownload">' + t("certificates.listPage.buttonDownload", null, "Tải xuống") + "</button>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="certificates.listPage.buttonClose">' + t("certificates.listPage.buttonClose", null, "Dong") + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-certificate-preview-download data-i18n="certificates.listPage.buttonDownload">' + t("certificates.listPage.buttonDownload", null, "Tai xuong") + "</button>" +
         "</div>" +
       "</div>"
     );
 
     modal.find("h3").text(certificate.examName);
     modal.find(".certificate-preview-copy").html(
-      t("certificates.listPage.modalAwardCopy", { student: "<strong>" + escapeHtml(certificate.studentName) + "</strong>" }, "Được trao cho <strong>" + escapeHtml(certificate.studentName) + "</strong> vì đã hoàn thành xuất sắc kỳ đánh giá.")
+      t(
+        "certificates.listPage.modalAwardCopy",
+        { student: "<strong>" + escapeHtml(certificate.studentName) + "</strong>" },
+        "Duoc trao cho <strong>" + escapeHtml(certificate.studentName) + "</strong> vi da hoan thanh xuat sac ky danh gia."
+      )
     );
     modal.find(".certificate-preview-meta span").eq(0).text(certificate.certificateCode);
-    modal.find(".certificate-preview-meta span").eq(1).text(t("certificates.listPage.modalIssuedDateText", { date: formatDate(certificate.issueDate) }, "Đã cấp ngày " + formatDate(certificate.issueDate)));
+    modal.find(".certificate-preview-meta span").eq(1).text(
+      t("certificates.listPage.modalIssuedDateText", { date: formatDate(certificate.issueDate) }, "Da cap ngay " + formatDate(certificate.issueDate))
+    );
     modal.find("[data-modal-close]").on("click", Lms.ui.closeModal);
     modal.find("[data-certificate-preview-download]").on("click", function () {
-      showToast(
-        "info",
-        t("certificates.listPage.toastDownloadTitle", null, "Tải xuống mẫu"),
-        t("certificates.listPage.toastDownloadMessage", null, "Tải xuống chứng chỉ sẽ được kết nối với tệp tin thực tế ở giai đoạn sau.")
-      );
+      downloadCertificate(certificate);
     });
 
     Lms.ui.showModal(modal);
@@ -261,11 +331,7 @@
     });
 
     $(document).on("click", "[data-certificate-action='download']", function () {
-      showToast(
-        "info",
-        t("certificates.listPage.toastDownloadTitle", null, "Tải xuống mẫu"),
-        t("certificates.listPage.toastDownloadMessage", null, "Tải xuống chứng chỉ sẽ được kết nối với tệp tin thực tế ở giai đoạn sau.")
-      );
+      downloadCertificate(findCertificate($(this).data("certificate-id")));
     });
 
     $(document).on("lms:i18n:changed", render);
@@ -284,20 +350,22 @@
   }
 
   function loadPageData() {
-    Lms.apiClient.get("certificates.json").done(function (response) {
-      state.certificates = getItems(response).sort(function (a, b) {
+    Lms.apiClient.get("api/certificates?page=1&pageSize=200").done(function (response) {
+      state.certificates = getItems(response).map(normalizeCertificate).sort(function (a, b) {
         return new Date(b.issueDate) - new Date(a.issueDate);
       });
       state.filteredCertificates = state.certificates.slice();
       render();
-    }).fail(function () {
+    }).fail(function (error) {
       state.certificates = [];
       state.filteredCertificates = [];
       render();
       showToast(
         "error",
-        t("certificates.listPage.toastLoadErrorTitle", null, "Chứng chỉ không khả dụng"),
-        t("certificates.listPage.toastLoadErrorMessage", null, "Không thể tải dữ liệu mô phỏng chứng chỉ.")
+        t("certificates.listPage.toastLoadErrorTitle", null, "Chung chi khong kha dung"),
+        error && error.message
+          ? error.message
+          : t("certificates.listPage.toastLoadErrorMessage", null, "Khong the tai du lieu chung chi tu he thong.")
       );
     });
   }

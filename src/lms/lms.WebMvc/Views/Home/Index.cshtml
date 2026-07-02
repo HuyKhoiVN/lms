@@ -6,42 +6,44 @@
 <section class="student-dashboard-page" aria-label="Bảng điều khiển học viên">
     <section class="student-dashboard-command">
         <div class="student-dashboard-welcome">
-            <p class="student-dashboard-kicker">Welcome Back</p>
-            <h1>Chào Học viên Một</h1>
-            <p class="student-dashboard-intro">Bạn có các nhiệm vụ học tập và thi cử cần xử lý trong hôm nay.</p>
+            <p class="student-dashboard-kicker">Learning Dashboard</p>
+            <h1>Chào <span data-current-user-name>Người dùng</span></h1>
+            <p class="student-dashboard-intro">Tổng quan học tập và bài thi của bạn đang được đồng bộ từ hệ thống.</p>
 
-            <ul class="student-dashboard-task-list" aria-label="Tổng quan việc cần làm">
-                <li><strong>2</strong> khóa học đang học</li>
-                <li><strong>1</strong> bài thi cần hoàn thành</li>
-                <li><strong>1</strong> chứng chỉ khả dụng</li>
+            <ul class="student-dashboard-task-list" aria-label="Tổng quan nhanh">
+                <li><strong data-student-metric="courses">--</strong> khóa học</li>
+                <li><strong data-student-metric="pendingExams">--</strong> bài thi đang mở</li>
+                <li><strong data-student-metric="certificates">--</strong> chứng chỉ</li>
             </ul>
 
             <div class="student-dashboard-actions">
-                <a class="app-button app-button-primary" href="#continue-learning">Tiếp tục học</a>
+                <a class="app-button app-button-primary" href="#studentCourseCards">Tiếp tục học</a>
                 <a class="app-button app-button-secondary" asp-area="" asp-controller="Exams" asp-action="Index">Xem bài thi</a>
             </div>
         </div>
 
-        <aside class="student-dashboard-attention" aria-label="Cần xử lý">
+        <aside class="student-dashboard-attention" aria-label="Kết quả gần nhất">
             <div class="student-dashboard-attention-head">
-                <span class="student-dashboard-alert-icon" aria-hidden="true"><i class="bi bi-exclamation-triangle-fill"></i></span>
-                <span>Cần xử lý</span>
+                <span class="student-dashboard-alert-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
+                <span>Kết quả gần nhất</span>
             </div>
-            <h2>Safety Certification Exam</h2>
-            <p class="student-dashboard-due">Hạn còn 2 ngày</p>
+            <h2 data-student-latest-exam>Đang tải...</h2>
+            <p class="student-dashboard-due" data-student-latest-copy>Vui lòng chờ hệ thống đồng bộ dữ liệu.</p>
 
             <dl class="student-dashboard-exam-facts">
                 <div>
-                    <dt>Thời lượng</dt>
-                    <dd>45 phút</dd>
+                    <dt>Điểm số</dt>
+                    <dd><span data-student-hero-score>--</span>/100</dd>
                 </div>
                 <div>
-                    <dt>Điểm đạt</dt>
-                    <dd>80</dd>
+                    <dt>Bài thi cần làm</dt>
+                    <dd data-student-exam-count>--</dd>
                 </div>
             </dl>
 
-            <a class="app-button app-button-primary student-dashboard-start-exam" asp-area="" asp-controller="Exams" asp-action="Start" asp-route-id="1">Thực hiện ngay</a>
+            <div class="student-dashboard-progress-track" aria-hidden="true">
+                <span data-student-latest-progress style="width: 0%"></span>
+            </div>
         </aside>
     </section>
 
@@ -51,56 +53,17 @@
                 <div class="student-dashboard-section-head">
                     <div>
                         <p class="student-dashboard-kicker">Assigned Learning</p>
-                        <h2>Tiếp tục khóa học</h2>
+                        <h2>Khóa học của bạn</h2>
                     </div>
-                    <span class="student-dashboard-count">3 khóa học</span>
+                    <span class="student-dashboard-count" data-student-metric="averageScore">--</span>
                 </div>
 
-                <div class="student-dashboard-course-list">
-                    <article class="student-dashboard-course">
-                        <div>
-                            <h3>Workplace Safety Training</h3>
-                            <p>Current: Emergency Response</p>
-                        </div>
-                        <div class="student-dashboard-course-progress">
-                            <span>76%</span>
-                            <div class="student-dashboard-progress-track" aria-hidden="true">
-                                <span style="width: 76%"></span>
-                            </div>
-                            <small>2 lessons remaining</small>
-                        </div>
-                        <a class="app-button app-button-secondary" asp-area="" asp-controller="LearningMaterials" asp-action="Index">Continue</a>
-                    </article>
-
-                    <article class="student-dashboard-course">
-                        <div>
-                            <h3>Data Privacy Fundamentals</h3>
-                            <p>Current: Handling Personal Data</p>
-                        </div>
-                        <div class="student-dashboard-course-progress">
-                            <span>64%</span>
-                            <div class="student-dashboard-progress-track" aria-hidden="true">
-                                <span style="width: 64%"></span>
-                            </div>
-                            <small>3 lessons remaining</small>
-                        </div>
-                        <a class="app-button app-button-secondary" asp-area="" asp-controller="LearningMaterials" asp-action="Index">Continue</a>
-                    </article>
-
-                    <article class="student-dashboard-course">
-                        <div>
-                            <h3>Internal Compliance Update</h3>
-                            <p>Current: Policy Acknowledgement</p>
-                        </div>
-                        <div class="student-dashboard-course-progress">
-                            <span>92%</span>
-                            <div class="student-dashboard-progress-track" aria-hidden="true">
-                                <span style="width: 92%"></span>
-                            </div>
-                            <small>1 lesson remaining</small>
-                        </div>
-                        <a class="app-button app-button-secondary" asp-area="" asp-controller="LearningMaterials" asp-action="Index">Continue</a>
-                    </article>
+                <div class="page-muted u-mb-4">Điểm trung bình từ các bài thi đã nộp.</div>
+                <div class="page-grid page-grid-3" id="studentCourseCards">
+                    <div class="app-loading">
+                        <span class="app-spinner" aria-hidden="true"></span>
+                        <span>Đang tải khóa học...</span>
+                    </div>
                 </div>
             </section>
         </div>
@@ -109,153 +72,34 @@
             <section class="student-dashboard-card student-dashboard-progress-summary">
                 <div class="student-dashboard-section-head">
                     <div>
-                        <p class="student-dashboard-kicker">Progress</p>
-                        <h2>Tiến độ</h2>
+                        <p class="student-dashboard-kicker">Assessments</p>
+                        <h2>Bài thi đang mở</h2>
                     </div>
-                    <strong>77%</strong>
                 </div>
-                <div class="student-dashboard-progress-track student-dashboard-progress-track-lg" aria-label="Overall Progress 77%">
-                    <span style="width: 77%"></span>
+                <div id="studentPendingExams">
+                    <div class="app-loading">
+                        <span class="app-spinner" aria-hidden="true"></span>
+                        <span>Đang tải bài thi...</span>
+                    </div>
                 </div>
-                <dl class="student-dashboard-summary-list">
-                    <div>
-                        <dt>Completed Courses</dt>
-                        <dd>8</dd>
-                    </div>
-                    <div>
-                        <dt>Pending Exams</dt>
-                        <dd>1</dd>
-                    </div>
-                    <div>
-                        <dt>Certificates</dt>
-                        <dd>1</dd>
-                    </div>
-                </dl>
-            </section>
-
-            <section class="student-dashboard-card student-dashboard-notifications">
-                <div class="student-dashboard-section-head">
-                    <h2>Thông báo</h2>
-                    <span class="student-dashboard-count">3 mới</span>
-                </div>
-                <ul>
-                    <li>Bạn được giao khóa học mới</li>
-                    <li>Safety Exam còn 2 ngày</li>
-                    <li>Chứng chỉ đã được cấp</li>
-                </ul>
             </section>
 
             <section class="student-dashboard-card student-dashboard-certificate">
                 <div class="student-dashboard-section-head">
-                    <h2>Certificate</h2>
+                    <h2>Chứng chỉ mới nhất</h2>
                     <i class="bi bi-award" aria-hidden="true"></i>
                 </div>
-                <h3>Safety Certification</h3>
-                <p>Issued: <strong>17/06/2026</strong></p>
-                <a class="app-button app-button-secondary" asp-area="" asp-controller="Certificates" asp-action="Index">View</a>
+                <div id="studentCertificateSummary">
+                    <div class="app-loading">
+                        <span class="app-spinner" aria-hidden="true"></span>
+                        <span>Đang tải chứng chỉ...</span>
+                    </div>
+                </div>
             </section>
         </aside>
     </section>
-
-    <section class="student-dashboard-card student-dashboard-table-card student-dashboard-exams">
-        <div class="student-dashboard-section-head">
-            <div>
-                <p class="student-dashboard-kicker">Assessment</p>
-                <h2>Upcoming Exams</h2>
-            </div>
-            <span class="student-dashboard-status-warning">Due soon</span>
-        </div>
-
-        <div class="student-dashboard-table-wrap">
-            <table class="student-dashboard-table">
-                <thead>
-                    <tr>
-                        <th>Exam Name</th>
-                        <th>Duration</th>
-                        <th>Pass Score</th>
-                        <th>Due Date</th>
-                        <th>Status</th>
-                        <th class="student-dashboard-table-action">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td data-label="Exam Name"><strong>Safety Certification Exam</strong></td>
-                        <td data-label="Duration">45 phút</td>
-                        <td data-label="Pass Score">80</td>
-                        <td data-label="Due Date">Due in 2 days</td>
-                        <td data-label="Status"><span class="student-dashboard-status-warning">Required</span></td>
-                        <td data-label="Action" class="student-dashboard-table-action">
-                            <a class="app-button app-button-primary" asp-area="" asp-controller="Exams" asp-action="Start" asp-route-id="1">Start Exam</a>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td data-label="Exam Name"><strong>Data Privacy Check</strong></td>
-                        <td data-label="Duration">30 phút</td>
-                        <td data-label="Pass Score">75</td>
-                        <td data-label="Due Date">Due in 7 days</td>
-                        <td data-label="Status"><span class="student-dashboard-status-info">Scheduled</span></td>
-                        <td data-label="Action" class="student-dashboard-table-action">
-                            <a class="app-button app-button-secondary" asp-area="" asp-controller="Exams" asp-action="Index">View</a>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
-
-    <section class="student-dashboard-card student-dashboard-table-card">
-        <div class="student-dashboard-section-head">
-            <div>
-                <p class="student-dashboard-kicker">Performance</p>
-                <h2>Recent Results</h2>
-            </div>
-            <a asp-area="" asp-controller="Results" asp-action="Index">Xem tất cả</a>
-        </div>
-
-        <div class="student-dashboard-table-wrap">
-            <table class="student-dashboard-table">
-                <thead>
-                    <tr>
-                        <th>Exam</th>
-                        <th>Score</th>
-                        <th>Pass / Fail</th>
-                        <th>Date</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td data-label="Exam">Fire Safety Basics</td>
-                        <td data-label="Score"><strong>86/100</strong></td>
-                        <td data-label="Pass / Fail"><span class="student-dashboard-status-success">Pass</span></td>
-                        <td data-label="Date">17/06/2026</td>
-                    </tr>
-                    <tr>
-                        <td data-label="Exam">Workplace Conduct</td>
-                        <td data-label="Score"><strong>91/100</strong></td>
-                        <td data-label="Pass / Fail"><span class="student-dashboard-status-success">Pass</span></td>
-                        <td data-label="Date">04/06/2026</td>
-                    </tr>
-                    <tr>
-                        <td data-label="Exam">Information Security</td>
-                        <td data-label="Score"><strong>78/100</strong></td>
-                        <td data-label="Pass / Fail"><span class="student-dashboard-status-success">Pass</span></td>
-                        <td data-label="Date">28/05/2026</td>
-                    </tr>
-                    <tr>
-                        <td data-label="Exam">Compliance Refresher</td>
-                        <td data-label="Score"><strong>69/100</strong></td>
-                        <td data-label="Pass / Fail"><span class="student-dashboard-status-danger">Fail</span></td>
-                        <td data-label="Date">12/05/2026</td>
-                    </tr>
-                    <tr>
-                        <td data-label="Exam">Onboarding Assessment</td>
-                        <td data-label="Score"><strong>88/100</strong></td>
-                        <td data-label="Pass / Fail"><span class="student-dashboard-status-success">Pass</span></td>
-                        <td data-label="Date">20/04/2026</td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-    </section>
 </section>
+
+@section Scripts {
+    <script src="~/js/pages/student-dashboard.js" asp-append-version="true"></script>
+}

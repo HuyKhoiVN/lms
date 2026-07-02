@@ -1037,7 +1037,7 @@ textarea.form-control {
 }
 
 /* Reusable CSS-only image placeholders */
-.mock-img {
+.media-placeholder {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1054,7 +1054,7 @@ textarea.form-control {
   user-select: none;
 }
 
-.mock-img::before {
+.media-placeholder::before {
   content: "";
   position: absolute;
   inset: 0;
@@ -1062,26 +1062,26 @@ textarea.form-control {
   pointer-events: none;
 }
 
-.mock-img span {
+.media-placeholder span {
   position: relative;
   z-index: 1;
 }
 
-.mock-img-hero {
+.media-placeholder-hero {
   height: 260px;
   aspect-ratio: 16 / 9;
   border-radius: 16px;
   box-shadow: inset 0 0 40px rgba(99, 91, 255, 0.06);
 }
 
-.mock-img-course {
+.media-placeholder-course {
   height: 180px;
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: 14px;
 }
 
-.mock-img-certificate {
+.media-placeholder-certificate {
   width: 88px;
   height: 72px;
   border-radius: 8px;
@@ -1090,13 +1090,13 @@ textarea.form-control {
   color: #b45309;
 }
 
-.mock-img-avatar {
+.media-placeholder-avatar {
   width: 40px;
   height: 40px;
   border-radius: 50%;
 }
 
-.mock-img-exam {
+.media-placeholder-exam {
   width: 48px;
   height: 48px;
   border-radius: 12px;

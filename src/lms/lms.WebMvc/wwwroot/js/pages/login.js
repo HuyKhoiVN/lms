@@ -2,20 +2,6 @@
   "use strict";
 
   const Lms = window.Lms || {};
-  const accounts = {
-    admin: {
-      password: "123456",
-      role: "Admin",
-      fullName: "Administrator",
-      redirectUrl: "/admin"
-    },
-    student01: {
-      password: "123456",
-      role: "Student",
-      fullName: "Student One",
-      redirectUrl: "/"
-    }
-  };
 
   function clearErrors() {
     $(".auth-error").text("");
@@ -30,40 +16,14 @@
   }
 
   function renderPageTitle() {
-    document.title = t("auth.loginPage.title", "Đăng nhập") + " - lms";
+    document.title = t("auth.loginPage.title", "Dang nhap") + " - lms";
   }
 
-  function setAccount(role) {
-    $("[data-login-role]").removeClass("active");
-    $("[data-login-role='" + role + "']").addClass("active");
-
-    if (role === "Admin") {
-      $("#username").val("admin");
-    } else {
-      $("#username").val("student01");
-    }
-
-    $("#password").val("123456").trigger("focus");
-  }
-
-  function login(username, password) {
-    const account = accounts[username.toLowerCase()];
-
-    if (!account || account.password !== password) {
-      return null;
-    }
-
-    return {
-      accessToken: `mock-access-token-${account.role.toLowerCase()}`,
-      refreshToken: `mock-refresh-token-${account.role.toLowerCase()}`,
-      user: {
-        id: account.role === "Admin" ? 1 : 2,
-        userName: username,
-        fullName: account.fullName,
-        role: account.role
-      },
-      redirectUrl: account.redirectUrl
-    };
+  function getRedirectUrl(session) {
+    const user = session && session.user ? session.user : null;
+    return Lms.auth && Lms.auth.getHomePath
+      ? Lms.auth.getHomePath(user)
+      : (user && user.role === "Admin" ? "/admin" : "/");
   }
 
   function init() {
@@ -71,13 +31,9 @@
 
     if (Lms.auth && Lms.auth.isAuthenticated()) {
       const user = Lms.auth.getCurrentUser();
-      window.location.href = user && user.role === "Admin" ? "/admin" : "/";
+      window.location.href = Lms.auth.getHomePath ? Lms.auth.getHomePath(user) : "/";
       return;
     }
-
-    $("[data-login-role]").on("click", function () {
-      setAccount($(this).data("login-role"));
-    });
 
     $("#loginForm").on("submit", function (event) {
       event.preventDefault();
@@ -88,39 +44,57 @@
       const password = $("#password").val();
 
       if (!username) {
-        showError("username", t("auth.loginPage.usernameRequired", "Vui lòng nhập tên đăng nhập."));
+        showError("username", t("auth.loginPage.usernameRequired", "Vui long nhap ten dang nhap."));
       }
 
       if (!password) {
-        showError("password", t("auth.loginPage.passwordRequired", "Vui lòng nhập mật khẩu."));
+        showError("password", t("auth.loginPage.passwordRequired", "Vui long nhap mat khau."));
       }
 
       if (!username || !password) {
         return;
       }
 
-      const session = login(username, password);
+      Lms.ui.setButtonLoading(submitButton, t("auth.loginPage.signingIn", "Dang dang nhap"));
 
-      if (!session) {
+      Lms.apiClient.post("api/auth/login", {
+        userName: username,
+        password: password
+      }).done(function (response) {
+        const session = response && response.data ? response.data : null;
+
+        if (!session) {
+          Lms.ui.clearButtonLoading(submitButton);
+          if (Lms.ui) {
+            Lms.ui.showToast({
+              type: "error",
+              title: t("auth.loginPage.loginFailedTitle", "Dang nhap that bai"),
+              message: t("auth.loginPage.loginFailedMessage", "Khong the dang nhap vao he thong.")
+            });
+          }
+          return;
+        }
+
+        Lms.auth.setSession(session);
+        const currentUser = Lms.auth.getCurrentUser ? Lms.auth.getCurrentUser() : session.user;
+
+        const params = new URLSearchParams(window.location.search);
+        const returnUrl = params.get("returnUrl");
+        const redirectUrl = getRedirectUrl({ user: currentUser });
+        const canUseReturnUrl = returnUrl && (currentUser.role === "Admin" || !returnUrl.toLowerCase().startsWith("/admin"));
+        window.location.href = canUseReturnUrl ? returnUrl : redirectUrl;
+      }).fail(function (error) {
+        Lms.ui.clearButtonLoading(submitButton);
         if (Lms.ui) {
           Lms.ui.showToast({
             type: "error",
-            title: t("auth.loginPage.loginFailedTitle", "Đăng nhập thất bại"),
-            message: t("auth.loginPage.loginFailedMessage", "Hãy dùng admin / 123456 hoặc student01 / 123456.")
+            title: t("auth.loginPage.loginFailedTitle", "Dang nhap that bai"),
+            message: error && error.message
+              ? error.message
+              : t("auth.loginPage.loginFailedMessage", "Khong the dang nhap vao he thong.")
           });
         }
-        return;
-      }
-
-      Lms.ui.setButtonLoading(submitButton, t("auth.loginPage.signingIn", "Đang đăng nhập"));
-      Lms.auth.setSession(session);
-
-      window.setTimeout(function () {
-        const params = new URLSearchParams(window.location.search);
-        const returnUrl = params.get("returnUrl");
-        const canUseReturnUrl = returnUrl && (session.user.role === "Admin" || !returnUrl.toLowerCase().startsWith("/admin"));
-        window.location.href = canUseReturnUrl ? returnUrl : session.redirectUrl;
-      }, 450);
+      });
     });
 
     $(document).on("lms:i18n:changed", renderPageTitle);

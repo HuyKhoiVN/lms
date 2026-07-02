@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using lms.Application.DTOs.Common;
 using lms.Application.DTOs.Exams;
@@ -14,6 +15,8 @@ public interface IExamAssignmentService
     Task<ApiResponse<object>> RemoveUserAssignmentAsync(int assignmentId, int? adminId);
     Task<ApiResponse<object>> RemoveGroupAssignmentAsync(int assignmentId, int? adminId);
     Task<ApiResponse<PagedResult<ExamAssignmentResponse>>> GetAssignmentsAsync(ExamAssignmentFilterRequest filter);
+    Task<ApiResponse<PagedResult<GroupExamAssignmentResponse>>> GetGroupAssignmentsAsync(GroupExamAssignmentFilterRequest filter);
+    Task<ApiResponse<List<CourseExamResponse>>> GetCourseExamsAsync(int courseId);
     Task<ApiResponse<CourseExamResponse>> AddCourseExamAsync(int courseId, AddCourseExamRequest request, int? adminId);
     Task<ApiResponse<object>> RemoveCourseExamAsync(int courseId, int examId, int? adminId);
 }

@@ -2,7 +2,6 @@
   "use strict";
 
   const Lms = window.Lms || {};
-  const localResultsKey = "lms.student.examResults";
   const state = {
     results: [],
     filteredResults: [],
@@ -31,10 +30,6 @@
     return passed ? "lms-status-success" : "lms-status-danger";
   }
 
-  function getLocalResults() {
-    return Lms.storage ? Lms.storage.get(localResultsKey, []) : [];
-  }
-
   function escapeHtml(value) {
     return String(value ?? "")
       .replace(/&/g, "&amp;")
@@ -44,8 +39,29 @@
       .replace(/'/g, "&#039;");
   }
 
+  function showToast(type, title, message) {
+    if (Lms.ui && Lms.ui.showToast) {
+      Lms.ui.showToast({ type: type, title: title, message: message });
+    }
+  }
+
+  function normalizeResult(item) {
+    return {
+      id: item.id,
+      attemptId: item.attemptId,
+      examId: item.examId,
+      examName: item.examName || t("common.exam", null, "Bai thi"),
+      studentId: item.userId,
+      studentName: item.userName || t("common.student", null, "Hoc vien"),
+      score: Number(item.score || 0),
+      passed: Boolean(item.passed),
+      submittedAt: item.completedDate,
+      durationMinutes: item.durationMinutes || null
+    };
+  }
+
   function renderPageTitle() {
-    document.title = t("results.listPage.title", null, "Kết quả học tập") + " - " + t("common.appName", null, "lms");
+    document.title = t("results.listPage.title", null, "Ket qua hoc tap") + " - " + t("common.appName", null, "lms");
   }
 
   function renderMetrics() {
@@ -78,8 +94,8 @@
       $container.html(
         '<div class="lms-empty-compact">' +
           '<i class="bi bi-clipboard2-data" aria-hidden="true"></i>' +
-          "<h3>Chưa có kết quả</h3>" +
-          "<p>Hoàn thành bài thi đầu tiên để xem tóm tắt kết quả tại đây.</p>" +
+          "<h3>Chua co ket qua</h3>" +
+          "<p>Hoan thanh bai thi dau tien de xem tom tat ket qua tai day.</p>" +
         "</div>"
       );
       return;
@@ -87,14 +103,18 @@
 
     $container.html(
       '<div class="student-result-spotlight-card">' +
-        '<span class="' + getBadgeClass(latest.passed) + '">' + escapeHtml(latest.passed ? t("results.listPage.passed", null, "Đạt") : t("results.listPage.failed", null, "Không đạt")) + "</span>" +
+        '<span class="' + getBadgeClass(latest.passed) + '">' + escapeHtml(latest.passed ? t("results.listPage.passed", null, "Dat") : t("results.listPage.failed", null, "Khong dat")) + "</span>" +
         "<h3>" + escapeHtml(latest.examName) + "</h3>" +
         "<p>" + escapeHtml(formatDate(latest.submittedAt)) + "</p>" +
         '<div class="student-result-spotlight-score">' +
           "<strong>" + escapeHtml(latest.score) + "/100</strong>" +
-          "<span>" + escapeHtml(t("results.listPage.durationValue", { minutes: latest.durationMinutes }, latest.durationMinutes + " phút")) + "</span>" +
+          "<span>" + escapeHtml(
+            latest.durationMinutes
+              ? t("results.listPage.durationValue", { minutes: latest.durationMinutes }, latest.durationMinutes + " phut")
+              : t("results.listPage.durationUnavailable", null, "Khong co thoi gian lam bai")
+          ) + "</span>" +
         "</div>" +
-        '<a class="app-button app-button-primary" href="/Results/Detail/' + encodeURIComponent(latest.id) + '">' + escapeHtml(t("results.listPage.buttonDetail", null, "Chi tiết")) + "</a>" +
+        '<a class="app-button app-button-primary" href="/Results/Detail/' + encodeURIComponent(latest.id) + '">' + escapeHtml(t("results.listPage.buttonDetail", null, "Chi tiet")) + "</a>" +
       "</div>"
     );
   }
@@ -103,8 +123,8 @@
     return (
       '<div class="lms-empty-compact student-result-reveal is-visible" data-result-list-reveal>' +
         '<i class="bi bi-search" aria-hidden="true"></i>' +
-        "<h3>" + escapeHtml(t("results.listPage.noResultsTitle", null, "Không tìm thấy kết quả")) + "</h3>" +
-        "<p>" + escapeHtml(t("results.listPage.noResultsCopy", null, "Thử tên bài thi hoặc trạng thái khác để xem kết quả phù hợp hơn.")) + "</p>" +
+        "<h3>" + escapeHtml(t("results.listPage.noResultsTitle", null, "Khong tim thay ket qua")) + "</h3>" +
+        "<p>" + escapeHtml(t("results.listPage.noResultsCopy", null, "Thu ten bai thi hoac trang thai khac de xem ket qua phu hop hon.")) + "</p>" +
       "</div>"
     );
   }
@@ -112,7 +132,7 @@
   function renderRows() {
     const $rows = $("#studentResultRows").empty();
 
-    $("[data-result-count]").text(t("results.listPage.records", { count: state.filteredResults.length }, state.filteredResults.length + " bản ghi"));
+    $("[data-result-count]").text(t("results.listPage.records", { count: state.filteredResults.length }, state.filteredResults.length + " ban ghi"));
 
     if (!state.filteredResults.length) {
       $rows.html(emptyMarkup());
@@ -121,6 +141,10 @@
     }
 
     state.filteredResults.forEach(function (result) {
+      const durationText = result.durationMinutes
+        ? result.durationMinutes + " phut"
+        : "--";
+
       const $row = $(
         '<article class="student-result-row student-result-reveal ' + (result.passed ? "is-passed" : "is-failed") + '" data-result-list-reveal>' +
           '<div class="student-result-row-main">' +
@@ -128,24 +152,24 @@
               '<span class="student-result-avatar" aria-hidden="true"><i class="bi ' + (result.passed ? "bi-check2-circle" : "bi-x-circle") + '"></i></span>' +
               "<div>" +
                 "<h3>" + escapeHtml(result.examName) + "</h3>" +
-                "<p>" + escapeHtml(result.studentName || t("common.student", null, "Học viên")) + "</p>" +
+                "<p>" + escapeHtml(result.studentName) + "</p>" +
               "</div>" +
             "</div>" +
             '<div class="student-result-row-meta">' +
-              '<span class="' + getBadgeClass(result.passed) + '">' + escapeHtml(result.passed ? t("results.listPage.passed", null, "Đạt") : t("results.listPage.failed", null, "Không đạt")) + "</span>" +
+              '<span class="' + getBadgeClass(result.passed) + '">' + escapeHtml(result.passed ? t("results.listPage.passed", null, "Dat") : t("results.listPage.failed", null, "Khong dat")) + "</span>" +
               "<span>" + escapeHtml(formatDate(result.submittedAt)) + "</span>" +
             "</div>" +
           "</div>" +
           '<div class="student-result-row-stat">' +
-            "<span>Điểm số</span>" +
+            "<span>Diem so</span>" +
             "<strong>" + escapeHtml(result.score) + "/100</strong>" +
           "</div>" +
           '<div class="student-result-row-stat">' +
-            "<span>Thời gian làm bài</span>" +
-            "<strong>" + escapeHtml(result.durationMinutes) + " phút</strong>" +
+            "<span>Thoi gian lam bai</span>" +
+            "<strong>" + escapeHtml(durationText) + "</strong>" +
           "</div>" +
           '<div class="student-result-row-action">' +
-            '<a class="app-button app-button-secondary" href="/Results/Detail/' + encodeURIComponent(result.id) + '">' + escapeHtml(t("results.listPage.buttonDetail", null, "Chi tiết")) + "</a>" +
+            '<a class="app-button app-button-secondary" href="/Results/Detail/' + encodeURIComponent(result.id) + '">' + escapeHtml(t("results.listPage.buttonDetail", null, "Chi tiet")) + "</a>" +
           "</div>" +
         "</article>"
       );
@@ -245,16 +269,23 @@
   }
 
   function loadPageData() {
-    Lms.apiClient.get("results.json").done(function (response) {
-      state.results = getLocalResults().concat(getItems(response)).sort(function (a, b) {
+    Lms.apiClient.get("api/results/my?page=1&pageSize=200").done(function (response) {
+      state.results = getItems(response).map(normalizeResult).sort(function (a, b) {
         return new Date(b.submittedAt) - new Date(a.submittedAt);
       });
       state.filteredResults = state.results.slice();
       render();
-    }).fail(function () {
-      state.results = getLocalResults();
-      state.filteredResults = state.results.slice();
+    }).fail(function (error) {
+      state.results = [];
+      state.filteredResults = [];
       render();
+      showToast(
+        "error",
+        t("results.listPage.toastLoadErrorTitle", null, "Khong tai duoc ket qua"),
+        error && error.message
+          ? error.message
+          : t("results.listPage.toastLoadErrorMessage", null, "Khong the tai lich su ket qua tu he thong.")
+      );
     });
   }
 

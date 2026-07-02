@@ -8,6 +8,7 @@ builder.Services
     .AddLmsInfrastructure()
     .AddLmsAuthentication(builder.Configuration)
     .AddLmsControllers()
+    .AddLmsCors()
     .AddLmsSwagger();
 
 var app = builder.Build();
@@ -18,6 +19,7 @@ app.UseLmsExceptionHandling();
 app.UseLmsSwagger();
 
 app.UseHttpsRedirection();
+app.UseCors("LmsWebMvc");
 app.UseAuthentication();
 app.UseAuthorization();
 

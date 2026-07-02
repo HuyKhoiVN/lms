@@ -11,11 +11,12 @@
     $(selector).text(value);
   }
 
-  function unwrapAjaxResponse(response) {
-    return Array.isArray(response) ? response[0] : response;
+  function getData(response) {
+    const payload = Array.isArray(response) ? response[0] : response;
+    return payload && payload.data ? payload.data : null;
   }
 
-  function initMockPreview() {
+  function initPreview() {
     if (!Lms.apiClient) {
       return;
     }
@@ -29,26 +30,26 @@
 
   function loadPageData() {
     $.when(
-      Lms.apiClient.get("users.json"),
-      Lms.apiClient.get("courses.json"),
-      Lms.apiClient.get("questions.json"),
-      Lms.apiClient.get("exams.json")
+      Lms.apiClient.get("api/users?page=1&pageSize=1"),
+      Lms.apiClient.get("api/courses?page=1&pageSize=1"),
+      Lms.apiClient.get("api/questions?page=1&pageSize=1"),
+      Lms.apiClient.get("api/exams?page=1&pageSize=1")
     ).done(function (usersResponse, coursesResponse, questionsResponse, examsResponse) {
-      const users = unwrapAjaxResponse(usersResponse);
-      const courses = unwrapAjaxResponse(coursesResponse);
-      const questions = unwrapAjaxResponse(questionsResponse);
-      const exams = unwrapAjaxResponse(examsResponse);
+      const users = getData(usersResponse) || {};
+      const courses = getData(coursesResponse) || {};
+      const questions = getData(questionsResponse) || {};
+      const exams = getData(examsResponse) || {};
 
-      setMetric("[data-mock-metric='users']", users.data.total);
-      setMetric("[data-mock-metric='courses']", courses.data.total);
-      setMetric("[data-mock-metric='questions']", questions.data.total);
-      setMetric("[data-mock-metric='exams']", exams.data.total);
+      setMetric("[data-api-metric='users']", users.total || 0);
+      setMetric("[data-api-metric='courses']", courses.total || 0);
+      setMetric("[data-api-metric='questions']", questions.total || 0);
+      setMetric("[data-api-metric='exams']", exams.total || 0);
 
       if (Lms.ui && Lms.ui.showToast) {
         Lms.ui.showToast({
           type: "success",
-          title: t("dashboard.previewPage.toastLoadedTitle", null, "Đã tải dữ liệu mô phỏng"),
-          message: t("dashboard.previewPage.toastLoadedMsg", null, "Các tệp JSON nền tảng đã sẵn sàng cho các màn hình giao diện."),
+          title: t("dashboard.previewPage.toastLoadedTitle", null, "Đã tải dữ liệu"),
+          message: t("dashboard.previewPage.toastLoadedMsg", null, "Các chỉ số tổng quan đã được tải từ API."),
           duration: 2500
         });
       }
@@ -56,12 +57,12 @@
       if (Lms.ui && Lms.ui.showToast) {
         Lms.ui.showToast({
           type: "error",
-          title: t("dashboard.previewPage.toastErrorTitle", null, "Lỗi dữ liệu mô phỏng"),
-          message: t("dashboard.previewPage.toastErrorMsg", null, "Không thể tải một hoặc nhiều tệp JSON nền tảng.")
+          title: t("dashboard.previewPage.toastErrorTitle", null, "Lỗi dữ liệu"),
+          message: t("dashboard.previewPage.toastErrorMsg", null, "Không thể tải các chỉ số tổng quan từ API.")
         });
       }
     });
   }
 
-  $(initMockPreview);
+  $(initPreview);
 })(window, jQuery);

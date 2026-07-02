@@ -74,8 +74,11 @@ public sealed class ExamAttemptService : IExamAttemptService
         if (!await _accessService.HasAccessAsync(userId, exam.Id))
             return Fail<StartExamResponse>("Bạn không có quyền thi bài thi này.");
 
+        var now = DateTime.UtcNow;
+        var active = await _attemptRepo.GetActiveByUserAndExamAsync(userId, exam.Id);
+
         // Attempt limit
-        if (exam.AttemptLimit.HasValue)
+        if (exam.AttemptLimit.HasValue && active == null)
         {
             var count = await _attemptRepo.GetAttemptCountAsync(userId, exam.Id);
             if (count >= exam.AttemptLimit.Value)
@@ -83,9 +86,9 @@ public sealed class ExamAttemptService : IExamAttemptService
         }
 
         // Check already has active attempt → return it
-        var active = await _attemptRepo.GetActiveByUserAndExamAsync(userId, exam.Id);
         if (active != null)
         {
+            await RepairAttemptRuntimeAsync(active, exam, now);
             var existingResponse = await BuildStartResponseAsync(active, exam);
             return ApiResponse<StartExamResponse>.SuccessResult(existingResponse, "Bạn đang có bài thi chưa hoàn thành.");
         }
@@ -94,10 +97,10 @@ public sealed class ExamAttemptService : IExamAttemptService
         var attempt = new ExamAttempt
         {
             ExamId = exam.Id, UserId = userId,
-            StartedAt = DateTime.UtcNow,
+            StartedAt = now,
             DurationMinutes = exam.DurationMinutes,
             Status = AttemptStatus.InProgress,
-            IsDelete = false, CreatedDate = DateTime.UtcNow
+            IsDelete = false, CreatedDate = now
         };
         await _attemptRepo.AddAsync(attempt);
 
@@ -108,7 +111,7 @@ public sealed class ExamAttemptService : IExamAttemptService
         await _eventRepo.AddAsync(new AttemptEvent
         {
             AttemptId = attempt.Id, EventType = "Start",
-            EventData = $"{{\"ExamId\":{exam.Id}}}", CreatedDate = DateTime.UtcNow
+            EventData = $"{{\"ExamId\":{exam.Id}}}", CreatedDate = now
         });
 
         await _audit.LogActionAsync(userId, "START_EXAM", "ExamAttempt", attempt.Id,
@@ -130,14 +133,16 @@ public sealed class ExamAttemptService : IExamAttemptService
             return Fail<ExamAttemptTakingResponse>("Lần thi đã kết thúc.");
 
         var exam = await _examRepo.GetByIdAsync(attempt.ExamId);
+        await RepairAttemptRuntimeAsync(attempt, exam, DateTime.UtcNow);
+        var durationMinutes = ResolveDurationMinutes(attempt, exam);
         var questions = await BuildQuestionsAsync(attemptId);
         var saved = await GetSavedAnswersAsync(attemptId);
 
         return ApiResponse<ExamAttemptTakingResponse>.SuccessResult(new ExamAttemptTakingResponse
         {
             AttemptId = attempt.Id, ExamId = attempt.ExamId,
-            ExamName = exam?.Name ?? "", DurationMinutes = attempt.DurationMinutes ?? 0,
-            StartedAt = attempt.StartedAt ?? DateTime.UtcNow,
+            ExamName = exam?.Name ?? "", DurationMinutes = durationMinutes,
+            StartedAt = AsUtc(attempt.StartedAt ?? DateTime.UtcNow),
             Status = attempt.Status ?? "", Questions = questions, SavedAnswers = saved
         });
     }
@@ -223,7 +228,7 @@ public sealed class ExamAttemptService : IExamAttemptService
         var exam = await _examRepo.GetByIdAsync(attempt.ExamId);
         bool passed = exam != null && score >= exam.PassScore;
 
-        attempt.Status = AttemptStatus.Submitted;
+        attempt.Status = request.AutoSubmit ? AttemptStatus.AutoSubmitted : AttemptStatus.Submitted;
         attempt.SubmittedAt = DateTime.UtcNow;
         attempt.Score = score;
         attempt.Passed = passed;
@@ -232,12 +237,12 @@ public sealed class ExamAttemptService : IExamAttemptService
 
         await _eventRepo.AddAsync(new AttemptEvent
         {
-            AttemptId = attemptId, EventType = "Submit",
+            AttemptId = attemptId, EventType = request.AutoSubmit ? "AutoSubmit" : "Submit",
             EventData = $"{{\"Score\":{score},\"Passed\":{passed.ToString().ToLower()}}}",
             CreatedDate = DateTime.UtcNow
         });
 
-        await _audit.LogActionAsync(userId, "SUBMIT_EXAM", "ExamAttempt", attempt.Id,
+        await _audit.LogActionAsync(userId, request.AutoSubmit ? "AUTO_SUBMIT_EXAM" : "SUBMIT_EXAM", "ExamAttempt", attempt.Id,
             null, $"{{\"Score\":{score},\"Passed\":{passed.ToString().ToLower()}}}");
 
         // Generate ExamResult + ExamResultDetail records
@@ -250,6 +255,68 @@ public sealed class ExamAttemptService : IExamAttemptService
     }
 
     // ─── Private helpers ───────────────────────────────────────────────────────
+
+    private async Task RepairAttemptRuntimeAsync(ExamAttempt attempt, Exam? exam, DateTime now)
+    {
+        var durationMinutes = ResolveDurationMinutes(attempt, exam);
+        if (durationMinutes <= 0)
+        {
+            return;
+        }
+
+        var shouldResetStart = !attempt.StartedAt.HasValue
+            || IsAttemptExpired(attempt, durationMinutes, now);
+        var shouldUpdateDuration = !attempt.DurationMinutes.HasValue
+            || attempt.DurationMinutes.Value <= 0;
+
+        if (!shouldResetStart && !shouldUpdateDuration)
+        {
+            return;
+        }
+
+        if (shouldResetStart)
+        {
+            attempt.StartedAt = now;
+        }
+
+        if (shouldUpdateDuration)
+        {
+            attempt.DurationMinutes = durationMinutes;
+        }
+
+        attempt.UpdateDate = now;
+        await _attemptRepo.UpdateAsync(attempt);
+    }
+
+    private static int ResolveDurationMinutes(ExamAttempt attempt, Exam? exam)
+    {
+        if (attempt.DurationMinutes.GetValueOrDefault() > 0)
+        {
+            return attempt.DurationMinutes!.Value;
+        }
+
+        return exam?.DurationMinutes > 0 ? exam.DurationMinutes : 0;
+    }
+
+    private static bool IsAttemptExpired(ExamAttempt attempt, int durationMinutes, DateTime now)
+    {
+        if (!attempt.StartedAt.HasValue || durationMinutes <= 0)
+        {
+            return false;
+        }
+
+        return attempt.StartedAt.Value.AddMinutes(durationMinutes) <= now;
+    }
+
+    private static DateTime AsUtc(DateTime value)
+    {
+        return value.Kind switch
+        {
+            DateTimeKind.Utc => value,
+            DateTimeKind.Local => value.ToUniversalTime(),
+            _ => DateTime.SpecifyKind(value, DateTimeKind.Utc)
+        };
+    }
 
     private async Task CreateSnapshotsAsync(int attemptId, Exam exam)
     {
@@ -297,8 +364,8 @@ public sealed class ExamAttemptService : IExamAttemptService
         return new StartExamResponse
         {
             AttemptId = attempt.Id, ExamId = exam.Id, ExamName = exam.Name,
-            DurationMinutes = exam.DurationMinutes,
-            StartedAt = attempt.StartedAt ?? DateTime.UtcNow,
+            DurationMinutes = ResolveDurationMinutes(attempt, exam),
+            StartedAt = AsUtc(attempt.StartedAt ?? DateTime.UtcNow),
             Questions = questions
         };
     }

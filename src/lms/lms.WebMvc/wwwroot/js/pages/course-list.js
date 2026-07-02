@@ -19,15 +19,6 @@
     return Lms.i18n ? Lms.i18n.t(key, params, fallback) : (fallback || key);
   }
 
-  function unwrap(response) {
-    return Array.isArray(response) ? response[0] : response;
-  }
-
-  function getItems(response) {
-    const payload = unwrap(response);
-    return payload && payload.data && Array.isArray(payload.data.items) ? payload.data.items : [];
-  }
-
   function escapeHtml(value) {
     return String(value ?? "")
       .replace(/&/g, "&amp;")
@@ -43,6 +34,34 @@
     }
   }
 
+  function getResponsePayload(response) {
+    return Array.isArray(response) ? response[0] : response;
+  }
+
+  function getResponseData(response) {
+    const payload = getResponsePayload(response);
+    return payload && payload.data ? payload.data : null;
+  }
+
+  function getResponseItems(response) {
+    const data = getResponseData(response);
+    return data && Array.isArray(data.items) ? data.items : [];
+  }
+
+  function mapCourse(raw) {
+    return {
+      id: Number(raw.id),
+      code: raw.code || "",
+      name: raw.name || "",
+      description: raw.description || "",
+      isPublished: Boolean(raw.isPublished),
+      status: raw.isPublished ? "Published" : "Draft",
+      materialCount: 0,
+      assignedCount: null,
+      completionRate: 0
+    };
+  }
+
   function getBadgeClass(status) {
     return status === "Published" ? "app-badge-success" : "app-badge-muted";
   }
@@ -52,11 +71,11 @@
   }
 
   function renderPageTitle() {
-    document.title = t("courses.listPage.title", null, "Khóa học") + " - " + t("common.appName", null, "lms");
+    document.title = t("courses.listPage.title", null, "Khoa hoc") + " - " + t("common.appName", null, "lms");
   }
 
   function getInitials(name) {
-    return String(name || t("courses.listPage.courseFallback", null, "Khóa học"))
+    return String(name || t("courses.listPage.courseFallback", null, "Khoa hoc"))
       .split(" ")
       .filter(Boolean)
       .slice(0, 2)
@@ -88,12 +107,6 @@
     return state.filteredCourses.slice(start, start + state.pageSize);
   }
 
-  function getNextCourseId() {
-    return state.courses.reduce(function (maxId, course) {
-      return Math.max(maxId, Number(course.id) || 0);
-    }, 0) + 1;
-  }
-
   function findCourse(courseId) {
     return state.courses.find(function (course) {
       return course.id === Number(courseId);
@@ -103,6 +116,24 @@
   function setProgress($element, value) {
     const safeValue = Math.max(0, Math.min(100, Number(value) || 0));
     $element.css("width", safeValue + "%");
+  }
+
+  function formatAssignedCount(value) {
+    return value === null || typeof value === "undefined" ? "--" : String(value);
+  }
+
+  function syncCourseDerivedFields(course, materials, progressData) {
+    const relatedMaterials = materials.filter(function (material) {
+      return Number(material.courseId) === course.id;
+    });
+    const details = progressData && Array.isArray(progressData.details) ? progressData.details : [];
+    const uniqueUsers = new Set(details.map(function (detail) {
+      return Number(detail.userId);
+    }).filter(Boolean));
+
+    course.materialCount = relatedMaterials.length;
+    course.completionRate = Number(progressData && progressData.overallPercent ? progressData.overallPercent : 0);
+    course.assignedCount = uniqueUsers.size ? uniqueUsers.size : null;
   }
 
   function renderMetrics() {
@@ -128,8 +159,8 @@
     const content =
       '<div class="app-empty-state">' +
         '<div class="image-slot image-slot-md image-slot-course u-mb-4" data-image-label="Empty courses illustration 320x180"><img src="/images/placeholders/course-placeholder.svg" alt="" aria-hidden="true" /></div>' +
-        '<h3 class="app-empty-title">' + escapeHtml(t("courses.listPage.noCoursesTitle", null, "Không tìm thấy khóa học")) + "</h3>" +
-        '<p class="app-empty-copy">' + escapeHtml(t("courses.listPage.noCoursesCopy", null, "Thử từ khóa, trạng thái hoặc mức hoàn thành khác.")) + "</p>" +
+        '<h3 class="app-empty-title">' + escapeHtml(t("courses.listPage.noCoursesTitle", null, "Khong tim thay khoa hoc")) + "</h3>" +
+        '<p class="app-empty-copy">' + escapeHtml(t("courses.listPage.noCoursesCopy", null, "Thu tu khoa, trang thai hoac muc hoan thanh khac.")) + "</p>" +
       "</div>";
 
     return colspan ? '<tr><td colspan="' + colspan + '">' + content + "</td></tr>" : content;
@@ -157,19 +188,19 @@
               '<span class="app-badge ' + getBadgeClass(course.status) + '">' + escapeHtml(translateStatus(course.status)) + "</span>" +
             "</div>" +
             '<h3 class="app-card-title">' + escapeHtml(course.name) + "</h3>" +
-            '<p class="app-card-subtitle">' + escapeHtml(course.description) + "</p>" +
+            '<p class="app-card-subtitle">' + escapeHtml(course.description || course.code || "") + "</p>" +
             '<div class="admin-summary-line u-mt-4">' +
-              "<span>" + escapeHtml(t("courses.listPage.materials", null, "Tài liệu")) + "</span><strong>" + escapeHtml(course.materialCount) + "</strong>" +
+              "<span>" + escapeHtml(t("courses.listPage.materials", null, "Tai lieu")) + "</span><strong>" + escapeHtml(course.materialCount) + "</strong>" +
             "</div>" +
             '<div class="admin-summary-line u-mt-4">' +
-              "<span>" + escapeHtml(t("courses.listPage.assigned", null, "Đã giao")) + "</span><strong>" + escapeHtml(course.assignedCount) + "</strong>" +
+              "<span>" + escapeHtml(t("courses.listPage.assigned", null, "Da giao")) + "</span><strong>" + escapeHtml(formatAssignedCount(course.assignedCount)) + "</strong>" +
             "</div>" +
             '<div class="progress-track u-mt-4"><div class="progress-fill"></div></div>' +
           "</div>" +
           '<div class="app-card-footer">' +
             '<div class="admin-row-actions">' +
               '<button class="app-button app-button-secondary" type="button" data-course-action="assign" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.assign", null, "Giao")) + "</button>" +
-              '<button class="app-button app-button-primary" type="button" data-course-action="edit" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.edit", null, "Sửa")) + "</button>" +
+              '<button class="app-button app-button-primary" type="button" data-course-action="edit" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.edit", null, "Sua")) + "</button>" +
             "</div>" +
           "</div>" +
         "</article>"
@@ -195,18 +226,18 @@
           "<td>" +
             '<div class="admin-user-cell">' +
               '<span class="app-avatar admin-thumbnail-avatar" aria-hidden="true"><img src="' + getCourseImage(course.id || 0) + '" alt="" /></span>' +
-              "<div><strong>" + escapeHtml(course.name) + "</strong><span>" + escapeHtml(course.description) + "</span></div>" +
+              "<div><strong>" + escapeHtml(course.name) + "</strong><span>" + escapeHtml(course.description || course.code || "") + "</span></div>" +
             "</div>" +
           "</td>" +
           '<td><span class="app-badge ' + getBadgeClass(course.status) + '">' + escapeHtml(translateStatus(course.status)) + "</span></td>" +
           "<td>" + escapeHtml(course.materialCount) + "</td>" +
-          "<td>" + escapeHtml(course.assignedCount) + "</td>" +
-          '<td><div class="admin-course-progress"><div class="progress-track"><div class="progress-fill"></div></div><span>' + escapeHtml(course.completionRate) + "%</span></div></td>" +
+          "<td>" + escapeHtml(formatAssignedCount(course.assignedCount)) + "</td>" +
+          '<td><div class="admin-course-progress"><div class="progress-track"><div class="progress-fill"></div></div><span>' + escapeHtml(Math.round(course.completionRate)) + "%</span></div></td>" +
           '<td class="u-text-right">' +
             '<div class="admin-row-actions">' +
-              '<button class="app-button app-button-secondary" type="button" data-course-action="detail" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.detail", null, "Chi tiết")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-course-action="detail" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.detail", null, "Chi tiet")) + "</button>" +
               '<button class="app-button app-button-secondary" type="button" data-course-action="assign" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.assign", null, "Giao")) + "</button>" +
-              '<button class="app-button app-button-secondary" type="button" data-course-action="edit" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.edit", null, "Sửa")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-course-action="edit" data-course-id="' + course.id + '">' + escapeHtml(t("courses.listPage.edit", null, "Sua")) + "</button>" +
             "</div>" +
           "</td>" +
         "</tr>"
@@ -223,12 +254,12 @@
     const startRecord = state.filteredCourses.length ? (state.page - 1) * state.pageSize + 1 : 0;
     const endRecord = Math.min(state.page * state.pageSize, state.filteredCourses.length);
 
-    $("[data-course-result-count]").text(t("courses.listPage.records", { count: state.filteredCourses.length }, state.filteredCourses.length + " bản ghi"));
+    $("[data-course-result-count]").text(t("courses.listPage.records", { count: state.filteredCourses.length }, state.filteredCourses.length + " ban ghi"));
     $("[data-course-page-info]").text(
       t(
         "courses.listPage.showing",
         { start: startRecord, end: endRecord, total: state.filteredCourses.length },
-        "Hiển thị " + startRecord + "-" + endRecord + " trên " + state.filteredCourses.length + " khóa học"
+        "Hien thi " + startRecord + "-" + endRecord + " tren " + state.filteredCourses.length + " khoa hoc"
       )
     );
     $("[data-course-page='prev']").prop("disabled", state.page <= 1);
@@ -244,7 +275,9 @@
   }
 
   function render() {
-    if (!state.loaded) return;
+    if (!state.loaded) {
+      return;
+    }
     renderPageTitle();
     renderMetrics();
     renderCards();
@@ -256,11 +289,14 @@
     const keyword = state.search.trim().toLowerCase();
 
     state.filteredCourses = state.courses.filter(function (course) {
-      const matchesKeyword = !keyword || course.name.toLowerCase().includes(keyword) || course.description.toLowerCase().includes(keyword);
+      const matchesKeyword = !keyword
+        || course.name.toLowerCase().includes(keyword)
+        || String(course.description || "").toLowerCase().includes(keyword)
+        || String(course.code || "").toLowerCase().includes(keyword);
       const matchesStatus = !state.status || course.status === state.status;
-      const matchesCompletion = !state.completion ||
-        (state.completion === "high" && Number(course.completionRate) >= 70) ||
-        (state.completion === "low" && Number(course.completionRate) < 70);
+      const matchesCompletion = !state.completion
+        || (state.completion === "high" && Number(course.completionRate) >= 70)
+        || (state.completion === "low" && Number(course.completionRate) < 70);
 
       return matchesKeyword && matchesStatus && matchesCompletion;
     });
@@ -274,10 +310,8 @@
     return {
       name: $form.find("[name='name']").val().trim(),
       description: $form.find("[name='description']").val().trim(),
-      status: $form.find("[name='status']").val(),
-      materialCount: Number($form.find("[name='materialCount']").val()),
-      assignedCount: Number($form.find("[name='assignedCount']").val()),
-      completionRate: Number($form.find("[name='completionRate']").val())
+      code: $form.find("[name='code']").val().trim(),
+      status: $form.find("[name='status']").val()
     };
   }
 
@@ -299,25 +333,15 @@
     clearFormErrors(form);
 
     if (!values.name || values.name.length < 3) {
-      setFieldError(form, "name", t("courses.listPage.nameMin", null, "Tên khóa học phải có ít nhất 3 ký tự."));
+      setFieldError(form, "name", t("courses.listPage.nameMin", null, "Ten khoa hoc phai co it nhat 3 ky tu."));
       valid = false;
     }
     if (!values.description || values.description.length < 10) {
-      setFieldError(form, "description", t("courses.listPage.descriptionMin", null, "Mô tả phải có ít nhất 10 ký tự."));
+      setFieldError(form, "description", t("courses.listPage.descriptionMin", null, "Mo ta phai co it nhat 10 ky tu."));
       valid = false;
     }
     if (!values.status) {
-      setFieldError(form, "status", t("courses.listPage.statusRequired", null, "Chọn trạng thái."));
-      valid = false;
-    }
-    ["materialCount", "assignedCount"].forEach(function (fieldName) {
-      if (!Number.isInteger(values[fieldName]) || values[fieldName] < 0) {
-        setFieldError(form, fieldName, t("courses.listPage.wholeNumber", null, "Nhập số nguyên lớn hơn hoặc bằng 0."));
-        valid = false;
-      }
-    });
-    if (!Number.isInteger(values.completionRate) || values.completionRate < 0 || values.completionRate > 100) {
-      setFieldError(form, "completionRate", t("courses.listPage.completionRange", null, "Tỷ lệ hoàn thành phải là số nguyên từ 0 đến 100."));
+      setFieldError(form, "status", t("courses.listPage.statusRequired", null, "Chon trang thai."));
       valid = false;
     }
 
@@ -325,9 +349,18 @@
       return course.id !== editingCourseId && course.name.toLowerCase() === values.name.toLowerCase();
     });
     if (duplicateName) {
-      setFieldError(form, "name", t("courses.listPage.duplicateName", null, "Tên khóa học đã tồn tại."));
+      setFieldError(form, "name", t("courses.listPage.duplicateName", null, "Ten khoa hoc da ton tai."));
       valid = false;
     }
+
+    const duplicateCode = values.code && state.courses.some(function (course) {
+      return course.id !== editingCourseId && String(course.code || "").toLowerCase() === values.code.toLowerCase();
+    });
+    if (duplicateCode) {
+      setFieldError(form, "code", t("courses.listPage.duplicateCode", null, "Ma khoa hoc da ton tai."));
+      valid = false;
+    }
+
     return valid;
   }
 
@@ -336,32 +369,70 @@
     const modal = $(
       "<div>" +
         '<div class="app-modal-header"><div>' +
-          '<h2 class="app-modal-title">' + escapeHtml(isEdit ? t("courses.listPage.editCourse", null, "Sửa khóa học") : t("courses.listPage.createCourseModal", null, "Tạo khóa học")) + "</h2>" +
-          '<p class="app-card-subtitle">' + escapeHtml(isEdit ? t("courses.listPage.editSubtitle", null, "Cập nhật thông tin khóa học mô phỏng.") : t("courses.listPage.createSubtitle", null, "Thêm khóa học mô phỏng mới trong bộ nhớ.")) + "</p>" +
-        '</div><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.close", null, "Đóng")) + "</button></div>" +
+          '<h2 class="app-modal-title">' + escapeHtml(isEdit ? t("courses.listPage.editCourse", null, "Sua khoa hoc") : t("courses.listPage.createCourseModal", null, "Tao khoa hoc")) + "</h2>" +
+          '<p class="app-card-subtitle">' + escapeHtml(isEdit ? t("courses.listPage.editSubtitle", null, "Cap nhat thong tin khoa hoc.") : t("courses.listPage.createSubtitle", null, "Them khoa hoc moi vao he thong.")) + "</p>" +
+        '</div><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.close", null, "Dong")) + "</button></div>" +
         '<form class="app-modal-body admin-user-form" novalidate>' +
-          '<label class="auth-field">' + escapeHtml(t("courses.listPage.courseName", null, "Tên khóa học")) + '<input class="app-input" name="name" type="text" autocomplete="off" /><span class="auth-error" data-course-error="name"></span></label>' +
-          '<label class="auth-field">' + escapeHtml(t("courses.listPage.description", null, "Mô tả")) + '<textarea class="app-input admin-course-textarea" name="description" rows="3"></textarea><span class="auth-error" data-course-error="description"></span></label>' +
+          '<label class="auth-field">' + escapeHtml(t("courses.listPage.courseName", null, "Ten khoa hoc")) + '<input class="app-input" name="name" type="text" autocomplete="off" /><span class="auth-error" data-course-error="name"></span></label>' +
+          '<label class="auth-field">' + escapeHtml(t("courses.listPage.description", null, "Mo ta")) + '<textarea class="app-input admin-course-textarea" name="description" rows="3"></textarea><span class="auth-error" data-course-error="description"></span></label>' +
           '<div class="admin-user-form-grid">' +
-            '<label class="auth-field">' + escapeHtml(t("courses.listPage.status", null, "Trạng thái")) + '<select class="app-select" name="status"><option value="">' + escapeHtml(t("courses.listPage.selectStatus", null, "Chọn trạng thái")) + '</option><option value="Published">' + escapeHtml(t("courses.listPage.published", null, "Đã xuất bản")) + '</option><option value="Draft">' + escapeHtml(t("courses.listPage.draft", null, "Bản nháp")) + '</option></select><span class="auth-error" data-course-error="status"></span></label>' +
-            '<label class="auth-field">' + escapeHtml(t("courses.listPage.materialCount", null, "Tài liệu")) + '<input class="app-input" name="materialCount" type="number" min="0" step="1" /><span class="auth-error" data-course-error="materialCount"></span></label>' +
-          "</div>" +
-          '<div class="admin-user-form-grid">' +
-            '<label class="auth-field">' + escapeHtml(t("courses.listPage.assignedCount", null, "Số lượt giao")) + '<input class="app-input" name="assignedCount" type="number" min="0" step="1" /><span class="auth-error" data-course-error="assignedCount"></span></label>' +
-            '<label class="auth-field">' + escapeHtml(t("courses.listPage.completionRate", null, "Tỷ lệ hoàn thành")) + '<input class="app-input" name="completionRate" type="number" min="0" max="100" step="1" /><span class="auth-error" data-course-error="completionRate"></span></label>' +
+            '<label class="auth-field">' + escapeHtml(t("courses.listPage.courseCode", null, "Ma khoa hoc")) + '<input class="app-input" name="code" type="text" autocomplete="off" /><span class="auth-error" data-course-error="code"></span></label>' +
+            '<label class="auth-field">' + escapeHtml(t("courses.listPage.status", null, "Trang thai")) + '<select class="app-select" name="status"><option value="">' + escapeHtml(t("courses.listPage.selectStatus", null, "Chon trang thai")) + '</option><option value="Published">' + escapeHtml(t("courses.listPage.published", null, "Da xuat ban")) + '</option><option value="Draft">' + escapeHtml(t("courses.listPage.draft", null, "Ban nhap")) + '</option></select><span class="auth-error" data-course-error="status"></span></label>' +
           "</div>" +
         "</form>" +
-        '<div class="app-modal-footer"><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.cancel", null, "Hủy")) + '</button><button class="app-button app-button-primary" type="button" data-course-save>' + escapeHtml(isEdit ? t("courses.listPage.saveChanges", null, "Lưu thay đổi") : t("courses.listPage.createCourse", null, "Tạo khóa học")) + "</button></div>" +
+        '<div class="app-modal-footer"><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.cancel", null, "Huy")) + '</button><button class="app-button app-button-primary" type="button" data-course-save>' + escapeHtml(isEdit ? t("courses.listPage.saveChanges", null, "Luu thay doi") : t("courses.listPage.createCourse", null, "Tao khoa hoc")) + "</button></div>" +
       "</div>"
     );
 
     modal.find("[name='name']").val(course ? course.name : "");
     modal.find("[name='description']").val(course ? course.description : "");
+    modal.find("[name='code']").val(course ? course.code : "");
     modal.find("[name='status']").val(course ? course.status : "Draft");
-    modal.find("[name='materialCount']").val(course ? course.materialCount : 0);
-    modal.find("[name='assignedCount']").val(course ? course.assignedCount : 0);
-    modal.find("[name='completionRate']").val(course ? course.completionRate : 0);
     return modal;
+  }
+
+  function saveCourse(editingCourseId, values) {
+    const request = {
+      name: values.name,
+      description: values.description,
+      code: values.code || null,
+      isPublished: values.status === "Published"
+    };
+
+    const action = editingCourseId
+      ? Lms.apiClient.put("api/courses/" + editingCourseId, request)
+      : Lms.apiClient.post("api/courses", request);
+
+    action.done(function (response) {
+      const data = getResponseData(response);
+      const saved = mapCourse(data || request);
+      const existing = editingCourseId ? findCourse(editingCourseId) : null;
+
+      if (existing) {
+        saved.materialCount = existing.materialCount;
+        saved.assignedCount = existing.assignedCount;
+        saved.completionRate = existing.completionRate;
+        Object.assign(existing, saved);
+      } else {
+        state.courses.unshift(saved);
+        state.page = 1;
+      }
+
+      Lms.ui.closeModal();
+      applyFilters();
+      showToast(
+        "success",
+        editingCourseId ? t("courses.listPage.courseUpdatedTitle", null, "Da cap nhat khoa hoc") : t("courses.listPage.courseCreatedTitle", null, "Da tao khoa hoc"),
+        editingCourseId
+          ? t("courses.listPage.courseUpdatedMessage", { name: saved.name }, saved.name + " da duoc cap nhat.")
+          : t("courses.listPage.courseCreatedMessage", { name: saved.name }, saved.name + " da duoc them.")
+      );
+    }).fail(function (xhr) {
+      const message = xhr && xhr.responseJSON && xhr.responseJSON.message
+        ? xhr.responseJSON.message
+        : t("courses.listPage.saveErrorMessage", null, "Khong the luu khoa hoc.");
+      showToast("error", t("courses.listPage.saveErrorTitle", null, "Luu khoa hoc that bai"), message);
+    });
   }
 
   function showCourseForm(courseId) {
@@ -369,7 +440,7 @@
     const course = editingCourseId ? findCourse(editingCourseId) : null;
 
     if (editingCourseId && !course) {
-      showToast("error", t("courses.listPage.courseNotFoundTitle", null, "Không tìm thấy khóa học"), t("courses.listPage.courseNotFoundMessage", null, "Không tìm thấy khóa học đã chọn."));
+      showToast("error", t("courses.listPage.courseNotFoundTitle", null, "Khong tim thay khoa hoc"), t("courses.listPage.courseNotFoundMessage", null, "Khong tim thay khoa hoc da chon."));
       return;
     }
 
@@ -377,22 +448,10 @@
     const form = modal.find("form")[0];
     modal.find("[data-modal-close]").on("click", Lms.ui.closeModal);
     modal.find("[data-course-save]").on("click", function () {
-      if (!validateCourseForm(form, editingCourseId)) return;
-      const values = getFormValues(form);
-
-      if (editingCourseId) {
-        const target = findCourse(editingCourseId);
-        Object.assign(target, values);
-        showToast("success", t("courses.listPage.courseUpdatedTitle", null, "Đã cập nhật khóa học"), t("courses.listPage.courseUpdatedMessage", { name: target.name }, target.name + " đã được cập nhật."));
-      } else {
-        const newCourse = { id: getNextCourseId(), ...values };
-        state.courses.unshift(newCourse);
-        state.page = 1;
-        showToast("success", t("courses.listPage.courseCreatedTitle", null, "Đã tạo khóa học"), t("courses.listPage.courseCreatedMessage", { name: newCourse.name }, newCourse.name + " đã được thêm."));
+      if (!validateCourseForm(form, editingCourseId)) {
+        return;
       }
-
-      Lms.ui.closeModal();
-      applyFilters();
+      saveCourse(editingCourseId, getFormValues(form));
     });
     Lms.ui.showModal(modal);
   }
@@ -400,21 +459,23 @@
   function buildAssignForm(course) {
     const modal = $(
       "<div>" +
-        '<div class="app-modal-header"><div><h2 class="app-modal-title">' + escapeHtml(t("courses.listPage.assignCourseTitle", null, "Giao khóa học")) + '</h2><p class="app-card-subtitle"></p></div><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.close", null, "Đóng")) + "</button></div>" +
+        '<div class="app-modal-header"><div><h2 class="app-modal-title">' + escapeHtml(t("courses.listPage.assignCourseTitle", null, "Giao khoa hoc")) + '</h2><p class="app-card-subtitle"></p></div><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.close", null, "Dong")) + "</button></div>" +
         '<form class="app-modal-body admin-user-form" novalidate>' +
-          '<label class="auth-field">' + escapeHtml(t("courses.listPage.assignToUser", null, "Giao cho người dùng")) + '<select class="app-select" name="userId"></select></label>' +
-          '<label class="auth-field">' + escapeHtml(t("courses.listPage.assignToGroup", null, "Giao cho nhóm")) + '<select class="app-select" name="groupId"></select></label>' +
-          '<p class="page-muted u-mb-0">' + escapeHtml(t("courses.listPage.assignHelp", null, "Thao tác mô phỏng này chỉ tăng số lượng giao trong bộ nhớ.")) + "</p>" +
+          '<label class="auth-field">' + escapeHtml(t("courses.listPage.assignToUser", null, "Giao cho nguoi dung")) + '<select class="app-select" name="userId"></select></label>' +
+          '<label class="auth-field">' + escapeHtml(t("courses.listPage.assignToGroup", null, "Giao cho nhom")) + '<select class="app-select" name="groupId"></select></label>' +
+          '<p class="page-muted u-mb-0">' + escapeHtml(t("courses.listPage.assignHelp", null, "Chon hoc vien hoac nhom de gan khoa hoc.")) + "</p>" +
         "</form>" +
-        '<div class="app-modal-footer"><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.cancel", null, "Hủy")) + '</button><button class="app-button app-button-primary" type="button" data-course-confirm-assign>' + escapeHtml(t("courses.listPage.assign", null, "Giao")) + "</button></div>" +
+        '<div class="app-modal-footer"><button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("courses.listPage.cancel", null, "Huy")) + '</button><button class="app-button app-button-primary" type="button" data-course-confirm-assign>' + escapeHtml(t("courses.listPage.assign", null, "Giao")) + "</button></div>" +
       "</div>"
     );
 
     modal.find(".app-card-subtitle").text(course.name);
-    const $userSelect = modal.find("[name='userId']").append('<option value="">' + escapeHtml(t("courses.listPage.noIndividualUser", null, "Không chọn người dùng riêng lẻ")) + "</option>");
-    const $groupSelect = modal.find("[name='groupId']").append('<option value="">' + escapeHtml(t("courses.listPage.noGroup", null, "Không chọn nhóm")) + "</option>");
-    state.users.filter(function (user) { return user.role === "Student"; }).forEach(function (user) {
-      $userSelect.append('<option value="' + user.id + '">' + escapeHtml(user.fullName) + "</option>");
+    const $userSelect = modal.find("[name='userId']").append('<option value="">' + escapeHtml(t("courses.listPage.noIndividualUser", null, "Khong chon nguoi dung rieng le")) + "</option>");
+    const $groupSelect = modal.find("[name='groupId']").append('<option value="">' + escapeHtml(t("courses.listPage.noGroup", null, "Khong chon nhom")) + "</option>");
+    state.users.filter(function (user) {
+      return user.role === "Student";
+    }).forEach(function (user) {
+      $userSelect.append('<option value="' + user.id + '">' + escapeHtml(user.fullName || user.userName) + "</option>");
     });
     state.groups.forEach(function (group) {
       $groupSelect.append('<option value="' + group.id + '">' + escapeHtml(group.name) + "</option>");
@@ -425,7 +486,7 @@
   function showAssignForm(courseId) {
     const course = findCourse(courseId);
     if (!course) {
-      showToast("error", t("courses.listPage.courseNotFoundTitle", null, "Không tìm thấy khóa học"), t("courses.listPage.courseNotFoundMessage", null, "Không tìm thấy khóa học đã chọn."));
+      showToast("error", t("courses.listPage.courseNotFoundTitle", null, "Khong tim thay khoa hoc"), t("courses.listPage.courseNotFoundMessage", null, "Khong tim thay khoa hoc da chon."));
       return;
     }
 
@@ -435,13 +496,29 @@
       const userId = modal.find("[name='userId']").val();
       const groupId = modal.find("[name='groupId']").val();
       if (!userId && !groupId) {
-        showToast("warning", t("courses.listPage.chooseAssignmentTitle", null, "Chọn đối tượng giao"), t("courses.listPage.chooseAssignmentMessage", null, "Chọn người dùng hoặc nhóm trước khi giao."));
+        showToast("warning", t("courses.listPage.chooseAssignmentTitle", null, "Chon doi tuong giao"), t("courses.listPage.chooseAssignmentMessage", null, "Chon nguoi dung hoac nhom truoc khi giao."));
         return;
       }
-      course.assignedCount += (userId ? 1 : 0) + (groupId ? 1 : 0);
-      Lms.ui.closeModal();
-      applyFilters();
-      showToast("success", t("courses.listPage.courseAssignedTitle", null, "Đã giao khóa học"), t("courses.listPage.courseAssignedMessage", { name: course.name }, "Số lượt giao của " + course.name + " đã được cập nhật."));
+
+      const request = {
+        userIds: userId ? [Number(userId)] : [],
+        groupIds: groupId ? [Number(groupId)] : []
+      };
+
+      Lms.apiClient.post("api/courses/" + course.id + "/assign", request).done(function () {
+        if (course.assignedCount === null) {
+          course.assignedCount = 0;
+        }
+        course.assignedCount += request.userIds.length + request.groupIds.length;
+        Lms.ui.closeModal();
+        applyFilters();
+        showToast("success", t("courses.listPage.courseAssignedTitle", null, "Da giao khoa hoc"), t("courses.listPage.courseAssignedMessage", { name: course.name }, "Da cap nhat giao cho " + course.name + "."));
+      }).fail(function (xhr) {
+        const message = xhr && xhr.responseJSON && xhr.responseJSON.message
+          ? xhr.responseJSON.message
+          : t("courses.listPage.assignErrorMessage", null, "Khong the giao khoa hoc.");
+        showToast("error", t("courses.listPage.assignErrorTitle", null, "Giao khoa hoc that bai"), message);
+      });
     });
     Lms.ui.showModal(modal);
   }
@@ -486,38 +563,92 @@
       state.page = Number($(this).data("course-page-number"));
       render();
     });
-    $(document).on("click", "[data-course-action='create']", function () { showCourseForm(); });
-    $(document).on("click", "[data-course-action='edit']", function () { showCourseForm($(this).data("course-id")); });
-    $(document).on("click", "[data-course-action='assign']", function () { showAssignForm($(this).data("course-id")); });
-    $(document).on("click", "[data-course-action='detail']", function () { window.location.href = "/admin/courses/detail/" + $(this).data("course-id"); });
+    $(document).on("click", "[data-course-action='create']", function () {
+      showCourseForm();
+    });
+    $(document).on("click", "[data-course-action='edit']", function () {
+      showCourseForm($(this).data("course-id"));
+    });
+    $(document).on("click", "[data-course-action='assign']", function () {
+      showAssignForm($(this).data("course-id"));
+    });
+    $(document).on("click", "[data-course-action='detail']", function () {
+      window.location.href = "/admin/courses/detail/" + $(this).data("course-id");
+    });
     $(document).on("click", "[data-course-action='export']", function () {
-      showToast("info", t("courses.listPage.exportTitle", null, "Xuất khóa học"), t("courses.listPage.exportMessage", null, "Chức năng xuất sẽ được nối ở task báo cáo/xuất dữ liệu."));
+      showToast("info", t("courses.listPage.exportTitle", null, "Xuat khoa hoc"), t("courses.listPage.exportMessage", null, "Chuc nang xuat se duoc noi o phase bao cao/xuat du lieu."));
     });
     $(document).on("lms:i18n:changed", render);
   }
 
+  function renderLoadError(message) {
+    $("#courseTableRows").html(
+      '<tr><td colspan="6"><div class="app-empty-state"><div class="app-empty-icon" aria-hidden="true">!</div><h3 class="app-empty-title">' +
+      escapeHtml(t("courses.listPage.loadErrorTitle", null, "Khong the tai khoa hoc")) +
+      "</h3><p class=\"app-empty-copy\">" +
+      escapeHtml(message || t("courses.listPage.loadErrorCopy", null, "Vui long kiem tra API khoa hoc.")) +
+      "</p></div></td></tr>"
+    );
+  }
+
+  function loadUsersAndGroups() {
+    return $.when(
+      Lms.apiClient.get("api/users?page=1&pageSize=200"),
+      Lms.apiClient.get("api/groups?page=1&pageSize=200")
+    ).done(function (usersResponse, groupsResponse) {
+      state.users = getResponseItems(usersResponse);
+      state.groups = getResponseItems(groupsResponse);
+    });
+  }
+
+  function loadProgressForCourses(courses, materials) {
+    if (!courses.length) {
+      state.courses = [];
+      return $.Deferred().resolve().promise();
+    }
+
+    const requests = courses.map(function (course) {
+      return Lms.apiClient.get("api/courses/" + course.id + "/progress");
+    });
+
+    return $.when.apply($, requests).done(function () {
+      const responses = requests.length === 1 ? [arguments] : Array.prototype.slice.call(arguments);
+      state.courses = courses.map(function (course, index) {
+        const progressData = getResponseData(responses[index]);
+        syncCourseDerivedFields(course, materials, progressData);
+        return course;
+      });
+    }).fail(function () {
+      state.courses = courses.map(function (course) {
+        syncCourseDerivedFields(course, materials, null);
+        return course;
+      });
+      showToast("warning", t("courses.listPage.progressWarningTitle", null, "Chua tai du tien do"), t("courses.listPage.progressWarningMessage", null, "Danh sach khoa hoc van hien thi, nhung thong ke tien do co the chua day du."));
+    });
+  }
+
   function loadCourses() {
     renderPageTitle();
+
     $.when(
-      Lms.apiClient.get("courses.json"),
-      Lms.apiClient.get("users.json"),
-      Lms.apiClient.get("groups.json")
-    ).done(function (coursesResponse, usersResponse, groupsResponse) {
-      state.courses = getItems(coursesResponse).map(function (course) { return { ...course }; });
-      state.users = getItems(usersResponse);
-      state.groups = getItems(groupsResponse);
-      state.filteredCourses = state.courses.slice();
-      state.loaded = true;
-      render();
-    }).fail(function () {
-      $("#courseTableRows").html(
-        '<tr><td colspan="6"><div class="app-empty-state"><div class="app-empty-icon" aria-hidden="true">!</div><h3 class="app-empty-title">' +
-        escapeHtml(t("courses.listPage.loadErrorTitle", null, "Không thể tải khóa học")) +
-        "</h3><p class=\"app-empty-copy\">" +
-        escapeHtml(t("courses.listPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/courses.json.")) +
-        "</p></div></td></tr>"
-      );
-      showToast("error", t("courses.listPage.dataErrorTitle", null, "Lỗi dữ liệu khóa học"), t("courses.listPage.dataErrorMessage", null, "Không thể tải dữ liệu mô phỏng danh sách khóa học."));
+      Lms.apiClient.get("api/courses?page=1&pageSize=200"),
+      Lms.apiClient.get("api/learning-materials?page=1&pageSize=500"),
+      loadUsersAndGroups()
+    ).done(function (coursesResponse, materialsResponse) {
+      const courses = getResponseItems(coursesResponse).map(mapCourse);
+      const materials = getResponseItems(materialsResponse);
+
+      loadProgressForCourses(courses, materials).always(function () {
+        state.filteredCourses = state.courses.slice();
+        state.loaded = true;
+        render();
+      });
+    }).fail(function (xhr) {
+      const message = xhr && xhr.responseJSON && xhr.responseJSON.message
+        ? xhr.responseJSON.message
+        : t("courses.listPage.dataErrorMessage", null, "Khong the tai du lieu khoa hoc tu backend.");
+      renderLoadError(message);
+      showToast("error", t("courses.listPage.dataErrorTitle", null, "Loi du lieu khoa hoc"), message);
     });
   }
 

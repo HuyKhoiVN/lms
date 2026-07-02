@@ -2,25 +2,16 @@
   "use strict";
 
   const Lms = window.Lms || {};
-  const progressKey = "lms.student.materialProgress";
   const notesKey = "lms.student.materialNotes";
   const state = {
     materialId: 0,
     material: null,
-    course: null
+    course: null,
+    progress: null
   };
 
   function t(key, params, fallback) {
     return Lms.i18n ? Lms.i18n.t(key, params, fallback) : (fallback || key);
-  }
-
-  function unwrap(response) {
-    return Array.isArray(response) ? response[0] : response;
-  }
-
-  function getItems(response) {
-    const payload = unwrap(response);
-    return payload && payload.data && Array.isArray(payload.data.items) ? payload.data.items : [];
   }
 
   function escapeHtml(value) {
@@ -38,14 +29,18 @@
     }
   }
 
-  function getProgress() {
-    return Lms.storage ? Lms.storage.get(progressKey, {}) : {};
+  function getResponsePayload(response) {
+    return Array.isArray(response) ? response[0] : response;
   }
 
-  function saveProgress(progress) {
-    if (Lms.storage) {
-      Lms.storage.set(progressKey, progress);
-    }
+  function getResponseData(response) {
+    const payload = getResponsePayload(response);
+    return payload && payload.data ? payload.data : null;
+  }
+
+  function getResponseItems(response) {
+    const data = getResponseData(response);
+    return data && Array.isArray(data.items) ? data.items : [];
   }
 
   function getNotes() {
@@ -59,15 +54,19 @@
   }
 
   function isComplete() {
-    return Boolean(getProgress()[state.materialId]);
+    return Boolean(state.progress && state.progress.isCompleted);
+  }
+
+  function getProgressPercent() {
+    return state.progress ? Math.round(Number(state.progress.progressPercent || 0)) : 0;
   }
 
   function getContentTypeLabel(type) {
     const labels = {
-      Text: t("materials.viewerPage.typeText", null, "Văn bản"),
+      Text: t("materials.viewerPage.typeText", null, "Van ban"),
       Pdf: t("materials.viewerPage.typePdf", null, "PDF"),
-      File: t("materials.viewerPage.typeFile", null, "Tệp tin"),
-      Link: t("materials.viewerPage.typeLink", null, "Liên kết")
+      File: t("materials.viewerPage.typeFile", null, "Tep tin"),
+      Link: t("materials.viewerPage.typeLink", null, "Lien ket")
     };
     return labels[type] || type;
   }
@@ -76,15 +75,12 @@
     if (type === "Pdf") {
       return "lms-status-danger";
     }
-
     if (type === "File") {
       return "lms-status-warning";
     }
-
     if (type === "Link") {
       return "lms-status-info";
     }
-
     return "lms-status-success";
   }
 
@@ -107,16 +103,13 @@
   }
 
   function renderTextViewer() {
+    const textContent = state.material && state.material.textContent
+      ? state.material.textContent
+      : t("materials.viewerPage.textFallback", null, "Tai lieu text chua co noi dung chi tiet.");
+
     return (
       '<article class="material-reader">' +
-        '<h3>' + escapeHtml(t("materials.viewerPage.textViewOverviewTitle", null, "Tổng quan")) + "</h3>" +
-        '<p>' + escapeHtml(t("materials.viewerPage.textViewOverviewDesc", null, "Nội dung này mô phỏng bài học văn bản được giao trong hệ thống LMS nội bộ.")) + "</p>" +
-        '<h3>' + escapeHtml(t("materials.viewerPage.textViewPointsTitle", null, "Điểm cần nhớ")) + "</h3>" +
-        "<ul>" +
-          "<li>" + escapeHtml(t("materials.viewerPage.textViewPoint1", null, "Nắm mục tiêu của tài liệu và phạm vi áp dụng.")) + "</li>" +
-          "<li>" + escapeHtml(t("materials.viewerPage.textViewPoint2", null, "Liên hệ nội dung với quy trình hoặc bài thi được giao.")) + "</li>" +
-          "<li>" + escapeHtml(t("materials.viewerPage.textViewPoint3", null, "Đánh dấu hoàn thành sau khi đã đọc và ghi chú xong.")) + "</li>" +
-        "</ul>" +
+        "<p>" + escapeHtml(textContent) + "</p>" +
       "</article>"
     );
   }
@@ -136,6 +129,24 @@
     );
   }
 
+  function renderFilesList() {
+    if (!state.material || !Array.isArray(state.material.files) || !state.material.files.length) {
+      return "";
+    }
+
+    return (
+      '<div class="student-material-file-list">' +
+        state.material.files.map(function (file) {
+          return (
+            '<button class="app-button app-button-secondary" type="button" data-material-viewer-action="download-file" data-file-id="' + file.id + '">' +
+              escapeHtml(file.originalFileName || ("file-" + file.id)) +
+            "</button>"
+          );
+        }).join("") +
+      "</div>"
+    );
+  }
+
   function renderContent() {
     if (!state.material) {
       return "";
@@ -145,28 +156,28 @@
       return renderAttachmentViewer(
         "Pdf",
         t("materials.viewerPage.pdfPlaceholderTitle", null, "PDF Preview"),
-        t("materials.viewerPage.pdfPlaceholderDesc", null, "Tài liệu PDF sẽ được hiển thị ở đây khi tích hợp lưu trữ tệp và preview backend."),
-        t("materials.viewerPage.buttonDownload", null, "Tải xuống tài liệu"),
+        t("materials.viewerPage.pdfPlaceholderDesc", null, "Tai lieu PDF hien co file dinh kem hoac se duoc xem tai day."),
+        t("materials.viewerPage.buttonDownload", null, "Tai xuong tai lieu"),
         "download"
-      );
+      ) + renderFilesList();
     }
 
     if (state.material.contentType === "File") {
       return renderAttachmentViewer(
         "File",
         t("materials.viewerPage.filePlaceholderTitle", null, "Attachment"),
-        t("materials.viewerPage.filePlaceholderDesc", null, "Tài liệu đính kèm dùng cho học tập nội bộ hoặc checklist thực thi."),
-        t("materials.viewerPage.buttonDownload", null, "Tải xuống tài liệu"),
+        t("materials.viewerPage.filePlaceholderDesc", null, "Tai lieu dinh kem duoc cung cap tu backend."),
+        t("materials.viewerPage.buttonDownload", null, "Tai xuong tai lieu"),
         "download"
-      );
+      ) + renderFilesList();
     }
 
     if (state.material.contentType === "Link") {
       return renderAttachmentViewer(
         "Link",
         t("materials.viewerPage.linkPlaceholderTitle", null, "External Resource"),
-        t("materials.viewerPage.linkPlaceholderDesc", null, "Liên kết ngoài sẽ được mở ở đây khi URL thực tế được cung cấp."),
-        t("materials.viewerPage.buttonOpenLinkPlaceholder", null, "Mở liên kết"),
+        state.material.externalLink || t("materials.viewerPage.linkPlaceholderDesc", null, "Lien ket ngoai se mo khi duoc cung cap."),
+        t("materials.viewerPage.buttonOpenLinkPlaceholder", null, "Mo lien ket"),
         "open-link"
       );
     }
@@ -174,14 +185,14 @@
     return renderTextViewer();
   }
 
-  function renderNotFound() {
-    $("[data-material-viewer-title]").text(t("materials.viewerPage.notFoundTitle", null, "Không tìm thấy tài liệu"));
-    $("[data-material-viewer-course]").text(t("materials.viewerPage.notFoundDesc", null, "Tài liệu yêu cầu không tồn tại trong dữ liệu mô phỏng."));
+  function renderNotFound(message) {
+    $("[data-material-viewer-title]").text(t("materials.viewerPage.notFoundTitle", null, "Khong tim thay tai lieu"));
+    $("[data-material-viewer-course]").text(message || t("materials.viewerPage.notFoundDesc", null, "Tai lieu yeu cau khong ton tai hoac ban khong co quyen truy cap."));
     $("#materialViewerContent").html(
       '<div class="lms-empty-compact student-material-viewer-reveal is-visible" data-viewer-reveal>' +
         '<i class="bi bi-folder-x" aria-hidden="true"></i>' +
-        '<h3>' + escapeHtml(t("materials.viewerPage.notFoundTitle", null, "Không tìm thấy tài liệu")) + "</h3>" +
-        '<p>' + escapeHtml(t("materials.viewerPage.notFoundCopy", null, "Quay lại trang tài liệu và chọn một mục khác.")) + "</p>" +
+        '<h3>' + escapeHtml(t("materials.viewerPage.notFoundTitle", null, "Khong tim thay tai lieu")) + "</h3>" +
+        '<p>' + escapeHtml(message || t("materials.viewerPage.notFoundCopy", null, "Quay lai trang tai lieu va chon mot muc khac.")) + "</p>" +
       "</div>"
     );
   }
@@ -192,9 +203,9 @@
       return;
     }
 
-    const courseName = state.course ? state.course.name : t("materials.viewerPage.unknownCourse", null, "Khóa học không xác định");
+    const courseName = state.course ? state.course.name : t("materials.viewerPage.unknownCourse", null, "Khoa hoc khong xac dinh");
     const complete = isComplete();
-    const percent = complete ? "100%" : "35%";
+    const percent = getProgressPercent();
 
     $("[data-material-viewer-title]").text(state.material.title);
     $("[data-material-viewer-course]").text(courseName);
@@ -204,18 +215,22 @@
       .addClass(getTypeBadgeClass(state.material.contentType))
       .text(getContentTypeLabel(state.material.contentType));
     $("[data-material-viewer-progress-status]").text(
-      complete ? t("materials.viewerPage.statusCompleted", null, "Đã hoàn thành") : t("materials.viewerPage.statusInProgress", null, "Đang tiến hành")
+      complete
+        ? t("materials.viewerPage.statusCompleted", null, "Da hoan thanh")
+        : percent > 0
+          ? t("materials.viewerPage.statusInProgress", null, "Dang tien hanh")
+          : t("materials.viewerPage.statusNotStarted", null, "Chua bat dau")
     );
     $("[data-material-viewer-duration]").text(
-      t("materials.viewerPage.durationMinutes", { minutes: state.material.durationMinutes }, state.material.durationMinutes + " phút")
+      t("materials.viewerPage.orderValue", { order: state.material.order }, "Thu tu " + state.material.order)
     );
     $("[data-material-viewer-course-name]").text(courseName);
-    $("[data-material-viewer-progress-percent]").text(percent);
+    $("[data-material-viewer-progress-percent]").text(percent + "%");
     $("[data-material-viewer-progress-ring]")
       .toggleClass("is-complete", complete)
-      .css("--progress", percent);
+      .css("--progress", percent + "%");
     $("[data-material-viewer-action='complete']").text(
-      complete ? t("materials.viewerPage.statusCompleted", null, "Đã hoàn thành") : t("materials.viewerPage.buttonComplete", null, "Đánh dấu hoàn thành")
+      complete ? t("materials.viewerPage.statusCompleted", null, "Da hoan thanh") : t("materials.viewerPage.buttonComplete", null, "Danh dau hoan thanh")
     );
     $("[data-material-viewer-note]").val(getNotes()[state.materialId] || "");
     $("#materialViewerContent").html(renderContent());
@@ -255,9 +270,44 @@
     });
   }
 
+  function downloadAuthenticatedFile(fileId, fileName) {
+    const token = Lms.auth && Lms.auth.getAccessToken ? Lms.auth.getAccessToken() : null;
+    const url = Lms.apiClient && Lms.apiClient.request
+      ? Lms.config.apiBaseUrl + "/files/" + fileId + "/download"
+      : null;
+
+    if (!token || !url) {
+      showToast("error", t("materials.viewerPage.toastDownloadTitle", null, "Khong the tai file"), t("materials.viewerPage.toastDownloadMessage", null, "Phien dang nhap khong hop le hoac api client chua san sang."));
+      return;
+    }
+
+    window.fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: "Bearer " + token
+      }
+    }).then(function (response) {
+      if (!response.ok) {
+        throw new Error("Download failed");
+      }
+      return response.blob();
+    }).then(function (blob) {
+      const objectUrl = window.URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = objectUrl;
+      anchor.download = fileName || ("file-" + fileId);
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      window.URL.revokeObjectURL(objectUrl);
+    }).catch(function () {
+      showToast("error", t("materials.viewerPage.toastDownloadTitle", null, "Khong the tai file"), t("materials.viewerPage.toastDownloadMessage", null, "Tai file that bai, vui long thu lai."));
+    });
+  }
+
   function bindEvents() {
     $(document).on("click", "[data-material-viewer-action='complete']", function () {
-      if (!state.material) {
+      if (!state.material || !state.course) {
         return;
       }
 
@@ -266,25 +316,25 @@
         Lms.ui.setButtonLoading($button);
       }
 
-      const progress = getProgress();
-      progress[state.materialId] = {
-        completed: true,
-        completedAt: new Date().toISOString()
-      };
-      saveProgress(progress);
-
-      showToast(
-        "success",
-        t("materials.viewerPage.toastProgressSavedTitle", null, "Đã lưu tiến trình"),
-        t("materials.viewerPage.toastProgressSavedMessage", { title: state.material.title }, state.material.title + " đã được đánh dấu hoàn thành.")
-      );
-
-      window.setTimeout(function () {
+      Lms.apiClient.post("api/learning-progress", {
+        courseId: state.course.id,
+        learningMaterialId: state.material.id,
+        progressPercent: 100
+      }).done(function (response) {
+        state.progress = getResponseData(response);
+        showToast(
+          "success",
+          t("materials.viewerPage.toastProgressSavedTitle", null, "Da luu tien trinh"),
+          t("materials.viewerPage.toastProgressSavedMessage", { title: state.material.title }, state.material.title + " da duoc danh dau hoan thanh.")
+        );
+        render();
+      }).fail(function (error) {
+        showToast("error", t("materials.viewerPage.toastProgressErrorTitle", null, "Khong the cap nhat tien trinh"), error && error.message ? error.message : t("materials.viewerPage.toastProgressErrorMessage", null, "Vui long thu lai."));
+      }).always(function () {
         if (Lms.ui && Lms.ui.clearButtonLoading) {
           Lms.ui.clearButtonLoading($button);
         }
-        render();
-      }, 220);
+      });
     });
 
     $(document).on("click", "[data-material-viewer-action='save-note']", function () {
@@ -294,28 +344,58 @@
 
       showToast(
         "info",
-        t("materials.viewerPage.toastNoteSavedTitle", null, "Đã lưu ghi chú"),
-        t("materials.viewerPage.toastNoteSavedMessage", null, "Ghi chú đã được lưu cục bộ cho tài liệu này.")
+        t("materials.viewerPage.toastNoteSavedTitle", null, "Da luu ghi chu"),
+        t("materials.viewerPage.toastNoteSavedMessage", null, "Ghi chu da duoc luu cuc bo cho tai lieu nay.")
       );
     });
 
     $(document).on("click", "[data-material-viewer-action='download']", function () {
-      showToast(
-        "info",
-        t("materials.viewerPage.toastDownloadTitle", null, "Tải xuống mẫu"),
-        t("materials.viewerPage.toastDownloadMessage", null, "Tính năng tải xuống sẽ khả dụng khi tích hợp lưu trữ tài liệu.")
-      );
+      if (!state.material || !state.material.files || !state.material.files.length) {
+        showToast("info", t("materials.viewerPage.toastDownloadTitle", null, "Chua co file de tai"), t("materials.viewerPage.toastDownloadEmptyMessage", null, "Tai lieu nay hien chua co file dinh kem tren backend."));
+        return;
+      }
+
+      const firstFile = state.material.files[0];
+      downloadAuthenticatedFile(firstFile.id, firstFile.originalFileName);
+    });
+
+    $(document).on("click", "[data-material-viewer-action='download-file']", function () {
+      const fileId = Number($(this).data("file-id"));
+      const file = state.material && state.material.files
+        ? state.material.files.find(function (item) {
+          return Number(item.id) === fileId;
+        })
+        : null;
+      downloadAuthenticatedFile(fileId, file ? file.originalFileName : null);
     });
 
     $(document).on("click", "[data-material-viewer-action='open-link']", function () {
+      if (state.material && state.material.externalLink) {
+        window.open(state.material.externalLink, "_blank", "noopener,noreferrer");
+        return;
+      }
+
       showToast(
         "info",
-        t("materials.viewerPage.toastLinkTitle", null, "Liên kết mẫu"),
-        t("materials.viewerPage.toastLinkMessage", null, "Liên kết ngoài sẽ được mở khi URL thực tế được cung cấp.")
+        t("materials.viewerPage.toastLinkTitle", null, "Chua co lien ket"),
+        t("materials.viewerPage.toastLinkMessage", null, "Tai lieu nay hien chua co lien ket ngoai.")
       );
     });
 
     $(document).on("lms:i18n:changed", render);
+  }
+
+  function loadCourseAndProgress(material) {
+    return $.when(
+      Lms.apiClient.get("api/courses/" + material.courseId),
+      Lms.apiClient.get("api/learning-progress/my?page=1&pageSize=500&courseId=" + material.courseId)
+    ).done(function (courseResponse, progressResponse) {
+      state.course = getResponseData(courseResponse);
+      state.progress = getResponseItems(progressResponse).find(function (item) {
+        return Number(item.learningMaterialId) === state.materialId;
+      }) || null;
+      render();
+    });
   }
 
   function loadPageData() {
@@ -324,31 +404,13 @@
       return;
     }
 
-    $.when(
-      Lms.apiClient.get("learning-materials.json"),
-      Lms.apiClient.get("courses.json")
-    ).done(function (materialsResponse, coursesResponse) {
-      const materials = getItems(materialsResponse);
-      const courses = getItems(coursesResponse);
-
-      state.material = materials.find(function (material) {
-        return material.id === state.materialId;
+    Lms.apiClient.get("api/learning-materials/" + state.materialId).done(function (response) {
+      state.material = getResponseData(response);
+      loadCourseAndProgress(state.material).fail(function () {
+        render();
       });
-      state.course = state.material
-        ? courses.find(function (course) {
-          return course.id === state.material.courseId;
-        })
-        : null;
-
-      render();
-    }).fail(function () {
-      $("#materialViewerContent").html(
-        '<div class="lms-empty-compact student-material-viewer-reveal is-visible" data-viewer-reveal>' +
-          '<i class="bi bi-exclamation-circle" aria-hidden="true"></i>' +
-          '<h3>' + escapeHtml(t("materials.viewerPage.loadErrorTitle", null, "Không thể tải tài liệu")) + "</h3>" +
-          '<p>' + escapeHtml(t("materials.viewerPage.loadErrorCopy", null, "Vui lòng kiểm tra các tệp dữ liệu mô phỏng.")) + "</p>" +
-        "</div>"
-      );
+    }).fail(function (error) {
+      renderNotFound(error && error.message ? error.message : null);
       initViewerReveal();
     });
   }

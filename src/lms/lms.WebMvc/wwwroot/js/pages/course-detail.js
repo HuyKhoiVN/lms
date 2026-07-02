@@ -6,21 +6,11 @@
     courseId: 0,
     course: null,
     materials: [],
-    users: [],
-    groups: []
+    progress: null
   };
 
   function t(key, params, fallback) {
     return Lms.i18n ? Lms.i18n.t(key, params, fallback) : (fallback || key);
-  }
-
-  function unwrap(response) {
-    return Array.isArray(response) ? response[0] : response;
-  }
-
-  function getItems(response) {
-    const payload = unwrap(response);
-    return payload && payload.data && Array.isArray(payload.data.items) ? payload.data.items : [];
   }
 
   function escapeHtml(value) {
@@ -38,14 +28,22 @@
     }
   }
 
-  function getById(items, id) {
-    return items.find(function (item) {
-      return item.id === Number(id);
-    });
+  function getResponsePayload(response) {
+    return Array.isArray(response) ? response[0] : response;
+  }
+
+  function getResponseData(response) {
+    const payload = getResponsePayload(response);
+    return payload && payload.data ? payload.data : null;
+  }
+
+  function getResponseItems(response) {
+    const data = getResponseData(response);
+    return data && Array.isArray(data.items) ? data.items : [];
   }
 
   function getInitials(name) {
-    return String(name || t("courses.detailPage.courseFallback", null, "Khóa học"))
+    return String(name || t("courses.detailPage.courseFallback", null, "Khoa hoc"))
       .split(" ")
       .filter(Boolean)
       .slice(0, 2)
@@ -68,56 +66,59 @@
     $("[data-course-detail-progress]").css("width", safeValue + "%");
   }
 
+  function getCourseStatus() {
+    return state.course && state.course.isPublished ? "Published" : "Draft";
+  }
+
   function renderPageTitle() {
-    const title = state.course ? state.course.name : t("courses.detailPage.title", null, "Chi tiết khóa học");
+    const title = state.course ? state.course.name : t("courses.detailPage.title", null, "Chi tiet khoa hoc");
     document.title = title + " - " + t("common.appName", null, "lms");
-  }
-
-  function getAssignedUsers() {
-    return state.users.filter(function (user) {
-      return user.role === "Student";
-    }).slice(0, Math.max(1, Math.min(3, Number(state.course.assignedCount || 0))));
-  }
-
-  function getAssignedGroups() {
-    return state.groups.slice(0, Math.max(1, Math.min(state.groups.length, Number(state.course.id || 1))));
   }
 
   function renderHeader() {
     if (!state.course) {
-      $("[data-course-detail-name]").text(t("courses.detailPage.courseNotFoundTitle", null, "Không tìm thấy khóa học"));
-      $("[data-course-detail-description]").text(t("courses.detailPage.courseNotFoundCopy", null, "Mã khóa học được yêu cầu không tồn tại trong dữ liệu mô phỏng."));
+      $("[data-course-detail-name]").text(t("courses.detailPage.courseNotFoundTitle", null, "Khong tim thay khoa hoc"));
+      $("[data-course-detail-description]").text(t("courses.detailPage.courseNotFoundCopy", null, "Ma khoa hoc duoc yeu cau khong ton tai trong he thong."));
       return;
     }
 
     $("[data-course-detail-name]").text(state.course.name);
-    $("[data-course-detail-description]").text(state.course.description);
+    $("[data-course-detail-description]").text(state.course.description || state.course.code || "");
   }
 
   function renderMetrics() {
-    $("[data-course-detail-metric='status']").text(translateStatus(state.course.status));
-    $("[data-course-detail-metric='materials']").text(state.materials.length);
-    $("[data-course-detail-metric='assigned']").text(state.course.assignedCount);
-    $("[data-course-detail-metric='completion']").text(state.course.completionRate + "%");
+    const progressData = state.progress || { totalMaterials: 0, overallPercent: 0 };
+
+    $("[data-course-detail-metric='status']").text(translateStatus(getCourseStatus()));
+    $("[data-course-detail-metric='materials']").text(progressData.totalMaterials || state.materials.length);
+    $("[data-course-detail-metric='assigned']").text("--");
+    $("[data-course-detail-metric='completion']").text(Math.round(Number(progressData.overallPercent || 0)) + "%");
     $("[data-course-detail-count='materials']").text(
-      t("courses.detailPage.materialCount", { count: state.materials.length }, state.materials.length + " tài liệu")
+      t("courses.detailPage.materialCount", { count: state.materials.length }, state.materials.length + " tai lieu")
     );
   }
 
   function renderCourseInfo() {
-    const badgeClass = getBadgeClass(state.course.status);
+    const status = getCourseStatus();
+    const badgeClass = getBadgeClass(status);
+    const percent = Math.round(Number(state.progress && state.progress.overallPercent ? state.progress.overallPercent : 0));
 
     $("[data-course-detail-status]")
       .removeClass("app-badge-success app-badge-muted")
       .addClass(badgeClass)
-      .text(translateStatus(state.course.status));
+      .text(translateStatus(status));
     $("[data-course-detail-code]").text(getInitials(state.course.name));
     $("[data-course-detail-progress-badge]").text(
-      t("courses.detailPage.complete", { percent: state.course.completionRate }, state.course.completionRate + "% hoàn thành")
+      t("courses.detailPage.complete", { percent: percent }, percent + "% hoan thanh")
     );
     $("[data-course-detail-title]").text(state.course.name);
-    $("[data-course-detail-copy]").text(state.course.description);
-    setProgress(state.course.completionRate);
+    $("[data-course-detail-copy]").text(state.course.description || state.course.code || "");
+    setProgress(percent);
+    $("[data-course-detail-action='publish']").text(
+      state.course.isPublished
+        ? t("courses.detailPage.unpublish", null, "Huy xuat ban")
+        : t("courses.detailPage.publish", null, "Xuat ban")
+    );
   }
 
   function renderMaterials() {
@@ -127,74 +128,51 @@
       $container.append(
         '<div class="app-empty-state">' +
           '<div class="app-empty-icon" aria-hidden="true">M</div>' +
-          '<h3 class="app-empty-title">' + escapeHtml(t("courses.detailPage.noMaterialsTitle", null, "Chưa có tài liệu")) + "</h3>" +
-          '<p class="app-empty-copy">' + escapeHtml(t("courses.detailPage.noMaterialsCopy", null, "Tài liệu học tập sẽ được quản lý ở task tiếp theo.")) + "</p>" +
+          '<h3 class="app-empty-title">' + escapeHtml(t("courses.detailPage.noMaterialsTitle", null, "Chua co tai lieu")) + "</h3>" +
+          '<p class="app-empty-copy">' + escapeHtml(t("courses.detailPage.noMaterialsCopy", null, "Tai lieu hoc tap se hien thi tai day khi da duoc tao cho khoa hoc.")) + "</p>" +
         "</div>"
       );
       return;
     }
 
     state.materials.forEach(function (material) {
+      const meta = [
+        material.contentType,
+        t("courses.detailPage.materialOrder", { order: material.order || 0 }, "Thu tu " + (material.order || 0)),
+        material.hasFile ? t("courses.detailPage.materialHasFile", null, "Co tep dinh kem") : null
+      ].filter(Boolean).join(" / ");
+
       $container.append(
         '<div class="group-detail-item">' +
           '<div class="admin-user-cell">' +
-            '<span class="app-avatar" aria-hidden="true">' + escapeHtml(material.contentType.charAt(0).toUpperCase()) + "</span>" +
+            '<span class="app-avatar" aria-hidden="true">' + escapeHtml(String(material.contentType || "T").charAt(0).toUpperCase()) + "</span>" +
             "<div>" +
               "<strong>" + escapeHtml(material.title) + "</strong>" +
-              "<span>" + escapeHtml(t("courses.detailPage.materialMeta", { type: material.contentType, minutes: material.durationMinutes }, material.contentType + " / " + material.durationMinutes + " phút")) + "</span>" +
+              "<span>" + escapeHtml(meta) + "</span>" +
             "</div>" +
           "</div>" +
-          '<span class="app-badge ' + getBadgeClass(material.status) + '">' + escapeHtml(translateStatus(material.status)) + "</span>" +
-        "</div>"
-      );
-    });
-  }
-
-  function renderPeopleList(containerSelector, items, emptyTitle, emptyCopy) {
-    const $container = $(containerSelector).empty();
-
-    if (!items.length) {
-      $container.append(
-        '<div class="app-empty-state">' +
-          '<div class="app-empty-icon" aria-hidden="true">A</div>' +
-          '<h3 class="app-empty-title">' + escapeHtml(emptyTitle) + "</h3>" +
-          '<p class="app-empty-copy">' + escapeHtml(emptyCopy) + "</p>" +
-        "</div>"
-      );
-      return;
-    }
-
-    items.forEach(function (item) {
-      const title = item.fullName || item.name;
-      const subtitle = item.email || t("courses.detailPage.groupMembers", { count: item.memberCount }, item.memberCount + " thành viên");
-
-      $container.append(
-        '<div class="group-detail-item">' +
-          '<div class="admin-user-cell">' +
-            '<span class="app-avatar" aria-hidden="true">' + escapeHtml(title.charAt(0).toUpperCase()) + "</span>" +
-            "<div>" +
-              "<strong>" + escapeHtml(title) + "</strong>" +
-              "<span>" + escapeHtml(subtitle) + "</span>" +
-            "</div>" +
-          "</div>" +
+          '<span class="app-badge app-badge-info">' + escapeHtml(material.contentType) + "</span>" +
         "</div>"
       );
     });
   }
 
   function renderAssignments() {
-    renderPeopleList(
-      "#courseAssignedUsers",
-      getAssignedUsers(),
-      t("courses.detailPage.noUsersTitle", null, "Chưa giao người dùng"),
-      t("courses.detailPage.noUsersCopy", null, "Thao tác giao khóa học có ở danh sách khóa học.")
-    );
-    renderPeopleList(
-      "#courseAssignedGroups",
-      getAssignedGroups(),
-      t("courses.detailPage.noGroupsTitle", null, "Chưa giao nhóm"),
-      t("courses.detailPage.noGroupsCopy", null, "Thao tác giao nhóm có ở danh sách khóa học.")
-    );
+    const emptyUsers =
+      '<div class="app-empty-state">' +
+        '<div class="app-empty-icon" aria-hidden="true">A</div>' +
+        '<h3 class="app-empty-title">' + escapeHtml(t("courses.detailPage.noUsersTitle", null, "Chua co danh sach hoc vien")) + "</h3>" +
+        '<p class="app-empty-copy">' + escapeHtml(t("courses.detailPage.assignmentReadPending", null, "Backend chua co API doc danh sach assignment theo khoa hoc cho man hinh nay.")) + "</p>" +
+      "</div>";
+    const emptyGroups =
+      '<div class="app-empty-state">' +
+        '<div class="app-empty-icon" aria-hidden="true">G</div>' +
+        '<h3 class="app-empty-title">' + escapeHtml(t("courses.detailPage.noGroupsTitle", null, "Chua co danh sach nhom")) + "</h3>" +
+        '<p class="app-empty-copy">' + escapeHtml(t("courses.detailPage.assignmentReadPending", null, "Backend chua co API doc danh sach assignment theo khoa hoc cho man hinh nay.")) + "</p>" +
+      "</div>";
+
+    $("#courseAssignedUsers").html(emptyUsers);
+    $("#courseAssignedGroups").html(emptyGroups);
   }
 
   function render() {
@@ -211,30 +189,47 @@
     renderAssignments();
   }
 
-  function bindEvents() {
-    $(document).on("click", "[data-course-detail-action='publish']", function () {
-      if (!state.course) {
-        return;
-      }
+  function togglePublish() {
+    if (!state.course) {
+      return;
+    }
 
-      state.course.status = "Published";
+    const endpoint = state.course.isPublished
+      ? "api/courses/" + state.course.id + "/unpublish"
+      : "api/courses/" + state.course.id + "/publish";
+
+    Lms.apiClient.post(endpoint, {}).done(function (response) {
+      const data = getResponseData(response);
+      state.course = data || state.course;
       render();
       showToast(
         "success",
-        t("courses.detailPage.publishedTitle", null, "Đã xuất bản khóa học"),
-        t("courses.detailPage.publishedMessage", { name: state.course.name }, state.course.name + " hiện đã xuất bản trong trạng thái mô phỏng.")
+        state.course.isPublished
+          ? t("courses.detailPage.publishedTitle", null, "Da xuat ban khoa hoc")
+          : t("courses.detailPage.unpublishedTitle", null, "Da huy xuat ban khoa hoc"),
+        state.course.isPublished
+          ? t("courses.detailPage.publishedMessage", { name: state.course.name }, state.course.name + " da duoc xuat ban.")
+          : t("courses.detailPage.unpublishedMessage", { name: state.course.name }, state.course.name + " da duoc chuyen ve ban nhap.")
       );
+    }).fail(function (xhr) {
+      const message = xhr && xhr.responseJSON && xhr.responseJSON.message
+        ? xhr.responseJSON.message
+        : t("courses.detailPage.publishErrorMessage", null, "Khong the cap nhat trang thai khoa hoc.");
+      showToast("error", t("courses.detailPage.publishErrorTitle", null, "Cap nhat trang thai that bai"), message);
     });
+  }
 
+  function bindEvents() {
+    $(document).on("click", "[data-course-detail-action='publish']", togglePublish);
     $(document).on("lms:i18n:changed", render);
   }
 
-  function renderLoadError() {
+  function renderLoadError(message) {
     $("#courseMaterialList, #courseAssignedUsers, #courseAssignedGroups").html(
       '<div class="app-empty-state">' +
         '<div class="app-empty-icon" aria-hidden="true">!</div>' +
-        '<h3 class="app-empty-title">' + escapeHtml(t("courses.detailPage.loadErrorTitle", null, "Không thể tải chi tiết khóa học")) + "</h3>" +
-        '<p class="app-empty-copy">' + escapeHtml(t("courses.detailPage.loadErrorCopy", null, "Vui lòng kiểm tra các file dữ liệu mô phỏng.")) + "</p>" +
+        '<h3 class="app-empty-title">' + escapeHtml(t("courses.detailPage.loadErrorTitle", null, "Khong the tai chi tiet khoa hoc")) + "</h3>" +
+        '<p class="app-empty-copy">' + escapeHtml(message || t("courses.detailPage.loadErrorCopy", null, "Vui long kiem tra API chi tiet khoa hoc.")) + "</p>" +
       "</div>"
     );
   }
@@ -243,21 +238,20 @@
     state.courseId = Number($("[data-course-detail-id]").data("course-detail-id"));
 
     $.when(
-      Lms.apiClient.get("courses.json"),
-      Lms.apiClient.get("learning-materials.json"),
-      Lms.apiClient.get("users.json"),
-      Lms.apiClient.get("groups.json")
-    ).done(function (coursesResponse, materialsResponse, usersResponse, groupsResponse) {
-      state.course = getById(getItems(coursesResponse), state.courseId);
-      state.materials = getItems(materialsResponse).filter(function (material) {
-        return material.courseId === state.courseId;
-      });
-      state.users = getItems(usersResponse);
-      state.groups = getItems(groupsResponse);
+      Lms.apiClient.get("api/courses/" + state.courseId),
+      Lms.apiClient.get("api/learning-materials?page=1&pageSize=500&courseId=" + state.courseId),
+      Lms.apiClient.get("api/courses/" + state.courseId + "/progress")
+    ).done(function (courseResponse, materialsResponse, progressResponse) {
+      state.course = getResponseData(courseResponse);
+      state.materials = getResponseItems(materialsResponse);
+      state.progress = getResponseData(progressResponse);
       render();
-    }).fail(function () {
-      renderLoadError();
-      showToast("error", t("courses.detailPage.dataErrorTitle", null, "Lỗi chi tiết khóa học"), t("courses.detailPage.dataErrorMessage", null, "Không thể tải dữ liệu mô phỏng chi tiết khóa học."));
+    }).fail(function (xhr) {
+      const message = xhr && xhr.responseJSON && xhr.responseJSON.message
+        ? xhr.responseJSON.message
+        : t("courses.detailPage.dataErrorMessage", null, "Khong the tai du lieu chi tiet khoa hoc tu backend.");
+      renderLoadError(message);
+      showToast("error", t("courses.detailPage.dataErrorTitle", null, "Loi chi tiet khoa hoc"), message);
     });
   }
 

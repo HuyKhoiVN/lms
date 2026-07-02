@@ -18,9 +18,14 @@
     return Array.isArray(response) ? response[0] : response;
   }
 
-  function getItems(response) {
+  function getData(response) {
     const payload = unwrap(response);
-    return payload && payload.data && Array.isArray(payload.data.items) ? payload.data.items : [];
+    return payload && payload.data ? payload.data : null;
+  }
+
+  function getItems(response) {
+    const data = getData(response);
+    return data && Array.isArray(data.items) ? data.items : [];
   }
 
   function escapeHtml(value) {
@@ -60,7 +65,7 @@
   function translateStatus(status) {
     return status === "Published"
       ? t("courses.listPage.statuses.Published", null, "Đang học")
-      : t("courses.listPage.statuses.Draft", null, "Sắp mở");
+      : t("courses.listPage.statuses.Draft", null, "Chưa xuất bản");
   }
 
   function getCourseImage(index) {
@@ -111,8 +116,8 @@
       $container.html(
         '<div class="lms-empty-compact">' +
           '<i class="bi bi-journal-bookmark" aria-hidden="true"></i>' +
-          '<h3>Chưa có khóa học</h3>' +
-          '<p>Khi có khóa học được giao, khu vực này sẽ đề xuất nội dung nên tiếp tục.</p>' +
+          "<h3>Chưa có khóa học</h3>" +
+          "<p>Khi có khóa học được giao, khu vực này sẽ đề xuất nội dung nên tiếp tục.</p>" +
         "</div>"
       );
       return;
@@ -126,12 +131,12 @@
         '<div class="student-course-focus-copy">' +
           '<span class="' + getBadgeClass(focusCourse.status) + '">' + escapeHtml(translateStatus(focusCourse.status)) + "</span>" +
           "<h3>" + escapeHtml(focusCourse.name) + "</h3>" +
-          "<p>" + escapeHtml(focusCourse.description) + "</p>" +
+          "<p>" + escapeHtml(focusCourse.description || focusCourse.code || "") + "</p>" +
           '<div class="student-course-focus-progress">' +
             '<div class="lms-progress-track"><span style="width:' + Math.max(0, Math.min(100, Number(focusCourse.completionRate) || 0)) + '%"></span></div>' +
             "<strong>" + escapeHtml(focusCourse.completionRate) + "% hoàn thành</strong>" +
           "</div>" +
-          '<a class="app-button app-button-primary" href="/LearningMaterials">Tiếp tục học</a>' +
+          '<a class="app-button app-button-primary" href="/Courses/Detail/' + focusCourse.id + '">Tiếp tục học</a>' +
         "</div>" +
       "</div>"
     );
@@ -174,10 +179,10 @@
               '<span class="' + getBadgeClass(course.status) + '">' + escapeHtml(translateStatus(course.status)) + "</span>" +
             "</div>" +
             "<h3>" + escapeHtml(course.name) + "</h3>" +
-            '<p class="student-course-card-copy">' + escapeHtml(course.description) + "</p>" +
+            '<p class="student-course-card-copy">' + escapeHtml(course.description || course.code || "") + "</p>" +
             '<dl class="student-course-card-stats">' +
               "<div><dt>Tài liệu</dt><dd>" + escapeHtml(course.materialCount) + "</dd></div>" +
-              "<div><dt>Học viên</dt><dd>" + escapeHtml(course.assignedCount) + "</dd></div>" +
+              "<div><dt>Đã hoàn thành</dt><dd>" + escapeHtml(course.completedMaterials) + "/" + escapeHtml(course.materialCount) + "</dd></div>" +
             "</dl>" +
             '<div class="student-course-card-progress">' +
               '<div class="student-course-card-progress-label"><span>Tiến độ</span><strong>' + progress + "%</strong></div>" +
@@ -185,8 +190,8 @@
             "</div>" +
           "</div>" +
           '<div class="student-course-card-footer">' +
-            '<a class="app-button app-button-secondary" href="/Exams">Bài thi liên quan</a>' +
-            '<a class="app-button app-button-primary" href="/LearningMaterials">' + actionLabel + "</a>" +
+            '<a class="app-button app-button-secondary" href="/Courses/Detail/' + course.id + '">Chi tiết</a>' +
+            '<a class="app-button app-button-primary" href="/Courses/Detail/' + course.id + '">' + actionLabel + "</a>" +
           "</div>" +
         "</article>"
       );
@@ -211,7 +216,8 @@
     state.filteredCourses = state.courses.filter(function (course) {
       const matchesKeyword = !keyword
         || String(course.name).toLowerCase().includes(keyword)
-        || String(course.description).toLowerCase().includes(keyword);
+        || String(course.description || "").toLowerCase().includes(keyword)
+        || String(course.code || "").toLowerCase().includes(keyword);
       const matchesStatus = !state.status || course.status === state.status;
       const matchesCompletion = !state.completion
         || (state.completion === "high" && Number(course.completionRate) >= 70)
@@ -283,27 +289,84 @@
     $(document).on("lms:i18n:changed", render);
   }
 
+  function loadProgressForCourses(courses, materials, progressItems) {
+    const requests = courses.map(function (course) {
+      return Lms.apiClient.get("api/courses/" + course.id + "/progress").then(function (response) {
+        const data = getData(response) || {};
+        const totalMaterials = Number(data.totalMaterials || materials.filter(function (item) {
+          return Number(item.courseId) === course.id;
+        }).length);
+        const completedMaterials = Number(data.completedMaterials || 0);
+
+        course.materialCount = totalMaterials;
+        course.completedMaterials = completedMaterials;
+        course.completionRate = Math.round(Number(data.overallPercent || 0));
+      }, function () {
+        const courseMaterials = materials.filter(function (item) {
+          return Number(item.courseId) === course.id;
+        });
+        const courseProgress = progressItems.filter(function (item) {
+          return Number(item.courseId) === course.id;
+        });
+
+        course.materialCount = courseMaterials.length;
+        course.completedMaterials = courseProgress.filter(function (item) {
+          return Boolean(item.isCompleted);
+        }).length;
+        course.completionRate = course.materialCount
+          ? Math.round((course.completedMaterials / course.materialCount) * 100)
+          : 0;
+      });
+    });
+
+    return requests.length ? $.when.apply($, requests) : $.Deferred().resolve().promise();
+  }
+
   function init() {
     bindEvents();
     initReveal();
+    renderPageTitle();
 
-    $.when(Lms.apiClient.get("courses.json")).done(function (coursesResponse) {
-      state.courses = getItems(coursesResponse);
-      state.filteredCourses = state.courses.slice();
-      render();
-    }).fail(function () {
+    $.when(
+      Lms.apiClient.get("api/courses?page=1&pageSize=200"),
+      Lms.apiClient.get("api/learning-materials?page=1&pageSize=500"),
+      Lms.apiClient.get("api/learning-progress/my?page=1&pageSize=500")
+    ).done(function (coursesResponse, materialsResponse, progressResponse) {
+      const materials = getItems(materialsResponse);
+      const progressItems = getItems(progressResponse);
+
+      state.courses = getItems(coursesResponse).map(function (item) {
+        return {
+          id: Number(item.id),
+          name: item.name || "",
+          description: item.description || "",
+          code: item.code || "",
+          status: item.isPublished ? "Published" : "Draft",
+          materialCount: 0,
+          completedMaterials: 0,
+          completionRate: 0
+        };
+      });
+
+      loadProgressForCourses(state.courses, materials, progressItems).always(function () {
+        state.filteredCourses = state.courses.slice();
+        render();
+      });
+    }).fail(function (error) {
       $("#studentCourseGrid").html(emptyMarkup());
       $("#studentCourseFocus").html(
         '<div class="lms-empty-compact">' +
           '<i class="bi bi-exclamation-circle" aria-hidden="true"></i>' +
-          '<h3>Không thể tải khóa học</h3>' +
-          '<p>Vui lòng kiểm tra mock/courses.json và thử tải lại trang.</p>' +
+          "<h3>Không thể tải khóa học</h3>" +
+          "<p>Vui lòng kiểm tra kết nối API và thử tải lại trang.</p>" +
         "</div>"
       );
       showToast(
         "error",
         t("courses.listPage.dataErrorTitle", null, "Lỗi dữ liệu khóa học"),
-        t("courses.listPage.dataErrorMessage", null, "Không thể tải dữ liệu mô phỏng danh sách khóa học.")
+        error && error.message
+          ? error.message
+          : t("courses.listPage.dataErrorMessage", null, "Không thể tải dữ liệu danh sách khóa học từ backend.")
       );
     });
   }

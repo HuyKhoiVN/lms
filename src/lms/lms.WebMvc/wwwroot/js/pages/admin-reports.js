@@ -3,10 +3,13 @@
 
   const Lms = window.Lms || {};
   const state = {
-    reports: null,
+    examSummary: null,
+    passRate: null,
+    questionAnalysis: null,
+    learningSummary: null,
     exams: [],
     courses: [],
-    groups: [],
+    users: [],
     filters: {
       dateFrom: "",
       dateTo: "",
@@ -24,9 +27,14 @@
     return Array.isArray(response) ? response[0] : response;
   }
 
-  function getItems(response) {
+  function getData(response) {
     const payload = unwrap(response);
-    return payload && payload.data && Array.isArray(payload.data.items) ? payload.data.items : [];
+    return payload && payload.data ? payload.data : null;
+  }
+
+  function getItems(response) {
+    const data = getData(response);
+    return data && Array.isArray(data.items) ? data.items : [];
   }
 
   function escapeHtml(value) {
@@ -45,25 +53,44 @@
   }
 
   function populateSelect(selector, items, placeholder) {
+    const currentValue = $(selector).val() || "";
     const $select = $(selector).empty().append('<option value="">' + placeholder + "</option>");
 
     items.forEach(function (item) {
-      $select.append('<option value="' + escapeHtml(item.name) + '">' + escapeHtml(item.name) + "</option>");
+      $select.append('<option value="' + escapeHtml(item.id) + '">' + escapeHtml(item.name) + "</option>");
     });
+
+    $select.val(currentValue);
   }
 
-  function getFilteredSummary(summary) {
-    const activeFilterCount = Object.keys(state.filters).filter(function (key) {
-      return Boolean(state.filters[key]);
-    }).length;
-    const adjustment = activeFilterCount * 2;
+  function buildQuery(extra) {
+    const params = new URLSearchParams();
+    params.set("page", "1");
+    params.set("pageSize", "50");
 
-    return {
-      passRate: Math.max(0, summary.passRate - adjustment),
-      averageScore: Math.max(0, summary.averageScore - adjustment),
-      examCount: Math.max(1, summary.examCount - activeFilterCount),
-      completionRate: Math.max(0, summary.completionRate - adjustment)
-    };
+    if (state.filters.dateFrom) {
+      params.set("fromDate", state.filters.dateFrom);
+    }
+    if (state.filters.dateTo) {
+      params.set("toDate", state.filters.dateTo);
+    }
+    if (state.filters.exam) {
+      params.set("examId", state.filters.exam);
+    }
+    if (state.filters.course) {
+      params.set("courseId", state.filters.course);
+    }
+    if (state.filters.group) {
+      params.set("userId", state.filters.group);
+    }
+
+    Object.keys(extra || {}).forEach(function (key) {
+      if (extra[key] !== undefined && extra[key] !== null && extra[key] !== "") {
+        params.set(key, extra[key]);
+      }
+    });
+
+    return params.toString();
   }
 
   function renderActivityChart(items) {
@@ -72,7 +99,7 @@
         valueKey: "attempts",
         labelKey: "date",
         labelFormat: function (value) {
-          return String(value).slice(5);
+          return String(value || "").slice(0, 12);
         }
       });
       return;
@@ -85,8 +112,8 @@
 
     items.forEach(function (item) {
       const height = Math.max(12, Math.round((item.attempts / maxAttempts) * 132));
-      const label = item.date.slice(5);
-      const attemptsText = t("reports.adminPage.attemptsCount", { count: item.attempts }, item.attempts + " lượt thi");
+      const label = String(item.date || "").slice(0, 12);
+      const attemptsText = item.attempts + " lượt thi";
       const $bar = $(
         '<div class="admin-bar-item">' +
           '<div class="admin-bar" title="' + attemptsText + '"></div>' +
@@ -127,6 +154,32 @@
     });
   }
 
+  function buildQuestionDistribution(items) {
+    const buckets = [
+      { range: "0-49%", count: 0 },
+      { range: "50-69%", count: 0 },
+      { range: "70-84%", count: 0 },
+      { range: "85-100%", count: 0 }
+    ];
+
+    (items || []).forEach(function (item) {
+      const rate = Number(item.correctRatePercent || 0);
+      const weight = Number(item.answerCount || 0) || 1;
+
+      if (rate < 50) {
+        buckets[0].count += weight;
+      } else if (rate < 70) {
+        buckets[1].count += weight;
+      } else if (rate < 85) {
+        buckets[2].count += weight;
+      } else {
+        buckets[3].count += weight;
+      }
+    });
+
+    return buckets;
+  }
+
   function getFilterLabel() {
     const active = [];
 
@@ -134,52 +187,89 @@
       active.push(t("reports.adminPage.filterDateRange", null, "khoảng ngày"));
     }
 
-    ["exam", "course", "group"].forEach(function (key) {
-      if (state.filters[key]) {
-        active.push(state.filters[key]);
+    if (state.filters.exam) {
+      const exam = state.exams.find(function (item) { return String(item.id) === String(state.filters.exam); });
+      if (exam) {
+        active.push(exam.name);
       }
-    });
+    }
+
+    if (state.filters.course) {
+      const course = state.courses.find(function (item) { return String(item.id) === String(state.filters.course); });
+      if (course) {
+        active.push(course.name);
+      }
+    }
+
+    if (state.filters.group) {
+      const user = state.users.find(function (item) { return String(item.id) === String(state.filters.group); });
+      if (user) {
+        active.push(user.name);
+      }
+    }
 
     return active.length ? active.join(" / ") : t("reports.adminPage.filterAllData", null, "Tất cả dữ liệu");
   }
 
-  function renderSnapshot(summary) {
+  function renderSnapshot() {
+    const examSummary = state.examSummary || {};
+    const passRate = state.passRate || {};
+    const learningSummary = state.learningSummary || {};
+    const strongestExam = (passRate.items || []).slice().sort(function (a, b) {
+      return Number(b.passRatePercent || 0) - Number(a.passRatePercent || 0);
+    })[0];
+    const weakestQuestion = (state.questionAnalysis && state.questionAnalysis.items || []).slice().sort(function (a, b) {
+      return Number(a.correctRatePercent || 0) - Number(b.correctRatePercent || 0);
+    })[0];
+
     $("#reportSummaryList").html(
       '<div class="report-summary-item">' +
-        "<span>" + t("reports.adminPage.snapshotPerformance", null, "Hiệu suất") + "</span>" +
-        "<strong>" + t("reports.adminPage.snapshotPerformanceDesc", { passRate: summary.passRate, averageScore: summary.averageScore }, summary.passRate + "% tỉ lệ đạt với " + summary.averageScore + "/100 điểm trung bình") + "</strong>" +
+        "<span>Hiệu suất thi</span>" +
+        "<strong>" + escapeHtml(Math.round(Number(passRate.passRatePercent || 0)) + "% tỷ lệ đạt, " + Math.round(Number(examSummary.averageScore || 0)) + "/100 điểm trung bình") + "</strong>" +
       "</div>" +
       '<div class="report-summary-item">' +
-        "<span>" + t("reports.adminPage.snapshotCoverage", null, "Phạm vi") + "</span>" +
-        "<strong>" + t("reports.adminPage.snapshotCoverageDesc", { count: summary.examCount }, summary.examCount + " bài thi bao gồm trong ngữ cảnh báo cáo này") + "</strong>" +
+        "<span>Khóa học</span>" +
+        "<strong>" + escapeHtml(Number(learningSummary.completedCount || 0) + "/" + Number(learningSummary.totalProgressRecords || 0) + " bản ghi tiến độ đã hoàn thành") + "</strong>" +
       "</div>" +
       '<div class="report-summary-item">' +
-        "<span>" + t("reports.adminPage.snapshotCompletion", null, "Hoàn thành") + "</span>" +
-        "<strong>" + t("reports.adminPage.snapshotCompletionDesc", { completionRate: summary.completionRate }, summary.completionRate + "% tỉ lệ hoàn thành của học viên") + "</strong>" +
+        "<span>Bài thi nổi bật</span>" +
+        "<strong>" + escapeHtml(strongestExam ? strongestExam.examName + " - " + Math.round(Number(strongestExam.passRatePercent || 0)) + "% đạt" : "Chưa có dữ liệu") + "</strong>" +
+      "</div>" +
+      '<div class="report-summary-item">' +
+        "<span>Câu hỏi cần chú ý</span>" +
+        "<strong>" + escapeHtml(weakestQuestion ? weakestQuestion.questionContent + " - " + Math.round(Number(weakestQuestion.correctRatePercent || 0)) + "% đúng" : "Chưa có dữ liệu") + "</strong>" +
       "</div>"
     );
   }
 
   function render() {
-    if (!state.reports) {
+    if (!state.examSummary || !state.passRate || !state.learningSummary || !state.questionAnalysis) {
       return;
     }
 
-    const summary = getFilteredSummary(state.reports.summary);
+    const passRatePercent = Math.round(Number(state.passRate.passRatePercent || 0));
+    const averageScore = Math.round(Number(state.examSummary.averageScore || 0));
+    const examCount = (state.examSummary.items || []).length;
+    const completionRate = Math.round(Number(state.learningSummary.averageProgressPercent || 0));
 
-    $("[data-report-summary='passRate']").text(summary.passRate + "%");
-    $("[data-report-summary='averageScore']").text(summary.averageScore + "/100");
-    $("[data-report-summary='examCount']").text(summary.examCount);
-    $("[data-report-summary='completionRate']").text(summary.completionRate + "%");
-    $("[data-report-badge='passRate']").text(summary.passRate + "%");
-    $("[data-report-chart-text='passRate']").text(summary.passRate + "%");
-    $(".report-donut").css("--donut-value", summary.passRate);
+    $("[data-report-summary='passRate']").text(passRatePercent + "%");
+    $("[data-report-summary='averageScore']").text(averageScore + "/100");
+    $("[data-report-summary='examCount']").text(examCount);
+    $("[data-report-summary='completionRate']").text(completionRate + "%");
+    $("[data-report-badge='passRate']").text(passRatePercent + "%");
+    $("[data-report-chart-text='passRate']").text(passRatePercent + "%");
+    $(".report-donut").css("--donut-value", passRatePercent);
     $("[data-report-filter-state]").text(getFilterLabel());
-    $("[data-report-generated-at]").text(t("reports.adminPage.generatedAtText", { date: new Date().toLocaleString() }, "Được tạo: " + new Date().toLocaleString()));
+    $("[data-report-generated-at]").text("Được tạo: " + new Date().toLocaleString());
 
-    renderActivityChart(state.reports.examActivity);
-    renderDistribution(state.reports.scoreDistribution);
-    renderSnapshot(summary);
+    renderActivityChart((state.examSummary.items || []).map(function (item) {
+      return {
+        date: item.examName,
+        attempts: Number(item.attemptCount || 0)
+      };
+    }));
+    renderDistribution(buildQuestionDistribution(state.questionAnalysis.items));
+    renderSnapshot();
   }
 
   function collectFilters() {
@@ -193,24 +283,83 @@
       state.filters[key] = "";
       $("[data-report-filter='" + key + "']").val("");
     });
-    render();
+  }
+
+  function downloadFile(url, fileNameFallback) {
+    const token = Lms.auth && Lms.auth.getAccessToken ? Lms.auth.getAccessToken() : null;
+
+    return fetch(url, {
+      headers: token ? { Authorization: "Bearer " + token } : {}
+    }).then(function (response) {
+      if (!response.ok) {
+        throw new Error("Không thể tải file báo cáo.");
+      }
+      return Promise.all([response.blob(), response.headers.get("Content-Disposition")]);
+    }).then(function (payload) {
+      const blob = payload[0];
+      const disposition = payload[1] || "";
+      const match = /filename="?([^"]+)"?/i.exec(disposition);
+      const fileName = match && match[1] ? match[1] : fileNameFallback;
+      const objectUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+
+      link.href = objectUrl;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(objectUrl);
+    });
+  }
+
+  function loadReportData() {
+    const query = buildQuery();
+
+    $.when(
+      Lms.apiClient.get("api/reports/exam-summary?" + query),
+      Lms.apiClient.get("api/reports/pass-rate?" + query),
+      Lms.apiClient.get("api/reports/question-analysis?" + query),
+      Lms.apiClient.get("api/reports/learning-summary?" + query)
+    ).done(function (examSummaryResponse, passRateResponse, questionAnalysisResponse, learningSummaryResponse) {
+      state.examSummary = getData(examSummaryResponse) || {};
+      state.passRate = getData(passRateResponse) || {};
+      state.questionAnalysis = getData(questionAnalysisResponse) || {};
+      state.learningSummary = getData(learningSummaryResponse) || {};
+      render();
+    }).fail(function (error) {
+      showToast("error", t("reports.adminPage.toastLoadErrorTitle", null, "Báo cáo không khả dụng"), error && error.message ? error.message : t("reports.adminPage.toastLoadErrorMessage", null, "Không thể tải dữ liệu báo cáo từ backend."));
+    });
   }
 
   function bindEvents() {
     $("[data-report-action='apply-filters']").on("click", function () {
       collectFilters();
-      render();
-      showToast("success", t("reports.adminPage.toastFiltersAppliedTitle", null, "Đã áp dụng bộ lọc"), t("reports.adminPage.toastFiltersAppliedMsg", null, "Bảng báo cáo đã được cập nhật theo bộ lọc mô phỏng."));
+      loadReportData();
+      showToast("success", "Đã áp dụng bộ lọc", "Bảng báo cáo đã được cập nhật từ API.");
     });
 
     $("[data-report-action='reset-filters']").on("click", function () {
       resetFilters();
-      showToast("info", t("reports.adminPage.toastFiltersResetTitle", null, "Đặt lại bộ lọc"), t("reports.adminPage.toastFiltersResetMsg", null, "Bảng báo cáo đã được đưa về tất cả dữ liệu mô phỏng."));
+      loadReportData();
+      showToast("info", "Đặt lại bộ lọc", "Bảng báo cáo đã trở về toàn bộ dữ liệu.");
     });
 
-    $("[data-report-action='export-excel'], [data-report-action='export-pdf']").on("click", function () {
-      const type = $(this).data("report-action") === "export-excel" ? "Excel" : "PDF";
-      showToast("info", t("reports.adminPage.toastExportTitle", { type: type }, "Xuất " + type), t("reports.adminPage.toastExportMsg", { type: type }, "Chức năng xuất " + type + " là giao diện mô phỏng trong giai đoạn này."));
+    $("[data-report-action='export-excel']").on("click", function () {
+      downloadFile((Lms.apiClient.request ? (function () {
+        const base = Lms.config.apiBaseUrl.replace(/\/$/, "");
+        return base + "/reports/export/excel?" + buildQuery({ reportType: "exam-summary" });
+      })() : ""), "report.csv").catch(function (error) {
+        showToast("error", "Xuất Excel thất bại", error.message || "Không thể tải file báo cáo.");
+      });
+    });
+
+    $("[data-report-action='export-pdf']").on("click", function () {
+      downloadFile((function () {
+        const base = Lms.config.apiBaseUrl.replace(/\/$/, "");
+        return base + "/reports/export/pdf?" + buildQuery({ reportType: "exam-summary" });
+      })(), "report.pdf").catch(function (error) {
+        showToast("error", "Xuất PDF thất bại", error.message || "Không thể tải file báo cáo.");
+      });
     });
   }
 
@@ -220,36 +369,33 @@
     $(document).on("lms:i18n:changed", function () {
       populateSelect("[data-report-filter='exam']", state.exams, t("reports.adminPage.optionAllExams", null, "Tất cả bài thi"));
       populateSelect("[data-report-filter='course']", state.courses, t("reports.adminPage.optionAllCourses", null, "Tất cả khóa học"));
-      populateSelect("[data-report-filter='group']", state.groups, t("reports.adminPage.optionAllGroups", null, "Tất cả học viên và nhóm"));
+      populateSelect("[data-report-filter='group']", state.users, "Tất cả học viên");
       render();
     });
 
-    if (Lms.i18n && Lms.i18n.ready) {
-      Lms.i18n.ready.always(loadPageData);
-      return;
-    }
-    loadPageData();
-  }
-
-  function loadPageData() {
     $.when(
-      Lms.apiClient.get("reports.json"),
-      Lms.apiClient.get("exams.json"),
-      Lms.apiClient.get("courses.json"),
-      Lms.apiClient.get("groups.json")
-    ).done(function (reportsResponse, examsResponse, coursesResponse, groupsResponse) {
-      const reports = unwrap(reportsResponse);
-      state.reports = reports.data;
-      state.exams = getItems(examsResponse);
-      state.courses = getItems(coursesResponse);
-      state.groups = getItems(groupsResponse);
+      Lms.apiClient.get("api/exams?page=1&pageSize=200"),
+      Lms.apiClient.get("api/courses?page=1&pageSize=200"),
+      Lms.apiClient.get("api/users?page=1&pageSize=200")
+    ).done(function (examsResponse, coursesResponse, usersResponse) {
+      state.exams = getItems(examsResponse).map(function (item) {
+        return { id: item.id, name: item.name || "" };
+      });
+      state.courses = getItems(coursesResponse).map(function (item) {
+        return { id: item.id, name: item.name || "" };
+      });
+      state.users = getItems(usersResponse).filter(function (item) {
+        return item.role === "Student";
+      }).map(function (item) {
+        return { id: item.id, name: item.fullName || item.userName || "" };
+      });
 
       populateSelect("[data-report-filter='exam']", state.exams, t("reports.adminPage.optionAllExams", null, "Tất cả bài thi"));
       populateSelect("[data-report-filter='course']", state.courses, t("reports.adminPage.optionAllCourses", null, "Tất cả khóa học"));
-      populateSelect("[data-report-filter='group']", state.groups, t("reports.adminPage.optionAllGroups", null, "Tất cả học viên và nhóm"));
-      render();
-    }).fail(function () {
-      showToast("error", t("reports.adminPage.toastLoadErrorTitle", null, "Báo cáo không khả dụng"), t("reports.adminPage.toastLoadErrorMessage", null, "Không thể tải dữ liệu mô phỏng báo cáo."));
+      populateSelect("[data-report-filter='group']", state.users, "Tất cả học viên");
+      loadReportData();
+    }).fail(function (error) {
+      showToast("error", t("reports.adminPage.toastLoadErrorTitle", null, "Báo cáo không khả dụng"), error && error.message ? error.message : t("reports.adminPage.toastLoadErrorMessage", null, "Không thể tải dữ liệu nguồn cho báo cáo."));
     });
   }
 

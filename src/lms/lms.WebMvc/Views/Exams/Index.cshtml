@@ -15,7 +15,7 @@
             <p class="lms-workspace-description" data-i18n="exams.studentListPage.subtitle">Theo dõi bài thi được giao và bắt đầu khi bạn sẵn sàng.</p>
         </div>
 
-        <a class="app-button app-button-primary" asp-area="" asp-controller="Exams" asp-action="Start" asp-route-id="1">Làm bài thi</a>
+        <a class="app-button app-button-primary is-disabled" href="#" aria-disabled="true" data-student-exam-primary-link data-i18n="exams.studentListPage.buttonStart">Làm bài thi</a>
     </header>
 
     <section class="student-exam-attention student-exam-list-reveal" data-exam-list-reveal>
@@ -41,7 +41,7 @@
             </div>
             <div>
                 <dt>Hành động</dt>
-                <dd><a class="app-button app-button-primary" data-student-exam-attention-link asp-area="" asp-controller="Exams" asp-action="Start" asp-route-id="1">Thực hiện ngay</a></dd>
+                <dd><a class="app-button app-button-primary is-disabled" data-student-exam-attention-link href="#" aria-disabled="true">Thực hiện ngay</a></dd>
             </div>
         </dl>
     </section>

@@ -30,7 +30,8 @@
     "dateTime": "Ngày giờ",
     "language": "Ngôn ngữ",
     "vietnamese": "Tiếng Việt",
-    "english": "Tiếng Anh"
+    "english": "Tiếng Anh",
+    "exam": "B?i thi"
   },
   "nav": {
     "home": "Trang chủ",
@@ -84,8 +85,6 @@
       "passed": "Đạt",
       "welcome": "Chào mừng trở lại",
       "signInTitle": "Đăng nhập vào lms",
-      "mockCopy": "Sử dụng tài khoản mô phỏng trong giai đoạn chưa tích hợp API.",
-      "mockAccounts": "Tài khoản mô phỏng",
       "studentAccount": "Học viên",
       "adminAccount": "Quản trị",
       "username": "Tên đăng nhập",
@@ -95,7 +94,7 @@
       "usernameRequired": "Vui lòng nhập tên đăng nhập.",
       "passwordRequired": "Vui lòng nhập mật khẩu.",
       "loginFailedTitle": "Đăng nhập thất bại",
-      "loginFailedMessage": "Hãy dùng admin / 123456 hoặc student01 / 123456.",
+      "loginFailedMessage": "Không thể đăng nhập vào hệ thống.",
       "signingIn": "Đang đăng nhập"
     },
     "changePasswordPage": {
@@ -126,7 +125,9 @@
       "validationFailedMessage": "Vui lòng kiểm tra lại các trường mật khẩu được đánh dấu.",
       "updating": "Đang cập nhật",
       "successTitle": "Đã cập nhật mật khẩu",
-      "successMessage": "Đổi mật khẩu mô phỏng thành công."
+      "successMessage": "Đổi mật khẩu mô phỏng thành công.",
+      "failedTitle": "??i m?t kh?u th?t b?i",
+      "failedMessage": "Kh?ng th? c?p nh?t m?t kh?u. Vui l?ng ki?m tra m?t kh?u hi?n t?i v? th? l?i."
     }
   },
   "dashboard": {
@@ -154,7 +155,6 @@
       "examActivity": "Hoạt động thi",
       "examActivitySubtitle": "Số lượt làm bài trong những ngày gần đây.",
       "examActivityChart": "Biểu đồ hoạt động thi",
-      "liveMock": "Dữ liệu mô phỏng",
       "scoreDistribution": "Phân bổ điểm",
       "scoreDistributionSubtitle": "Điểm học viên được nhóm theo khoảng.",
       "scoreDistributionChart": "Biểu đồ phân bổ điểm",
@@ -194,7 +194,6 @@
       "score": "điểm",
       "latestResult": "Kết quả gần nhất",
       "loadingResult": "Đang tải kết quả...",
-      "loadingMockData": "Đang tải dữ liệu mô phỏng...",
       "studentSummary": "Tổng quan học viên",
       "assignedCourses": "Khóa học được giao",
       "learning": "Học tập",
@@ -327,9 +326,9 @@
       "exportTitle": "Xuất người dùng",
       "exportMessage": "Chức năng xuất sẽ được nối ở task báo cáo/xuất dữ liệu.",
       "loadErrorTitle": "Không thể tải người dùng",
-      "loadErrorCopy": "Vui lòng kiểm tra mock/users.json.",
+      "loadErrorCopy": "Vui l?ng ki?m tra API ng??i d?ng.",
       "dataErrorTitle": "Lỗi dữ liệu người dùng",
-      "dataErrorMessage": "Không thể tải users.json.",
+      "dataErrorMessage": "Kh?ng th? t?i ng??i d?ng t? API.",
       "roles": {
         "Admin": "Quản trị",
         "Student": "Học viên"
@@ -337,7 +336,15 @@
       "statuses": {
         "Active": "Hoạt động",
         "Locked": "Đã khóa"
-      }
+      },
+      "saving": "?ang l?u...",
+      "resetting": "?ang ??t l?i...",
+      "saveFailedTitle": "L?u ng??i d?ng th?t b?i",
+      "saveFailedMessage": "Kh?ng th? l?u th?ng tin ng??i d?ng.",
+      "actionFailedTitle": "Thao t?c th?t b?i",
+      "actionFailedMessage": "Kh?ng th? c?p nh?t tr?ng th?i ng??i d?ng.",
+      "passwordResetFailedTitle": "??t l?i m?t kh?u th?t b?i",
+      "passwordResetFailedMessage": "Kh?ng th? ??t l?i m?t kh?u ng??i d?ng."
     }
   },
   "groups": {
@@ -406,9 +413,14 @@
       "exportTitle": "Xuất nhóm",
       "exportMessage": "Chức năng xuất sẽ được nối ở task báo cáo/xuất dữ liệu.",
       "loadErrorTitle": "Không thể tải nhóm",
-      "loadErrorCopy": "Vui lòng kiểm tra mock/groups.json.",
+      "loadErrorCopy": "Vui l?ng ki?m tra API nh?m.",
       "dataErrorTitle": "Lỗi dữ liệu nhóm",
-      "dataErrorMessage": "Không thể tải groups.json."
+      "dataErrorMessage": "Kh?ng th? t?i nh?m t? API.",
+      "description": "M? t?",
+      "noDescription": "Ch?a c? m? t?",
+      "saving": "?ang l?u...",
+      "saveFailedTitle": "L?u nh?m th?t b?i",
+      "saveFailedMessage": "Kh?ng th? l?u th?ng tin nh?m."
     },
     "detailPage": {
       "title": "Chi ti?t nh?m",
@@ -422,7 +434,6 @@
       "members": "Th?nh vi?n",
       "courses": "Kh?a h?c",
       "exams": "B?i thi",
-      "mockState": "Tr?ng th?i m? ph?ng",
       "membersSubtitle": "Th?m ho?c x?a ng??i d?ng kh?i nh?m trong b? nh?.",
       "coursesTitle": "Kh?a h?c ???c giao",
       "coursesSubtitle": "Giao kh?a h?c m? ph?ng cho nh?m n?y.",
@@ -463,7 +474,15 @@
       "loadErrorTitle": "Kh?ng th? t?i chi ti?t nh?m",
       "loadErrorCopy": "Vui l?ng ki?m tra c?c file d? li?u m? ph?ng.",
       "dataErrorTitle": "L?i chi ti?t nh?m",
-      "dataErrorMessage": "Kh?ng th? t?i d? li?u m? ph?ng chi ti?t nh?m."
+      "dataErrorMessage": "Kh?ng th? t?i d? li?u m? ph?ng chi ti?t nh?m.",
+      "addFailedTitle": "Th?m th?nh vi?n th?t b?i",
+      "addFailedMessage": "Kh?ng th? th?m ng??i d?ng v?o nh?m n?y.",
+      "removeFailedTitle": "G? th?nh vi?n th?t b?i",
+      "removeFailedMessage": "Kh?ng th? g? ng??i d?ng kh?i nh?m n?y.",
+      "pendingTitle": "S? gh?p ? phase ti?p theo",
+      "pendingPhase": "???c l?n k? ho?ch cho phase sau",
+      "pendingActionMessage": "Ph?n assignment course/exam cho nh?m s? ???c gh?p ? phase sau.",
+      "state": "Tr?ng th?i"
     }
   },
   "courses": {
@@ -547,13 +566,21 @@
       "exportTitle": "Xu?t kh?a h?c",
       "exportMessage": "Ch?c n?ng xu?t s? ???c n?i ? task b?o c?o/xu?t d? li?u.",
       "loadErrorTitle": "Kh?ng th? t?i kh?a h?c",
-      "loadErrorCopy": "Vui l?ng ki?m tra mock/courses.json.",
+      "loadErrorCopy": "Vui l?ng ki?m tra API kh?a h?c.",
       "dataErrorTitle": "L?i d? li?u kh?a h?c",
       "dataErrorMessage": "Kh?ng th? t?i d? li?u m? ph?ng danh s?ch kh?a h?c.",
       "statuses": {
         "Published": "?? xu?t b?n",
         "Draft": "B?n nh?p"
-      }
+      },
+      "assignErrorTitle": "Giao kh?a h?c th?t b?i",
+      "assignErrorMessage": "Kh?ng th? giao kh?a h?c.",
+      "courseCode": "M? kh?a h?c",
+      "duplicateCode": "M? kh?a h?c n?y ?? t?n t?i.",
+      "progressWarningTitle": "Ch?a c? ti?n ??",
+      "progressWarningMessage": "Kh?ng th? t?i ti?n ?? kh?a h?c.",
+      "saveErrorTitle": "L?u kh?a h?c th?t b?i",
+      "saveErrorMessage": "Kh?ng th? l?u th?ng tin kh?a h?c."
     },
     "detailPage": {
       "title": "Chi ti?t kh?a h?c",
@@ -572,7 +599,6 @@
       "infoTitle": "Th?ng tin kh?a h?c",
       "infoSubtitle": "Metadata kh?a h?c v? ti?n ?? h?c t?p.",
       "loadingCourse": "?ang t?i kh?a h?c...",
-      "loadingMockData": "?ang t?i d? li?u m? ph?ng...",
       "complete": "{{percent}}% ho?n th?nh",
       "materialsTitle": "T?i li?u",
       "materialsSubtitle": "T?i li?u h?c t?p hi?n ???c g?n v?i kh?a h?c n?y.",
@@ -602,7 +628,62 @@
       "statuses": {
         "Published": "?? xu?t b?n",
         "Draft": "B?n nh?p"
-      }
+      },
+      "assignmentReadPending": "API ??c danh s?ch giao kh?a h?c ch?a c? cho m?n qu?n tr? n?y.",
+      "materialHasFile": "C? t?p ??nh k?m",
+      "materialOrder": "Th? t? {{order}}",
+      "publishErrorTitle": "C?p nh?t tr?ng th?i th?t b?i",
+      "publishErrorMessage": "Kh?ng th? c?p nh?t tr?ng th?i kh?a h?c.",
+      "unpublish": "H?y xu?t b?n",
+      "unpublishedTitle": "?? h?y xu?t b?n kh?a h?c",
+      "unpublishedMessage": "{{name}} ?? ???c chuy?n v? b?n nh?p.",
+      "loadingData": "?ang t?i d? li?u kh?a h?c..."
+    },
+    "detailStudentPage": {
+      "breadcrumbHome": "Trang ch?",
+      "breadcrumbCourses": "Kh?a h?c",
+      "breadcrumbCurrent": "Chi ti?t",
+      "kicker": "Kh?ng gian h?c t?p",
+      "title": "Chi ti?t kh?a h?c",
+      "subtitle": "?ang t?i d? li?u kh?a h?c...",
+      "backToCourses": "Quay l?i kh?a h?c",
+      "continueLearning": "Ti?p t?c h?c",
+      "metricProgress": "Ti?n ??",
+      "metricCompletedMaterials": "T?i li?u ho?n th?nh",
+      "metricMaterials": "T?i li?u",
+      "metricExams": "B?i thi",
+      "materialsKicker": "L? tr?nh",
+      "materialsTitle": "T?i li?u trong kh?a h?c",
+      "loadingMaterials": "?ang t?i t?i li?u...",
+      "progressKicker": "Ti?n ??",
+      "progressTitle": "T?ng quan h?c t?p",
+      "loadingCourse": "?ang t?i kh?a h?c...",
+      "loadingProgress": "Ti?n ?? c?a b?n s? hi?n th? t?i ??y.",
+      "examsKicker": "??nh gi?",
+      "examsTitle": "B?i thi c?a kh?a h?c",
+      "loadingExams": "?ang t?i b?i thi...",
+      "notFoundTitle": "Kh?ng t?m th?y kh?a h?c",
+      "notFoundCopy": "Kh?a h?c ???c y?u c?u kh?ng t?n t?i ho?c b?n ch?a ???c c?p quy?n.",
+      "statusPublished": "?ang h?c",
+      "statusDraft": "Ch?a m?",
+      "progressValue": "{{percent}}% ho?n th?nh",
+      "materialCount": "{{count}} t?i li?u",
+      "examCount": "{{count}} b?i thi",
+      "noMaterialsTitle": "Ch?a c? t?i li?u",
+      "noMaterialsCopy": "T?i li?u c?a kh?a h?c s? hi?n th? t?i ??y khi ???c c?ng b?.",
+      "materialCompleted": "?? ho?n th?nh",
+      "materialInProgress": "?ang h?c",
+      "materialNotStarted": "Ch?a b?t ??u",
+      "reviewMaterial": "Xem l?i",
+      "openMaterial": "M? h?c li?u",
+      "noExamsTitle": "Ch?a c? b?i thi",
+      "noExamsCopy": "B?i thi li?n quan t?i kh?a h?c s? hi?n th? t?i ??y.",
+      "examOrder": "Th? t? {{order}}",
+      "startExam": "L?m b?i",
+      "loadErrorTitle": "Kh?ng th? t?i kh?a h?c",
+      "loadErrorCopy": "Vui l?ng ki?m tra k?t n?i API v? quy?n truy c?p kh?a h?c.",
+      "dataErrorTitle": "L?i d? li?u kh?a h?c",
+      "dataErrorMessage": "Kh?ng th? t?i d? li?u chi ti?t kh?a h?c t? backend."
     }
   },
   "materials": {
@@ -692,13 +773,28 @@
       "exportTitle": "Xuất tài liệu",
       "exportMessage": "Chức năng xuất sẽ được kết nối ở task báo cáo/xuất dữ liệu.",
       "loadErrorTitle": "Không thể tải tài liệu",
-      "loadErrorCopy": "Vui lòng kiểm tra file cấu hình mock/learning-materials.json.",
+      "loadErrorCopy": "Vui l?ng ki?m tra API t?i li?u h?c t?p.",
       "dataErrorTitle": "Lỗi dữ liệu",
       "dataErrorMessage": "Không thể tải dữ liệu mô phỏng tài liệu học tập.",
       "statuses": {
         "Published": "Đã xuất bản",
         "Draft": "Bản nháp"
-      }
+      },
+      "delete": "X?a",
+      "deleteFailedTitle": "X?a t?i li?u th?t b?i",
+      "deleteFailedMessage": "Kh?ng th? x?a t?i li?u h?c t?p n?y.",
+      "formExternalLink": "Li?n k?t ngo?i",
+      "formOrder": "Th? t?",
+      "formTextContent": "N?i dung v?n b?n",
+      "hasFile": "C? t?p",
+      "noFile": "Ch?a c? t?p",
+      "orderValue": "Th? t? {{order}}",
+      "orderWarning": "Th? t? ph?i l?n h?n ho?c b?ng 0.",
+      "linkRequired": "T?i li?u d?ng li?n k?t c?n c? li?n k?t ngo?i.",
+      "textRequired": "T?i li?u d?ng v?n b?n c?n c? n?i dung.",
+      "saveFailedTitle": "L?u t?i li?u th?t b?i",
+      "saveFailedMessage": "Kh?ng th? l?u th?ng tin t?i li?u h?c t?p.",
+      "typesMetric": "Th? lo?i"
     },
     "studentListPage": {
       "breadcrumbHome": "Trang chủ",
@@ -730,7 +826,12 @@
       "buttonReview": "Xem lại",
       "buttonOpen": "Mở",
       "loadErrorTitle": "Không thể tải tài liệu",
-      "loadErrorCopy": "Vui lòng kiểm tra mock/learning-materials.json."
+      "loadErrorCopy": "Vui l?ng ki?m tra API t?i li?u h?c t?p.",
+      "buttonContinue": "Ti?p t?c h?c",
+      "orderValue": "Th? t? {{order}}",
+      "hasNote": "C? ghi ch?",
+      "noNote": "Ch?a ghi ch?",
+      "inProgress": "?ang h?c"
     },
     "viewerPage": {
       "breadcrumbHome": "Trang chủ",
@@ -785,7 +886,13 @@
       "toastLinkTitle": "Liên kết mẫu",
       "toastLinkMessage": "Các liên kết ngoài sẽ mở khi các URL tài liệu được sẵn sàng.",
       "loadErrorTitle": "Không thể tải tài liệu",
-      "loadErrorCopy": "Vui lòng kiểm tra các tệp tin dữ liệu mô phỏng."
+      "loadErrorCopy": "Vui lòng kiểm tra các tệp tin dữ liệu mô phỏng.",
+      "orderValue": "Th? t? {{order}}",
+      "statusNotStarted": "Ch?a b?t ??u",
+      "textFallback": "Ch?a c? n?i dung v?n b?n.",
+      "toastDownloadEmptyMessage": "Ch?a c? t?p ?? t?i xu?ng.",
+      "toastProgressErrorTitle": "C?p nh?t ti?n ?? th?t b?i",
+      "toastProgressErrorMessage": "Kh?ng th? c?p nh?t ti?n ?? h?c t?p."
     }
   },
   "questions": {
@@ -873,11 +980,13 @@
       "importTitle": "Nhập dữ liệu câu hỏi",
       "importMessage": "Chức năng nhập câu hỏi sẽ được kết nối ở một task sau.",
       "loadErrorTitle": "Không thể tải câu hỏi",
-      "loadErrorCopy": "Vui lòng kiểm tra mock/questions.json.",
+      "loadErrorCopy": "Vui l?ng ki?m tra API c?u h?i.",
       "dataErrorTitle": "Lỗi dữ liệu câu hỏi",
       "dataErrorMessage": "Không thể tải dữ liệu mô phỏng câu hỏi.",
       "questionId": "Mã câu hỏi #{{id}}",
-      "answersMeta": "{{options}} lựa chọn / {{correct}} đúng"
+      "answersMeta": "{{options}} lựa chọn / {{correct}} đúng",
+      "noQuestionsTitle": "Kh?ng t?m th?y c?u h?i",
+      "noQuestionsCopy": "Th? ?i?u ch?nh b? l?c ho?c t?o c?u h?i m?i."
     }
   },
   "exams": {
@@ -952,9 +1061,19 @@
       "exportTitle": "Xuất bài thi",
       "exportMessage": "Chức năng xuất sẽ được nối ở task báo cáo/xuất dữ liệu.",
       "loadErrorTitle": "Không thể tải bài thi",
-      "loadErrorCopy": "Vui lòng kiểm tra mock/exams.json.",
+      "loadErrorCopy": "Vui l?ng ki?m tra API b?i thi.",
       "dataErrorTitle": "Lỗi dữ liệu bài thi",
-      "dataErrorMessage": "Không thể tải dữ liệu mô phỏng bài thi."
+      "dataErrorMessage": "Không thể tải dữ liệu mô phỏng bài thi.",
+      "assignErrorTitle": "Giao b?i thi th?t b?i",
+      "assignErrorMessage": "Kh?ng th? giao b?i thi.",
+      "publishErrorTitle": "Xu?t b?n th?t b?i",
+      "publishErrorMessage": "Kh?ng th? xu?t b?n b?i thi.",
+      "unpublish": "H?y xu?t b?n",
+      "unpublishExamTitle": "H?y xu?t b?n b?i thi",
+      "unpublishConfirmPrefix": "H?y xu?t b?n",
+      "unpublishConfirmSuffix": "?",
+      "unpublishedTitle": "?? h?y xu?t b?n b?i thi",
+      "unpublishedMessage": "B?i thi ?? ???c chuy?n v? b?n nh?p."
     },
     "builderPage": {
       "breadcrumbRoot": "Quản trị",
@@ -1139,7 +1258,11 @@
       "buttonStart": "Bắt đầu",
       "buttonUnavailable": "Không khả dụng",
       "loadErrorTitle": "Không thể tải bài thi",
-      "loadErrorCopy": "Vui lòng kiểm tra mock/exams.json."
+      "loadErrorCopy": "Vui l?ng ki?m tra API b?i thi.",
+      "durationLabel": "Th?i l??ng",
+      "passScoreLabel": "?i?m ??t",
+      "metaDuration": "{{minutes}} ph?t",
+      "metaPassScore": "?i?m ??t {{score}}"
     },
     "startPage": {
       "breadcrumbHome": "Trang chủ",
@@ -1179,7 +1302,9 @@
       "toastUnavailableTitle": "Bài thi chưa sẵn sàng",
       "toastUnavailableMessage": "Chỉ bài thi đã xuất bản mới có thể bắt đầu làm.",
       "toastLoadErrorTitle": "Lỗi tải dữ liệu",
-      "toastLoadErrorMessage": "Không thể tải dữ liệu bài thi."
+      "toastLoadErrorMessage": "Không thể tải dữ liệu bài thi.",
+      "toastStartErrorTitle": "Kh?ng th? b?t ??u b?i thi",
+      "toastStartErrorMessage": "Vui l?ng th? l?i ho?c li?n h? qu?n tr? vi?n."
     },
     "takePage": {
       "breadcrumbHome": "Trang chủ",
@@ -1216,7 +1341,64 @@
       "notFoundCopy": "Bài thi yêu cầu không tồn tại trong dữ liệu mô phỏng.",
       "readySubtitle": "Trả lời các câu hỏi và nộp bài khi hoàn thành.",
       "toastLoadErrorTitle": "Lỗi tải dữ liệu",
-      "toastLoadErrorMessage": "Không thể tải dữ liệu làm bài thi."
+      "toastLoadErrorMessage": "Không thể tải dữ liệu làm bài thi.",
+      "toastSubmitErrorTitle": "N?p b?i th?t b?i",
+      "toastSubmitErrorMessage": "Kh?ng th? n?p b?i thi c?a b?n.",
+      "toastTimerInvalidTitle": "Ch?a th? n?p b?i",
+      "toastTimerInvalidMessage": "D? li?u th?i gian l?m b?i ch?a s?n s?ng. Vui l?ng t?i l?i trang."
+    },
+    "assignmentPage": {
+      "breadcrumbRoot": "Qu?n tr?",
+      "breadcrumbExams": "B?i thi",
+      "breadcrumbCurrent": "Giao b?i thi",
+      "title": "Giao b?i thi",
+      "subtitle": "Giao b?i thi ?? xu?t b?n cho h?c vi?n ho?c nh?m h?c vi?n.",
+      "backToExams": "Qu?n l? b?i thi",
+      "createExam": "T?o b?i thi",
+      "summary": "T?ng quan giao b?i",
+      "metricExams": "B?i thi",
+      "metricStudents": "H?c vi?n",
+      "metricGroups": "Nh?m",
+      "metricAssigned": "?? giao",
+      "selectExamTitle": "Ch?n b?i thi",
+      "selectExamSubtitle": "Ch?n b?i thi ?? xem v? c?p nh?t danh s?ch ?? giao.",
+      "examLabel": "B?i thi",
+      "openBuilder": "M? tr?nh t?o b?i thi",
+      "studentsTitle": "Giao cho h?c vi?n",
+      "studentsSubtitle": "Th?m ho?c g? h?c vi?n kh?i b?i thi ?ang ch?n.",
+      "userLabel": "H?c vi?n",
+      "addStudent": "Th?m h?c vi?n",
+      "groupsTitle": "Giao cho nh?m",
+      "groupsSubtitle": "Giao b?i thi cho to?n b? h?c vi?n trong nh?m.",
+      "groupLabel": "Nh?m",
+      "addGroup": "Th?m nh?m",
+      "noExamsOption": "Ch?a c? b?i thi",
+      "studentCount": "{{count}} h?c vi?n",
+      "groupCount": "{{count}} nh?m",
+      "statusPublished": "?? xu?t b?n",
+      "statusDraft": "B?n nh?p",
+      "selectOption": "Ch?n m?c",
+      "noStudentsTitle": "Ch?a giao cho h?c vi?n n?o",
+      "noStudentsCopy": "Ch?n h?c vi?n ph?a tr?n ?? giao b?i thi.",
+      "noGroupsTitle": "Ch?a giao cho nh?m n?o",
+      "noGroupsCopy": "Ch?n nh?m ph?a tr?n ?? giao b?i thi cho to?n nh?m.",
+      "noMoreStudents": "Kh?ng c?n h?c vi?n ?? th?m",
+      "noMoreGroups": "Kh?ng c?n nh?m ?? th?m",
+      "groupAssigned": "?? giao qua nh?m",
+      "loadAssignmentsErrorTitle": "Kh?ng th? t?i giao b?i",
+      "loadAssignmentsErrorMessage": "Vui l?ng ki?m tra API giao b?i.",
+      "selectTargetTitle": "Ch?n ??i t??ng",
+      "selectTargetMessage": "Ch?n b?i thi v? ??i t??ng tr??c khi giao.",
+      "assignSuccessTitle": "?? giao b?i thi",
+      "assignSuccessMessage": "Danh s?ch giao b?i ?? ???c c?p nh?t.",
+      "assignErrorTitle": "Giao b?i th?t b?i",
+      "assignErrorMessage": "Kh?ng th? giao b?i thi.",
+      "removeSuccessTitle": "?? x?a giao b?i",
+      "removeSuccessMessage": "??i t??ng ?? ???c g? kh?i b?i thi.",
+      "removeErrorTitle": "X?a giao b?i th?t b?i",
+      "removeErrorMessage": "Kh?ng th? x?a giao b?i.",
+      "loadErrorTitle": "Kh?ng th? t?i d? li?u giao b?i",
+      "loadErrorMessage": "Vui l?ng ki?m tra k?t n?i API."
     }
   },
   "results": {
@@ -1251,7 +1433,10 @@
       "passed": "Đạt",
       "failed": "Không đạt",
       "durationValue": "{{minutes}} phút",
-      "buttonDetail": "Chi tiết"
+      "buttonDetail": "Chi tiết",
+      "durationUnavailable": "Ch?a c? d? li?u",
+      "toastLoadErrorTitle": "Kh?ng th? t?i k?t qu?",
+      "toastLoadErrorMessage": "Vui l?ng ki?m tra API k?t qu?."
     },
     "detailPage": {
       "breadcrumbHome": "Trang chủ",
@@ -1299,7 +1484,9 @@
       "difficultyHard": "Khó",
       "badgeSampleReview": "Xem thử",
       "badgeCorrectState": "Đúng",
-      "badgeWrongState": "Sai"
+      "badgeWrongState": "Sai",
+      "toastLoadErrorTitle": "Kh?ng th? t?i k?t qu?",
+      "toastLoadErrorMessage": "Vui l?ng ki?m tra API k?t qu?."
     }
   },
   "certificates": {
@@ -1334,7 +1521,9 @@
       "toastDownloadTitle": "Tải xuống mẫu",
       "toastDownloadMessage": "Tải xuống chứng chỉ sẽ được kết nối với tệp tin thực tế ở giai đoạn sau.",
       "toastLoadErrorTitle": "Chứng chỉ không khả dụng",
-      "toastLoadErrorMessage": "Không thể tải dữ liệu mô phỏng chứng chỉ."
+      "toastLoadErrorMessage": "Không thể tải dữ liệu mô phỏng chứng chỉ.",
+      "toastDownloadErrorTitle": "T?i ch?ng ch? th?t b?i",
+      "toastDownloadErrorMessage": "Kh?ng th? t?i t?p ch?ng ch?."
     }
   },
   "reports": {
@@ -1439,8 +1628,12 @@
       "toastExportTitle": "Xuất nhật ký hệ thống",
       "toastExportMsg": "Chức năng xuất nhật ký là giao diện mô phỏng trong giai đoạn này.",
       "toastLoadErrorTitle": "Không thể tải nhật ký hệ thống",
-      "toastLoadErrorMessage": "Vui lòng kiểm tra mock/audit-logs.json.",
+      "toastLoadErrorMessage": "Vui lòng kiểm tra API nh?t k? h? th?ng.",
       "toastLoadErrorMsgFile": "Không thể tải audit-logs.json."
+    },
+    "listPage": {
+      "toastLoadErrorMessage": "Vui l?ng ki?m tra API nh?t k? h? th?ng.",
+      "toastLoadErrorMsgFile": "Kh?ng th? t?i nh?t k? h? th?ng t? API."
     }
   },
   "privacyPage": {

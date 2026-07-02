@@ -221,6 +221,14 @@ public class GroupExamAssignmentsController : ControllerBase
         _currentUser = currentUser;
     }
 
+    [HttpGet]
+    [ProducesResponseType(typeof(ApiResponse<PagedResult<GroupExamAssignmentResponse>>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetGroupAssignments([FromQuery] GroupExamAssignmentFilterRequest filter)
+    {
+        var r = await _svc.GetGroupAssignmentsAsync(filter);
+        return r.Success ? Ok(r) : BadRequest(r);
+    }
+
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]

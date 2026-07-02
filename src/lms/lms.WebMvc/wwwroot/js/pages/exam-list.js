@@ -20,15 +20,6 @@
     return Lms.i18n ? Lms.i18n.t(key, params, fallback) : (fallback || key);
   }
 
-  function unwrap(response) {
-    return Array.isArray(response) ? response[0] : response;
-  }
-
-  function getItems(response) {
-    const payload = unwrap(response);
-    return payload && payload.data && Array.isArray(payload.data.items) ? payload.data.items : [];
-  }
-
   function escapeHtml(value) {
     return String(value ?? "")
       .replace(/&/g, "&amp;")
@@ -44,6 +35,46 @@
     }
   }
 
+  function getResponsePayload(response) {
+    return Array.isArray(response) ? response[0] : response;
+  }
+
+  function getResponseData(response) {
+    const payload = getResponsePayload(response);
+    return payload && payload.data ? payload.data : null;
+  }
+
+  function getResponseItems(response) {
+    const data = getResponseData(response);
+    return data && Array.isArray(data.items) ? data.items : [];
+  }
+
+  function normalizeReviewMode(reviewMode) {
+    const map = {
+      FULL_REVIEW: "FullReview",
+      RESULT_ONLY: "ResultOnly",
+      ANSWER_ONLY: "AnswerOnly",
+      NO_REVIEW: "NoReview"
+    };
+    return map[reviewMode] || reviewMode || "ResultOnly";
+  }
+
+  function mapExam(item) {
+    return {
+      id: Number(item.id),
+      code: item.code || "",
+      name: item.name || "",
+      durationMinutes: Number(item.durationMinutes || 0),
+      passScore: Number(item.passScore || 0),
+      questionCount: Number(item.questionCount || 0),
+      attemptLimit: item.attemptLimit,
+      reviewMode: normalizeReviewMode(item.reviewMode),
+      isPublished: Boolean(item.isPublished),
+      status: item.isPublished ? "Published" : "Draft",
+      assignedCount: null
+    };
+  }
+
   function findExam(examId) {
     return state.exams.find(function (exam) {
       return exam.id === Number(examId);
@@ -56,19 +87,19 @@
 
   function translateStatus(status) {
     return status === "Published"
-      ? t("exams.adminListPage.published", null, "Đã xuất bản")
-      : t("exams.adminListPage.draft", null, "Bản nháp");
+      ? t("exams.adminListPage.published", null, "Da xuat ban")
+      : t("exams.adminListPage.draft", null, "Ban nhap");
   }
 
   function getReviewLabel(reviewMode) {
     const labels = {
-      FULL_REVIEW: t("exams.adminListPage.reviewFull", null, "Xem toàn bộ"),
-      RESULT_ONLY: t("exams.adminListPage.reviewResultOnly", null, "Chỉ xem kết quả"),
-      ANSWER_ONLY: t("exams.adminListPage.reviewAnswerOnly", null, "Chỉ xem đáp án"),
-      NO_REVIEW: t("exams.adminListPage.reviewNo", null, "Không cho xem lại")
+      FullReview: t("exams.adminListPage.reviewFull", null, "Xem toan bo"),
+      ResultOnly: t("exams.adminListPage.reviewResultOnly", null, "Chi xem ket qua"),
+      AnswerOnly: t("exams.adminListPage.reviewAnswerOnly", null, "Chi xem dap an"),
+      NoReview: t("exams.adminListPage.reviewNo", null, "Khong cho xem lai")
     };
 
-    return labels[reviewMode] || reviewMode;
+    return labels[normalizeReviewMode(reviewMode)] || reviewMode;
   }
 
   function getExamVisual(index) {
@@ -77,7 +108,7 @@
   }
 
   function renderPageTitle() {
-    document.title = t("exams.adminListPage.title", null, "Quản lý bài thi") + " - " + t("common.appName", null, "lms");
+    document.title = t("exams.adminListPage.title", null, "Quan ly bai thi") + " - " + t("common.appName", null, "lms");
   }
 
   function getPageCount() {
@@ -87,6 +118,10 @@
   function getCurrentPageRows() {
     const start = (state.page - 1) * state.pageSize;
     return state.filteredExams.slice(start, start + state.pageSize);
+  }
+
+  function formatAssignedCount(count) {
+    return count === null || typeof count === "undefined" ? "--" : String(count);
   }
 
   function renderMetrics() {
@@ -116,8 +151,8 @@
           '<td colspan="8">' +
             '<div class="app-empty-state">' +
               '<div class="image-slot image-slot-md image-slot-exam u-mb-4" data-image-label="Empty exams illustration 320x180"><img src="/images/placeholders/exam-placeholder.svg" alt="" aria-hidden="true" /></div>' +
-              '<h3 class="app-empty-title">' + escapeHtml(t("exams.adminListPage.noExamsTitle", null, "Không tìm thấy bài thi")) + "</h3>" +
-              '<p class="app-empty-copy">' + escapeHtml(t("exams.adminListPage.noExamsCopy", null, "Thử từ khóa, trạng thái, thời lượng hoặc bộ lọc xem lại khác.")) + "</p>" +
+              '<h3 class="app-empty-title">' + escapeHtml(t("exams.adminListPage.noExamsTitle", null, "Khong tim thay bai thi")) + "</h3>" +
+              '<p class="app-empty-copy">' + escapeHtml(t("exams.adminListPage.noExamsCopy", null, "Thu tu khoa, trang thai, thoi luong hoac bo loc xem lai khac.")) + "</p>" +
             "</div>" +
           "</td>" +
         "</tr>"
@@ -126,6 +161,10 @@
     }
 
     rows.forEach(function (exam, index) {
+      const publishAction = exam.status === "Published"
+        ? t("exams.adminListPage.unpublish", null, "Huy xuat ban")
+        : t("exams.adminListPage.publish", null, "Xuat ban");
+
       $rows.append(
         "<tr>" +
           "<td>" +
@@ -133,21 +172,21 @@
               '<span class="app-avatar admin-thumbnail-avatar" aria-hidden="true"><img src="' + getExamVisual(index) + '" alt="" /></span>' +
               "<div>" +
                 "<strong>" + escapeHtml(exam.name) + "</strong>" +
-                "<span>" + escapeHtml(t("exams.adminListPage.examId", { id: exam.id }, "Mã bài thi #" + exam.id)) + "</span>" +
+                "<span>" + escapeHtml(t("exams.adminListPage.examId", { id: exam.id }, "Ma bai thi #" + exam.id)) + "</span>" +
               "</div>" +
             "</div>" +
           "</td>" +
           '<td><span class="app-badge ' + getBadgeClass(exam.status) + '">' + escapeHtml(translateStatus(exam.status)) + "</span></td>" +
-          "<td>" + escapeHtml(exam.durationMinutes) + " " + escapeHtml(t("exams.adminListPage.minutesUnit", null, "phút")) + "</td>" +
+          "<td>" + escapeHtml(exam.durationMinutes) + " " + escapeHtml(t("exams.adminListPage.minutesUnit", null, "phut")) + "</td>" +
           "<td>" + escapeHtml(exam.passScore) + "</td>" +
           "<td>" + escapeHtml(exam.questionCount) + "</td>" +
-          "<td>" + escapeHtml(exam.assignedCount) + "</td>" +
+          "<td>" + escapeHtml(formatAssignedCount(exam.assignedCount)) + "</td>" +
           "<td>" + escapeHtml(getReviewLabel(exam.reviewMode)) + "</td>" +
           '<td class="u-text-right">' +
             '<div class="admin-row-actions">' +
-              '<button class="app-button app-button-secondary" type="button" data-exam-action="edit" data-exam-id="' + exam.id + '">' + escapeHtml(t("common.edit", null, "Sửa")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-exam-action="edit" data-exam-id="' + exam.id + '">' + escapeHtml(t("common.edit", null, "Sua")) + "</button>" +
               '<button class="app-button app-button-secondary" type="button" data-exam-action="assign" data-exam-id="' + exam.id + '">' + escapeHtml(t("exams.adminListPage.assign", null, "Giao")) + "</button>" +
-              '<button class="app-button app-button-secondary" type="button" data-exam-action="publish" data-exam-id="' + exam.id + '">' + escapeHtml(t("exams.adminListPage.publish", null, "Xuất bản")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-exam-action="publish" data-exam-id="' + exam.id + '">' + escapeHtml(publishAction) + "</button>" +
             "</div>" +
           "</td>" +
         "</tr>"
@@ -161,8 +200,8 @@
     const startRecord = state.filteredExams.length ? (state.page - 1) * state.pageSize + 1 : 0;
     const endRecord = Math.min(state.page * state.pageSize, state.filteredExams.length);
 
-    $("[data-exam-result-count]").text(t("exams.adminListPage.records", { count: state.filteredExams.length }, state.filteredExams.length + " bản ghi"));
-    $("[data-exam-page-info]").text(t("exams.adminListPage.showing", { start: startRecord, end: endRecord, total: state.filteredExams.length }, "Hiển thị " + startRecord + "-" + endRecord + " trên " + state.filteredExams.length + " bài thi"));
+    $("[data-exam-result-count]").text(t("exams.adminListPage.records", { count: state.filteredExams.length }, state.filteredExams.length + " ban ghi"));
+    $("[data-exam-page-info]").text(t("exams.adminListPage.showing", { start: startRecord, end: endRecord, total: state.filteredExams.length }, "Hien thi " + startRecord + "-" + endRecord + " tren " + state.filteredExams.length + " bai thi"));
     $("[data-exam-page='prev']").prop("disabled", state.page <= 1);
     $("[data-exam-page='next']").prop("disabled", state.page >= pageCount);
 
@@ -187,18 +226,41 @@
     const keyword = state.search.trim().toLowerCase();
 
     state.filteredExams = state.exams.filter(function (exam) {
-      const matchesKeyword = !keyword || exam.name.toLowerCase().includes(keyword);
+      const matchesKeyword = !keyword || exam.name.toLowerCase().includes(keyword) || String(exam.code || "").toLowerCase().includes(keyword);
       const matchesStatus = !state.status || exam.status === state.status;
-      const matchesDuration = !state.duration ||
-        (state.duration === "short" && Number(exam.durationMinutes) <= 30) ||
-        (state.duration === "long" && Number(exam.durationMinutes) > 30);
-      const matchesReview = !state.review || exam.reviewMode === state.review;
+      const matchesDuration = !state.duration
+        || (state.duration === "short" && Number(exam.durationMinutes) <= 30)
+        || (state.duration === "long" && Number(exam.durationMinutes) > 30);
+      const matchesReview = !state.review || normalizeReviewMode(exam.reviewMode) === normalizeReviewMode(state.review);
 
       return matchesKeyword && matchesStatus && matchesDuration && matchesReview;
     });
 
     state.page = Math.min(state.page, getPageCount());
     render();
+  }
+
+  function publishExam(exam) {
+    const endpoint = exam.status === "Published"
+      ? "api/exams/" + exam.id + "/unpublish"
+      : "api/exams/" + exam.id + "/publish";
+
+    Lms.apiClient.post(endpoint, {}).done(function () {
+      exam.isPublished = exam.status !== "Published";
+      exam.status = exam.isPublished ? "Published" : "Draft";
+      applyFilters();
+      showToast(
+        "success",
+        exam.status === "Published"
+          ? t("exams.adminListPage.publishedTitle", null, "Da xuat ban bai thi")
+          : t("exams.adminListPage.unpublishedTitle", null, "Da huy xuat ban bai thi"),
+        exam.status === "Published"
+          ? t("exams.adminListPage.publishedMessage", { name: exam.name }, exam.name + " da duoc xuat ban.")
+          : t("exams.adminListPage.unpublishedMessage", { name: exam.name }, exam.name + " da duoc chuyen ve ban nhap.")
+      );
+    }).fail(function (error) {
+      showToast("error", t("exams.adminListPage.publishErrorTitle", null, "Cap nhat trang thai that bai"), error && error.message ? error.message : t("exams.adminListPage.publishErrorMessage", null, "Khong the cap nhat trang thai bai thi."));
+    });
   }
 
   function showPublishConfirm(examId) {
@@ -208,18 +270,19 @@
       return;
     }
 
+    const isPublished = exam.status === "Published";
     const modal = $(
       "<div>" +
         '<div class="app-modal-header">' +
-          '<h2 class="app-modal-title">' + escapeHtml(t("exams.adminListPage.publishExamTitle", null, "Xuất bản bài thi")) + "</h2>" +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.close", null, "Đóng")) + "</button>" +
+          '<h2 class="app-modal-title">' + escapeHtml(isPublished ? t("exams.adminListPage.unpublishExamTitle", null, "Huy xuat ban bai thi") : t("exams.adminListPage.publishExamTitle", null, "Xuat ban bai thi")) + "</h2>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.close", null, "Dong")) + "</button>" +
         "</div>" +
         '<div class="app-modal-body">' +
-          '<p class="u-mb-0">' + escapeHtml(t("exams.adminListPage.publishConfirmPrefix", null, "Xuất bản bài thi ")) + "<strong></strong>" + escapeHtml(t("exams.adminListPage.publishConfirmSuffix", null, "? Học viên được giao bài thi này sẽ có thể nhìn thấy nó.")) + "</p>" +
+          '<p class="u-mb-0">' + escapeHtml(isPublished ? t("exams.adminListPage.unpublishConfirmPrefix", null, "Huy xuat ban bai thi ") : t("exams.adminListPage.publishConfirmPrefix", null, "Xuat ban bai thi ")) + "<strong></strong>" + escapeHtml(isPublished ? t("exams.adminListPage.unpublishConfirmSuffix", null, "? Hoc vien se khong the bat dau moi tu bai thi nay.") : t("exams.adminListPage.publishConfirmSuffix", null, "? Hoc vien duoc giao bai thi nay se co the nhin thay no.")) + "</p>" +
         "</div>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.cancel", null, "Hủy")) + "</button>" +
-          '<button class="app-button app-button-primary" type="button" data-exam-confirm-publish>' + escapeHtml(t("exams.adminListPage.publish", null, "Xuất bản")) + "</button>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.cancel", null, "Huy")) + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-exam-confirm-publish>' + escapeHtml(isPublished ? t("exams.adminListPage.unpublish", null, "Huy xuat ban") : t("exams.adminListPage.publish", null, "Xuat ban")) + "</button>" +
         "</div>" +
       "</div>"
     );
@@ -227,10 +290,8 @@
     modal.find("strong").text(exam.name);
     modal.find("[data-modal-close]").on("click", Lms.ui.closeModal);
     modal.find("[data-exam-confirm-publish]").on("click", function () {
-      exam.status = "Published";
       Lms.ui.closeModal();
-      applyFilters();
-      showToast("success", t("exams.adminListPage.publishedTitle", null, "Đã xuất bản bài thi"), t("exams.adminListPage.publishedMessage", { name: exam.name }, exam.name + " đã được xuất bản ở trạng thái mô phỏng."));
+      publishExam(exam);
     });
 
     Lms.ui.showModal(modal);
@@ -241,37 +302,37 @@
       "<div>" +
         '<div class="app-modal-header">' +
           "<div>" +
-            '<h2 class="app-modal-title">' + escapeHtml(t("exams.adminListPage.assignExamTitle", null, "Giao bài thi")) + "</h2>" +
+            '<h2 class="app-modal-title">' + escapeHtml(t("exams.adminListPage.assignExamTitle", null, "Giao bai thi")) + "</h2>" +
             '<p class="app-card-subtitle"></p>' +
           "</div>" +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.close", null, "Đóng")) + "</button>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.close", null, "Dong")) + "</button>" +
         "</div>" +
         '<form class="app-modal-body admin-user-form" novalidate>' +
-          '<label class="auth-field">' + escapeHtml(t("exams.adminListPage.assignToUser", null, "Giao cho người dùng")) +
+          '<label class="auth-field">' + escapeHtml(t("exams.adminListPage.assignToUser", null, "Giao cho nguoi dung")) +
             '<select class="app-select" name="userId"></select>' +
           "</label>" +
-          '<label class="auth-field">' + escapeHtml(t("exams.adminListPage.assignToGroup", null, "Giao cho nhóm")) +
+          '<label class="auth-field">' + escapeHtml(t("exams.adminListPage.assignToGroup", null, "Giao cho nhom")) +
             '<select class="app-select" name="groupId"></select>' +
           "</label>" +
-          '<p class="page-muted u-mb-0">' + escapeHtml(t("exams.adminListPage.assignHelp", null, "Thao tác mô phỏng này chỉ tăng số lượt giao trong bộ nhớ.")) + "</p>" +
+          '<p class="page-muted u-mb-0">' + escapeHtml(t("exams.adminListPage.assignHelp", null, "Ban co the giao truc tiep cho hoc vien hoac cho nhom.")) + "</p>" +
         "</form>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.cancel", null, "Hủy")) + "</button>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("exams.adminListPage.cancel", null, "Huy")) + "</button>" +
           '<button class="app-button app-button-primary" type="button" data-exam-confirm-assign>' + escapeHtml(t("exams.adminListPage.assign", null, "Giao")) + "</button>" +
         "</div>" +
       "</div>"
     );
 
     modal.find(".app-card-subtitle").text(exam.name);
-    const $userSelect = modal.find("[name='userId']").append('<option value="">' + escapeHtml(t("exams.adminListPage.noIndividualUser", null, "Không chọn người dùng riêng lẻ")) + "</option>");
-    const $groupSelect = modal.find("[name='groupId']").append('<option value="">' + escapeHtml(t("exams.adminListPage.noGroup", null, "Không chọn nhóm")) + "</option>");
+    const $userSelect = modal.find("[name='userId']").append('<option value="">' + escapeHtml(t("exams.adminListPage.noIndividualUser", null, "Khong chon nguoi dung rieng le")) + "</option>");
+    const $groupSelect = modal.find("[name='groupId']").append('<option value="">' + escapeHtml(t("exams.adminListPage.noGroup", null, "Khong chon nhom")) + "</option>");
 
     state.users
       .filter(function (user) {
         return user.role === "Student";
       })
       .forEach(function (user) {
-        $userSelect.append('<option value="' + user.id + '">' + escapeHtml(user.fullName) + "</option>");
+        $userSelect.append('<option value="' + user.id + '">' + escapeHtml(user.fullName || user.userName) + "</option>");
       });
 
     state.groups.forEach(function (group) {
@@ -296,14 +357,24 @@
       const groupId = modal.find("[name='groupId']").val();
 
       if (!userId && !groupId) {
-        showToast("warning", t("exams.adminListPage.chooseAssignmentTitle", null, "Chọn đối tượng giao"), t("exams.adminListPage.chooseAssignmentMessage", null, "Chọn người dùng hoặc nhóm trước khi giao."));
+        showToast("warning", t("exams.adminListPage.chooseAssignmentTitle", null, "Chon doi tuong giao"), t("exams.adminListPage.chooseAssignmentMessage", null, "Chon nguoi dung hoac nhom truoc khi giao."));
         return;
       }
 
-      exam.assignedCount += (userId ? 1 : 0) + (groupId ? 1 : 0);
-      Lms.ui.closeModal();
-      applyFilters();
-      showToast("success", t("exams.adminListPage.examAssignedTitle", null, "Đã giao bài thi"), t("exams.adminListPage.examAssignedMessage", { name: exam.name }, "Số lượt giao của " + exam.name + " đã được cập nhật."));
+      Lms.apiClient.post("api/exams/" + exam.id + "/assign", {
+        userIds: userId ? [Number(userId)] : [],
+        groupIds: groupId ? [Number(groupId)] : []
+      }).done(function () {
+        if (exam.assignedCount === null) {
+          exam.assignedCount = 0;
+        }
+        exam.assignedCount += (userId ? 1 : 0) + (groupId ? 1 : 0);
+        Lms.ui.closeModal();
+        applyFilters();
+        showToast("success", t("exams.adminListPage.examAssignedTitle", null, "Da giao bai thi"), t("exams.adminListPage.examAssignedMessage", { name: exam.name }, "Da cap nhat giao cho " + exam.name + "."));
+      }).fail(function (error) {
+        showToast("error", t("exams.adminListPage.assignErrorTitle", null, "Giao bai thi that bai"), error && error.message ? error.message : t("exams.adminListPage.assignErrorMessage", null, "Khong the giao bai thi."));
+      });
     });
 
     Lms.ui.showModal(modal);
@@ -383,38 +454,56 @@
     });
 
     $(document).on("click", "[data-exam-action='export']", function () {
-      showToast("info", t("exams.adminListPage.exportTitle", null, "Xuất bài thi"), t("exams.adminListPage.exportMessage", null, "Chức năng xuất sẽ được nối ở task báo cáo/xuất dữ liệu."));
+      showToast("info", t("exams.adminListPage.exportTitle", null, "Xuat bai thi"), t("exams.adminListPage.exportMessage", null, "Chuc nang xuat se duoc noi o task bao cao/xuat du lieu."));
     });
 
     $(document).on("lms:i18n:changed", render);
   }
 
+  function loadAssignmentCounts() {
+    const requests = state.exams.map(function (exam) {
+      return $.when(
+        Lms.apiClient.get("api/exam-assignments?examId=" + exam.id + "&page=1&pageSize=200"),
+        Lms.apiClient.get("api/group-exam-assignments?examId=" + exam.id + "&page=1&pageSize=200")
+      ).done(function (userResponse, groupResponse) {
+        const userData = getResponseData(userResponse);
+        const groupData = getResponseData(groupResponse);
+        exam.assignedCount = (userData ? Number(userData.total || 0) : 0) + (groupData ? Number(groupData.total || 0) : 0);
+      }).fail(function () {
+        exam.assignedCount = 0;
+      });
+    });
+
+    return requests.length ? $.when.apply($, requests) : $.Deferred().resolve().promise();
+  }
+
   function loadPageData() {
     renderPageTitle();
     $.when(
-      Lms.apiClient.get("exams.json"),
-      Lms.apiClient.get("users.json"),
-      Lms.apiClient.get("groups.json")
+      Lms.apiClient.get("api/exams?page=1&pageSize=200"),
+      Lms.apiClient.get("api/users?page=1&pageSize=200"),
+      Lms.apiClient.get("api/groups?page=1&pageSize=200")
     ).done(function (examsResponse, usersResponse, groupsResponse) {
-      state.exams = getItems(examsResponse).map(function (exam) {
-        return { ...exam };
+      state.exams = getResponseItems(examsResponse).map(mapExam);
+      state.users = getResponseItems(usersResponse);
+      state.groups = getResponseItems(groupsResponse);
+
+      loadAssignmentCounts().always(function () {
+        state.filteredExams = state.exams.slice();
+        state.loaded = true;
+        render();
       });
-      state.users = getItems(usersResponse);
-      state.groups = getItems(groupsResponse);
-      state.filteredExams = state.exams.slice();
-      state.loaded = true;
-      render();
-    }).fail(function () {
+    }).fail(function (error) {
       $("#examTableRows").html(
         '<tr><td colspan="8">' +
           '<div class="app-empty-state">' +
             '<div class="app-empty-icon" aria-hidden="true">!</div>' +
-            '<h3 class="app-empty-title">' + escapeHtml(t("exams.adminListPage.loadErrorTitle", null, "Không thể tải bài thi")) + "</h3>" +
-            '<p class="app-empty-copy">' + escapeHtml(t("exams.adminListPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/exams.json.")) + "</p>" +
+            '<h3 class="app-empty-title">' + escapeHtml(t("exams.adminListPage.loadErrorTitle", null, "Khong the tai bai thi")) + "</h3>" +
+            '<p class="app-empty-copy">' + escapeHtml(error && error.message ? error.message : t("exams.adminListPage.loadErrorCopy", null, "Vui long kiem tra ket noi API exam.")) + "</p>" +
           "</div>" +
         "</td></tr>"
       );
-      showToast("error", t("exams.adminListPage.dataErrorTitle", null, "Lỗi dữ liệu bài thi"), t("exams.adminListPage.dataErrorMessage", null, "Không thể tải dữ liệu mô phỏng bài thi."));
+      showToast("error", t("exams.adminListPage.dataErrorTitle", null, "Loi du lieu bai thi"), error && error.message ? error.message : t("exams.adminListPage.dataErrorMessage", null, "Khong the tai du lieu bai thi."));
     });
   }
 

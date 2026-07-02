@@ -36,4 +36,10 @@ public class RoleRepository : IRoleRepository
         await _context.Roles.AddAsync(role);
         await _context.SaveChangesAsync();
     }
+
+    public async Task UpdateAsync(Role role)
+    {
+        _context.Roles.Update(role);
+        await _context.SaveChangesAsync();
+    }
 }

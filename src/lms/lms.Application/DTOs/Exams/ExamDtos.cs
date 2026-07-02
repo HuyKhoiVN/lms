@@ -149,12 +149,28 @@ public sealed class ExamAssignmentResponse
     public DateTime? EndDate { get; set; }
 }
 
+public sealed class GroupExamAssignmentResponse
+{
+    public int Id { get; set; }
+    public int ExamId { get; set; }
+    public int GroupId { get; set; }
+    public DateTime? StartDate { get; set; }
+    public DateTime? EndDate { get; set; }
+}
+
 public sealed class ExamAssignmentFilterRequest
 {
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 20;
     public int? ExamId { get; set; }
     public int? UserId { get; set; }
+}
+
+public sealed class GroupExamAssignmentFilterRequest
+{
+    public int Page { get; set; } = 1;
+    public int PageSize { get; set; } = 20;
+    public int? ExamId { get; set; }
 }
 
 public sealed class AddCourseExamRequest

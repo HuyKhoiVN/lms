@@ -8,5 +8,11 @@ namespace lms.WebMvc.Controllers
         {
             return View();
         }
+
+        public IActionResult Detail(int id)
+        {
+            ViewData["CourseId"] = id;
+            return View();
+        }
     }
 }

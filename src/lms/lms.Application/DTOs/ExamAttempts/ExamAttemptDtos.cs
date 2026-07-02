@@ -36,6 +36,7 @@ public sealed class SubmitAttemptRequest
 {
     /// <summary>Final answers. Có thể trống nếu đã autosave trước đó — service lấy từ DB.</summary>
     public List<QuestionAnswerDto>? Answers { get; set; }
+    public bool AutoSubmit { get; set; }
 }
 
 // ─── Responses ─────────────────────────────────────────────────────────────────

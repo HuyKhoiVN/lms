@@ -264,4 +264,25 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    /// <summary>
+    /// Allow WebMvc host call API from browser during local development.
+    /// </summary>
+    public static IServiceCollection AddLmsCors(this IServiceCollection services)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy("LmsWebMvc", policy =>
+            {
+                policy
+                    .WithOrigins(
+                        "http://localhost:5194",
+                        "https://localhost:7015")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod();
+            });
+        });
+
+        return services;
+    }
 }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -232,7 +233,27 @@ public class CoursesController : ControllerBase
         return Ok(r);
     }
 
-    /// <summary>Xóa bài thi khỏi course (Admin). Trả 204.</summary>
+    /// <summary>Đọc danh sách bài thi gắn với course.</summary>
+    [HttpGet("{courseId}/exams")]
+    [ProducesResponseType(typeof(ApiResponse<List<CourseExamResponse>>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetCourseExams(int courseId)
+    {
+        var role = _currentUserService.Role;
+        if (role == "Student")
+        {
+            var studentId = _currentUserService.UserId;
+            if (!studentId.HasValue || !await _courseAccessService.HasAccessAsync(studentId.Value, courseId))
+            {
+                return StatusCode(StatusCodes.Status403Forbidden, ApiResponse<object>.FailureResult("Bạn không có quyền truy cập khóa học này."));
+            }
+        }
+
+        var r = await _examAssignmentService.GetCourseExamsAsync(courseId);
+        return r.Success ? Ok(r) : NotFound(r);
+    }
+
     [Authorize(Roles = "Admin")]
     [HttpDelete("{courseId}/exams/{examId}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

@@ -1,0 +1,125 @@
+@{
+    ViewData["Title"] = "Giao bài thi";
+}
+
+<div class="page-header">
+    <div class="page-header-main">
+        <nav class="page-breadcrumb" aria-label="Breadcrumb">
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" data-i18n="exams.assignmentPage.breadcrumbRoot">Quản trị</a>
+            <span>/</span>
+            <a asp-area="Admin" asp-controller="Exams" asp-action="Index" data-i18n="exams.assignmentPage.breadcrumbExams">Bài thi</a>
+            <span>/</span>
+            <span data-i18n="exams.assignmentPage.breadcrumbCurrent">Giao bài thi</span>
+        </nav>
+        <h1 class="page-title" data-i18n="exams.assignmentPage.title">Giao bài thi</h1>
+        <p class="page-muted u-mb-0" data-i18n="exams.assignmentPage.subtitle">Giao bài thi đã xuất bản cho học viên hoặc nhóm học viên.</p>
+    </div>
+    <div class="page-header-actions">
+        <a class="app-button app-button-secondary" asp-area="Admin" asp-controller="Exams" asp-action="Index" data-i18n="exams.assignmentPage.backToExams">Quản lý bài thi</a>
+        <a class="app-button app-button-primary" asp-area="Admin" asp-controller="Exams" asp-action="Builder" data-i18n="exams.assignmentPage.createExam">Tạo bài thi</a>
+    </div>
+</div>
+
+<section class="page-grid page-grid-4 u-mb-4 app-animate-stagger" aria-label="Tổng quan giao bài" data-i18n-aria="exams.assignmentPage.summary">
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="exams.assignmentPage.metricExams">Bài thi</p>
+                <p class="app-metric-value" data-exam-assignment-metric="exams">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-clipboard-check"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="exams.assignmentPage.metricStudents">Học viên</p>
+                <p class="app-metric-value" data-exam-assignment-metric="students">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-person-check"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="exams.assignmentPage.metricGroups">Nhóm</p>
+                <p class="app-metric-value" data-exam-assignment-metric="groups">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-diagram-3"></i></span>
+        </div>
+    </article>
+    <article class="app-card app-card-clickable">
+        <div class="app-card-body app-metric">
+            <div>
+                <p class="app-metric-label" data-i18n="exams.assignmentPage.metricAssigned">Đã giao</p>
+                <p class="app-metric-value" data-exam-assignment-metric="assigned">--</p>
+            </div>
+            <span class="app-metric-icon" aria-hidden="true"><i class="bi bi-send-check"></i></span>
+        </div>
+    </article>
+</section>
+
+<section class="app-card u-mb-4">
+    <div class="app-card-header">
+        <div class="admin-card-header-row">
+            <div>
+                <h2 class="app-card-title" data-i18n="exams.assignmentPage.selectExamTitle">Chọn bài thi</h2>
+                <p class="app-card-subtitle" data-i18n="exams.assignmentPage.selectExamSubtitle">Chọn bài thi để xem và cập nhật danh sách đã giao.</p>
+            </div>
+            <span class="app-badge app-badge-info" data-exam-assignment-current-status>--</span>
+        </div>
+    </div>
+    <div class="app-card-body">
+        <div class="app-filter-bar admin-user-filter">
+            <label class="visually-hidden" for="assignmentExamSelect" data-i18n="exams.assignmentPage.examLabel">Bài thi</label>
+            <select class="app-select" id="assignmentExamSelect" data-exam-assignment-filter="exam"></select>
+            <a class="app-button app-button-secondary" href="#" data-exam-assignment-action="open-builder" data-i18n="exams.assignmentPage.openBuilder">Mở trình tạo bài thi</a>
+        </div>
+    </div>
+</section>
+
+<section class="exam-assignment-grid">
+    <article class="app-card app-animate-slide-up">
+        <div class="app-card-header">
+            <div class="admin-card-header-row">
+                <div>
+                    <h2 class="app-card-title" data-i18n="exams.assignmentPage.studentsTitle">Giao cho học viên</h2>
+                    <p class="app-card-subtitle" data-i18n="exams.assignmentPage.studentsSubtitle">Thêm hoặc gỡ học viên khỏi bài thi đang chọn.</p>
+                </div>
+                <span class="app-badge app-badge-info" data-exam-assignment-count="users">-- học viên</span>
+            </div>
+        </div>
+        <div class="app-card-body">
+            <div class="group-detail-add-row">
+                <label class="visually-hidden" for="assignmentUserSelect" data-i18n="exams.assignmentPage.userLabel">Học viên</label>
+                <select class="app-select" id="assignmentUserSelect" data-exam-assignment-select="user"></select>
+                <button class="app-button app-button-primary" type="button" data-exam-assignment-add="user" data-i18n="exams.assignmentPage.addStudent">Thêm học viên</button>
+            </div>
+            <div class="group-detail-list u-mt-4" id="assignmentUserList"></div>
+        </div>
+    </article>
+
+    <article class="app-card app-animate-slide-up">
+        <div class="app-card-header">
+            <div class="admin-card-header-row">
+                <div>
+                    <h2 class="app-card-title" data-i18n="exams.assignmentPage.groupsTitle">Giao cho nhóm</h2>
+                    <p class="app-card-subtitle" data-i18n="exams.assignmentPage.groupsSubtitle">Giao bài thi cho toàn bộ học viên trong nhóm.</p>
+                </div>
+                <span class="app-badge app-badge-info" data-exam-assignment-count="groups">-- nhóm</span>
+            </div>
+        </div>
+        <div class="app-card-body">
+            <div class="group-detail-add-row">
+                <label class="visually-hidden" for="assignmentGroupSelect" data-i18n="exams.assignmentPage.groupLabel">Nhóm</label>
+                <select class="app-select" id="assignmentGroupSelect" data-exam-assignment-select="group"></select>
+                <button class="app-button app-button-primary" type="button" data-exam-assignment-add="group" data-i18n="exams.assignmentPage.addGroup">Thêm nhóm</button>
+            </div>
+            <div class="group-detail-list u-mt-4" id="assignmentGroupList"></div>
+        </div>
+    </article>
+</section>
+
+@section Scripts {
+    <script src="~/js/pages/exam-assignment.js" asp-append-version="true"></script>
+}

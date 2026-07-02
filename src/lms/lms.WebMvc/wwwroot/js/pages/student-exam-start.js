@@ -12,13 +12,13 @@
     return Lms.i18n ? Lms.i18n.t(key, params, fallback) : (fallback || key);
   }
 
-  function unwrap(response) {
+  function getResponsePayload(response) {
     return Array.isArray(response) ? response[0] : response;
   }
 
-  function getItems(response) {
-    const payload = unwrap(response);
-    return payload && payload.data && Array.isArray(payload.data.items) ? payload.data.items : [];
+  function getResponseData(response) {
+    const payload = getResponsePayload(response);
+    return payload && payload.data ? payload.data : null;
   }
 
   function escapeHtml(value) {
@@ -36,38 +36,48 @@
     }
   }
 
-  function getReviewLabel(reviewMode) {
-    const labels = {
-      FULL_REVIEW: t("exams.startPage.reviewFull", null, "Xem toàn bộ"),
-      RESULT_ONLY: t("exams.startPage.reviewResultOnly", null, "Chỉ xem kết quả"),
-      ANSWER_ONLY: t("exams.startPage.reviewAnswerOnly", null, "Chỉ xem đáp án"),
-      NO_REVIEW: t("exams.startPage.reviewNo", null, "Không cho xem lại")
+  function normalizeReviewMode(reviewMode) {
+    const map = {
+      FULL_REVIEW: "FullReview",
+      RESULT_ONLY: "ResultOnly",
+      ANSWER_ONLY: "AnswerOnly",
+      NO_REVIEW: "NoReview"
     };
-
-    return labels[reviewMode] || reviewMode;
+    return map[reviewMode] || reviewMode || "ResultOnly";
   }
 
-  function getStatusLabel(status) {
-    return status === "Published"
-      ? t("exams.startPage.statusPublished", null, "Sẵn sàng")
-      : t("exams.startPage.statusDraft", null, "Bản nháp");
+  function getReviewLabel(reviewMode) {
+    const labels = {
+      FullReview: t("exams.startPage.reviewFull", null, "Xem toan bo"),
+      ResultOnly: t("exams.startPage.reviewResultOnly", null, "Chi xem ket qua"),
+      AnswerOnly: t("exams.startPage.reviewAnswerOnly", null, "Chi xem dap an"),
+      NoReview: t("exams.startPage.reviewNo", null, "Khong cho xem lai")
+    };
+
+    return labels[normalizeReviewMode(reviewMode)] || reviewMode;
+  }
+
+  function getStatusLabel(isPublished) {
+    return isPublished
+      ? t("exams.startPage.statusPublished", null, "San sang")
+      : t("exams.startPage.statusDraft", null, "Ban nhap");
   }
 
   function renderRuleList() {
     const rules = [
-      t("exams.startPage.rule1", null, "Không tải lại trang hoặc đóng trình duyệt trong khi làm bài."),
-      t("exams.startPage.rule2", null, "Nộp bài trước khi thời gian đếm ngược trở về không."),
-      t("exams.startPage.rule3", null, "Đáp án đúng chỉ được hiển thị sau khi nộp bài và tùy thuộc vào chính sách xem lại."),
-      t("exams.startPage.rule4", null, "Màn hình tiếp theo là nơi làm bài chính thức; màn hình này chỉ dùng để chuẩn bị.")
+      t("exams.startPage.rule1", null, "Khong tai lai trang hoac dong trinh duyet trong khi lam bai."),
+      t("exams.startPage.rule2", null, "Nop bai truoc khi thoi gian dem nguoc tro ve khong."),
+      t("exams.startPage.rule3", null, "Dap an dung chi duoc hien thi sau khi nop bai va tuy thuoc vao chinh sach xem lai."),
+      t("exams.startPage.rule4", null, "He thong co the tu dong luu dap an trong qua trinh lam bai.")
     ];
-    const icons = ["bi-wifi-off", "bi-hourglass-split", "bi-eye", "bi-play-circle"];
+    const icons = ["bi-wifi-off", "bi-hourglass-split", "bi-eye", "bi-save"];
 
     $("#startExamRules").html(rules.map(function (rule, index) {
       return (
         '<div class="student-exam-rule-item student-exam-start-reveal" data-start-exam-reveal>' +
           '<span class="student-exam-rule-icon" aria-hidden="true"><i class="bi ' + icons[index % icons.length] + '"></i></span>' +
           "<div>" +
-            '<span class="lms-status-info">' + escapeHtml(t("exams.startPage.badgeRule", null, "Quy định")) + "</span>" +
+            '<span class="lms-status-info">' + escapeHtml(t("exams.startPage.badgeRule", null, "Quy dinh")) + "</span>" +
             '<p style="margin: 12px 0 0; color: var(--color-text-secondary);">' + escapeHtml(rule) + "</p>" +
           "</div>" +
         "</div>"
@@ -75,15 +85,15 @@
     }).join(""));
   }
 
-  function renderNotFound() {
-    $("[data-start-exam-title]").text(t("exams.startPage.notFoundTitle", null, "Không tìm thấy bài thi"));
-    $("[data-start-exam-subtitle]").text(t("exams.startPage.notFoundDesc", null, "Bài thi yêu cầu không tồn tại trong dữ liệu mô phỏng."));
+  function renderNotFound(message) {
+    $("[data-start-exam-title]").text(t("exams.startPage.notFoundTitle", null, "Khong tim thay bai thi"));
+    $("[data-start-exam-subtitle]").text(message || t("exams.startPage.notFoundDesc", null, "Bai thi yeu cau khong ton tai hoac ban khong co quyen truy cap."));
     $("[data-start-exam-action='start']").prop("disabled", true);
     $("#startExamRules").html(
       '<div class="lms-empty-compact student-exam-start-reveal is-visible" data-start-exam-reveal>' +
         '<i class="bi bi-journal-x" aria-hidden="true"></i>' +
-        '<h3>' + escapeHtml(t("exams.startPage.notFoundTitle", null, "Không tìm thấy bài thi")) + "</h3>" +
-        '<p>' + escapeHtml(t("exams.startPage.notFoundCopy", null, "Quay lại danh sách bài thi và chọn bài thi khác.")) + "</p>" +
+        '<h3>' + escapeHtml(t("exams.startPage.notFoundTitle", null, "Khong tim thay bai thi")) + "</h3>" +
+        '<p>' + escapeHtml(message || t("exams.startPage.notFoundCopy", null, "Quay lai danh sach bai thi va chon bai thi khac.")) + "</p>" +
       "</div>"
     );
   }
@@ -94,27 +104,27 @@
       return;
     }
 
-    const canStart = state.exam.status === "Published";
+    const canStart = Boolean(state.exam.isPublished);
     const reviewLabel = getReviewLabel(state.exam.reviewMode);
 
     $("[data-start-exam-title]").text(state.exam.name);
-    $("[data-start-exam-subtitle]").text(t("exams.startPage.readySubtitle", null, "Sẵn sàng làm bài khi bạn đã chuẩn bị xong."));
+    $("[data-start-exam-subtitle]").text(t("exams.startPage.readySubtitle", null, "San sang lam bai khi ban da chuan bi xong."));
     $("[data-start-exam-status]")
       .removeClass("lms-status-success lms-status-muted")
       .addClass(canStart ? "lms-status-success" : "lms-status-muted")
-      .text(getStatusLabel(state.exam.status));
+      .text(getStatusLabel(state.exam.isPublished));
     $("[data-start-exam-summary='duration']").text(
-      t("exams.startPage.durationMinutes", { minutes: state.exam.durationMinutes }, state.exam.durationMinutes + " phút")
+      t("exams.startPage.durationMinutes", { minutes: state.exam.durationMinutes }, state.exam.durationMinutes + " phut")
     );
     $("[data-start-exam-summary='passScore']").text(state.exam.passScore + "/100");
-    $("[data-start-exam-summary='questions']").text(state.exam.questionCount);
+    $("[data-start-exam-summary='questions']").text(state.exam.questions ? state.exam.questions.length : 0);
     $("[data-start-exam-summary='review']").text(reviewLabel);
-    $("[data-start-exam-readiness-status]").text(getStatusLabel(state.exam.status));
+    $("[data-start-exam-readiness-status]").text(getStatusLabel(state.exam.isPublished));
     $("[data-start-exam-readiness-review]").text(reviewLabel);
     $("[data-start-exam-readiness-action]").text(
       canStart
-        ? t("exams.startPage.readySubtitle", null, "Sẵn sàng làm bài khi bạn đã chuẩn bị xong.")
-        : t("exams.startPage.toastUnavailableMessage", null, "Chỉ bài thi đã xuất bản mới có thể bắt đầu làm.")
+        ? t("exams.startPage.readySubtitle", null, "San sang lam bai khi ban da chuan bi xong.")
+        : t("exams.startPage.toastUnavailableMessage", null, "Chi bai thi da xuat ban moi co the bat dau lam.")
     );
     $("[data-start-exam-action='start']").prop("disabled", !canStart);
 
@@ -159,30 +169,36 @@
     $(document).on("click", "[data-start-exam-action='start']", function () {
       const button = this;
 
-      if (!state.exam || state.exam.status !== "Published") {
+      if (!state.exam || !state.exam.isPublished) {
         showToast(
           "warning",
-          t("exams.startPage.toastUnavailableTitle", null, "Bài thi chưa sẵn sàng"),
-          t("exams.startPage.toastUnavailableMessage", null, "Chỉ bài thi đã xuất bản mới có thể bắt đầu làm.")
+          t("exams.startPage.toastUnavailableTitle", null, "Bai thi chua san sang"),
+          t("exams.startPage.toastUnavailableMessage", null, "Chi bai thi da xuat ban moi co the bat dau lam.")
         );
         return;
-      }
-
-      if (Lms.storage) {
-        Lms.storage.set(sessionKey, {
-          examId: state.exam.id,
-          startedAt: new Date().toISOString(),
-          durationMinutes: state.exam.durationMinutes,
-          answers: {},
-          marked: []
-        });
       }
 
       if (Lms.ui && Lms.ui.setButtonLoading) {
         Lms.ui.setButtonLoading(button);
       }
 
-      window.location.href = "/Exams/Take/" + state.exam.id;
+      Lms.apiClient.post("api/exam-attempts/start", { examId: state.exam.id }).done(function (response) {
+        const data = getResponseData(response);
+        if (Lms.storage) {
+          Lms.storage.set(sessionKey, {
+            examId: state.exam.id,
+            attemptId: data.attemptId,
+            startedAt: data.startedAt,
+            durationMinutes: data.durationMinutes
+          });
+        }
+        window.location.href = "/Exams/Take/" + state.exam.id;
+      }).fail(function (error) {
+        if (Lms.ui && Lms.ui.clearButtonLoading) {
+          Lms.ui.clearButtonLoading(button);
+        }
+        showToast("error", t("exams.startPage.toastStartErrorTitle", null, "Khong the bat dau bai thi"), error && error.message ? error.message : t("exams.startPage.toastStartErrorMessage", null, "Vui long thu lai."));
+      });
     });
 
     $(document).on("lms:i18n:changed", render);
@@ -194,18 +210,16 @@
       return;
     }
 
-    Lms.apiClient.get("exams.json").done(function (response) {
-      state.exam = getItems(response).find(function (exam) {
-        return exam.id === state.examId;
-      }) || null;
+    Lms.apiClient.get("api/exams/" + state.examId).done(function (response) {
+      state.exam = getResponseData(response);
       render();
-    }).fail(function () {
+    }).fail(function (error) {
       showToast(
         "error",
-        t("exams.startPage.toastLoadErrorTitle", null, "Lỗi tải dữ liệu"),
-        t("exams.startPage.toastLoadErrorMessage", null, "Không thể tải dữ liệu bài thi.")
+        t("exams.startPage.toastLoadErrorTitle", null, "Loi tai du lieu"),
+        error && error.message ? error.message : t("exams.startPage.toastLoadErrorMessage", null, "Khong the tai du lieu bai thi.")
       );
-      render();
+      renderNotFound(error && error.message ? error.message : null);
     });
   }
 

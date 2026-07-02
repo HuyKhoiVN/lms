@@ -18,7 +18,7 @@ namespace lms.WebMvc.Areas.Admin.Controllers
 
         public IActionResult Assignment()
         {
-            return RedirectToAction(nameof(Index));
+            return View();
         }
     }
 }

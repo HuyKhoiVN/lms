@@ -14,8 +14,8 @@
       return normalizedPath;
     }
 
-    if (Lms.config.useMock) {
-      return `${Lms.config.mockBaseUrl}/${normalizedPath}`;
+    if (/^api\//i.test(normalizedPath)) {
+      return `${Lms.config.apiBaseUrl}/${normalizedPath.replace(/^api\//i, "")}`;
     }
 
     return `${Lms.config.apiBaseUrl}/${normalizedPath.replace(/^api\//, "")}`;
@@ -38,8 +38,18 @@
       }
     };
 
+    if (options.contentType) {
+      requestOptions.contentType = options.contentType;
+    }
+
+    if (options.dataType) {
+      requestOptions.dataType = options.dataType;
+    }
+
     if (options.data !== undefined && requestOptions.method !== "GET") {
-      requestOptions.data = JSON.stringify(options.data);
+      requestOptions.data = requestOptions.contentType === "application/json"
+        ? JSON.stringify(options.data)
+        : options.data;
     }
 
     return $.ajax(requestOptions).then(

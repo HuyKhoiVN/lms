@@ -3,31 +3,24 @@
 
   const Lms = window.Lms || {};
   const sessionKey = "lms.student.examSession";
-  const resultsKey = "lms.student.examResults";
   const autosaveIntervalSeconds = 20;
   const state = {
     examId: 0,
+    attemptId: 0,
     exam: null,
     questions: [],
     currentIndex: 0,
     answers: {},
     marked: [],
     submitted: false,
+    startedAt: null,
+    durationMinutes: 0,
     timerIntervalId: null,
     autosaveIntervalId: null
   };
 
   function t(key, params, fallback) {
     return Lms.i18n ? Lms.i18n.t(key, params, fallback) : (fallback || key);
-  }
-
-  function unwrap(response) {
-    return Array.isArray(response) ? response[0] : response;
-  }
-
-  function getItems(response) {
-    const payload = unwrap(response);
-    return payload && payload.data && Array.isArray(payload.data.items) ? payload.data.items : [];
   }
 
   function escapeHtml(value) {
@@ -45,6 +38,15 @@
     }
   }
 
+  function getResponsePayload(response) {
+    return Array.isArray(response) ? response[0] : response;
+  }
+
+  function getResponseData(response) {
+    const payload = getResponsePayload(response);
+    return payload && payload.data ? payload.data : null;
+  }
+
   function getSession() {
     return Lms.storage ? Lms.storage.get(sessionKey, null) : null;
   }
@@ -54,14 +56,12 @@
       return;
     }
 
-    const existing = getSession() || {};
     Lms.storage.set(sessionKey, {
-      ...existing,
-      examId: state.exam.id,
-      durationMinutes: state.exam.durationMinutes,
-      answers: state.answers,
-      marked: state.marked,
-      lastSavedAt: new Date().toISOString()
+      examId: state.examId,
+      attemptId: state.attemptId,
+      startedAt: state.startedAt,
+      durationMinutes: state.durationMinutes,
+      marked: state.marked
     });
   }
 
@@ -69,6 +69,31 @@
     if (Lms.storage) {
       Lms.storage.remove(sessionKey);
     }
+  }
+
+  function normalizeQuestion(question) {
+    return {
+      id: Number(question.questionId),
+      content: question.content || "",
+      questionType: question.questionType || "SingleChoice",
+      score: Number(question.score || 0),
+      order: Number(question.order || 0),
+      options: Array.isArray(question.options) ? question.options.map(function (option) {
+        return {
+          id: Number(option.answerOptionId),
+          content: option.content || "",
+          order: Number(option.order || 0)
+        };
+      }) : []
+    };
+  }
+
+  function hydrateAnswers(savedAnswers) {
+    state.answers = {};
+    (savedAnswers || []).forEach(function (answer) {
+      const values = Array.isArray(answer.selectedOptionIds) ? answer.selectedOptionIds.map(Number) : [];
+      state.answers[Number(answer.questionId)] = values;
+    });
   }
 
   function isAnswered(questionId) {
@@ -83,10 +108,55 @@
     return String(minutes).padStart(2, "0") + ":" + String(seconds).padStart(2, "0");
   }
 
+  function getPositiveNumber() {
+    for (let index = 0; index < arguments.length; index += 1) {
+      const value = Number(arguments[index] || 0);
+      if (Number.isFinite(value) && value > 0) {
+        return value;
+      }
+    }
+
+    return 0;
+  }
+
+  function resolveDurationMinutes(data) {
+    const session = getSession() || {};
+    return getPositiveNumber(
+      data && data.durationMinutes,
+      state.durationMinutes,
+      session.durationMinutes
+    );
+  }
+
+  function normalizeUtcDateString(value) {
+    if (!value) {
+      return null;
+    }
+
+    const text = String(value);
+    if (/[zZ]$|[+-]\d{2}:?\d{2}$/.test(text)) {
+      return text;
+    }
+
+    return text + "Z";
+  }
+
+  function getStartedAtMs() {
+    const normalized = normalizeUtcDateString(state.startedAt);
+    return normalized ? new Date(normalized).getTime() : NaN;
+  }
+
+  function hasValidTimerRuntime() {
+    return Number(state.durationMinutes || 0) > 0 && Number.isFinite(getStartedAtMs());
+  }
+
   function getRemainingSeconds() {
-    const session = getSession();
-    const startedAt = session && session.startedAt ? new Date(session.startedAt).getTime() : Date.now();
-    const durationSeconds = Number(state.exam ? state.exam.durationMinutes : 0) * 60;
+    if (!hasValidTimerRuntime()) {
+      return null;
+    }
+
+    const startedAt = getStartedAtMs();
+    const durationSeconds = Number(state.durationMinutes || 0) * 60;
     const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
 
     return Math.max(0, durationSeconds - elapsedSeconds);
@@ -94,7 +164,14 @@
 
   function renderTimer() {
     const remaining = getRemainingSeconds();
-    const durationSeconds = Number(state.exam ? state.exam.durationMinutes : 0) * 60 || 1;
+    if (remaining === null) {
+      $("[data-exam-taking-timer]").text("--:--");
+      $(".student-exam-taking-timer").attr("data-exam-timer-state", "normal");
+      $("[data-exam-taking-timer-progress]").css("width", "0%");
+      return;
+    }
+
+    const durationSeconds = Number(state.durationMinutes || 0) * 60 || 1;
     const ratio = remaining / durationSeconds;
     const timerState = ratio <= 0.1 ? "danger" : ratio <= 0.2 ? "warning" : "normal";
 
@@ -125,44 +202,29 @@
     const answeredCount = state.questions.filter(function (question) {
       return isAnswered(question.id);
     }).length;
-    $("[data-exam-taking-progress]").text(t("exams.takePage.progressText", { answered: answeredCount, total: state.questions.length }, answeredCount + "/" + state.questions.length + " đã trả lời"));
-  }
-
-  function getDifficultyLabel(difficulty) {
-    const labels = {
-      Easy: t("exams.takePage.difficultyEasy", null, "Dễ"),
-      Medium: t("exams.takePage.difficultyMedium", null, "Trung bình"),
-      Hard: t("exams.takePage.difficultyHard", null, "Khó")
-    };
-    return labels[difficulty] || difficulty;
+    $("[data-exam-taking-progress]").text(t("exams.takePage.progressText", { answered: answeredCount, total: state.questions.length }, answeredCount + "/" + state.questions.length + " da tra loi"));
   }
 
   function renderQuestion() {
     const question = state.questions[state.currentIndex];
 
     if (!question) {
-      $("[data-exam-question-content]").text(t("exams.takePage.noQuestion", null, "Không có câu hỏi nào."));
+      $("[data-exam-question-content]").text(t("exams.takePage.noQuestion", null, "Khong co cau hoi nao."));
       $("#examAnswerList").empty();
       return;
     }
 
     const inputType = question.questionType === "MultipleChoice" ? "checkbox" : "radio";
-    const selected = state.answers[question.id] || (question.questionType === "MultipleChoice" ? [] : "");
+    const selected = state.answers[question.id] || [];
 
-    $("[data-exam-question-heading]").text(t("exams.takePage.questionHeading", { index: state.currentIndex + 1 }, "Câu hỏi " + (state.currentIndex + 1)));
-    $("[data-exam-question-meta]").text(t("exams.takePage.questionMeta", {
-      category: question.category,
-      difficulty: getDifficultyLabel(question.difficulty),
-      score: question.score
-    }, question.category + " / " + getDifficultyLabel(question.difficulty) + " / " + question.score + " điểm"));
+    $("[data-exam-question-heading]").text(t("exams.takePage.questionHeading", { index: state.currentIndex + 1 }, "Cau hoi " + (state.currentIndex + 1)));
+    $("[data-exam-question-meta]").text(t("exams.takePage.questionMeta", { score: question.score }, question.score + " diem"));
     $("[data-exam-question-content]").text(question.content);
 
     const $answers = $("#examAnswerList").empty();
 
-    question.answers.forEach(function (answer) {
-      const checked = Array.isArray(selected)
-        ? selected.includes(answer.id)
-        : Number(selected) === answer.id;
+    question.options.forEach(function (answer) {
+      const checked = selected.includes(answer.id);
 
       $answers.append(
         '<label class="student-exam-answer-option' + (checked ? " selected" : "") + '">' +
@@ -172,10 +234,10 @@
       );
     });
 
-    $("[data-exam-taking-action='prev']").prop("disabled", state.currentIndex === 0).text(t("exams.takePage.buttonPrev", null, "Câu trước"));
-    $("[data-exam-taking-action='next']").prop("disabled", state.currentIndex >= state.questions.length - 1).text(t("exams.takePage.buttonNext", null, "Câu sau"));
-    $("[data-exam-taking-action='submit']").text(t("exams.takePage.buttonSubmit", null, "Nộp bài"));
-    $("[data-exam-taking-action='mark']").toggleClass("active", state.marked.includes(question.id)).text(t("exams.takePage.buttonMark", null, "Đánh dấu"));
+    $("[data-exam-taking-action='prev']").prop("disabled", state.currentIndex === 0).text(t("exams.takePage.buttonPrev", null, "Cau truoc"));
+    $("[data-exam-taking-action='next']").prop("disabled", state.currentIndex >= state.questions.length - 1).text(t("exams.takePage.buttonNext", null, "Cau sau"));
+    $("[data-exam-taking-action='submit']").text(t("exams.takePage.buttonSubmit", null, "Nop bai"));
+    $("[data-exam-taking-action='mark']").toggleClass("active", state.marked.includes(question.id)).text(t("exams.takePage.buttonMark", null, "Danh dau"));
   }
 
   function getUnansweredQuestions() {
@@ -184,82 +246,71 @@
     });
   }
 
-  function calculateScore() {
-    let score = 0;
-
-    state.questions.forEach(function (question) {
-      const correctIds = question.answers
-        .filter(function (answer) {
-          return answer.isCorrect;
-        })
-        .map(function (answer) {
-          return answer.id;
-        })
-        .sort();
-      const selected = state.answers[question.id];
-      const selectedIds = Array.isArray(selected) ? selected.slice().sort() : selected ? [Number(selected)] : [];
-      const isCorrect = correctIds.length === selectedIds.length && correctIds.every(function (id, index) {
-        return id === selectedIds[index];
-      });
-
-      if (isCorrect) {
-        score += Number(question.score || 0);
-      }
-    });
-
-    const maxScore = state.questions.reduce(function (total, question) {
-      return total + Number(question.score || 0);
-    }, 0) || 1;
-
-    return Math.round((score / maxScore) * 100);
+  function buildAutosavePayload() {
+    return {
+      answers: state.questions.map(function (question) {
+        return {
+          questionId: question.id,
+          selectedOptionIds: state.answers[question.id] || []
+        };
+      }).filter(function (item) {
+        return item.selectedOptionIds.length > 0;
+      })
+    };
   }
 
-  function saveResult(result) {
-    if (!Lms.storage) {
-      return;
+  function autosave(showFeedback) {
+    if (!state.attemptId || state.submitted) {
+      return $.Deferred().resolve().promise();
     }
 
-    const results = Lms.storage.get(resultsKey, []);
-    results.unshift(result);
-    Lms.storage.set(resultsKey, results);
+    return Lms.apiClient.post("api/exam-attempts/" + state.attemptId + "/autosave", buildAutosavePayload()).done(function () {
+      if (showFeedback) {
+        showToast("info", t("exams.takePage.toastAutosavedTitle", null, "Tu dong luu"), t("exams.takePage.toastAutosavedMessage", null, "Bai lam cua ban da duoc luu len he thong."));
+      }
+    });
   }
 
   function submitExam(mode) {
-    if (state.submitted || !state.exam) {
+    if (state.submitted || !state.exam || !state.attemptId) {
+      return;
+    }
+
+    if (!hasValidTimerRuntime()) {
+      showToast("warning", t("exams.takePage.toastTimerInvalidTitle", null, "Chưa thể nộp bài"), t("exams.takePage.toastTimerInvalidMessage", null, "Dữ liệu thời gian làm bài chưa sẵn sàng. Vui lòng tải lại trang."));
       return;
     }
 
     state.submitted = true;
     window.clearInterval(state.timerIntervalId);
     window.clearInterval(state.autosaveIntervalId);
-    saveSession();
 
-    const session = getSession() || {};
-    const startedAt = session.startedAt ? new Date(session.startedAt).getTime() : Date.now();
-    const durationMinutes = Math.max(1, Math.round((Date.now() - startedAt) / 60000));
-    const score = calculateScore();
-    const result = {
-      id: Date.now(),
-      examId: state.exam.id,
-      examName: state.exam.name,
-      studentName: "Học viên Một",
-      score,
-      passed: score >= Number(state.exam.passScore || 0),
-      durationMinutes,
-      submittedAt: new Date().toISOString(),
-      mode: mode || "manual",
-      answers: state.answers
-    };
+    const payload = buildAutosavePayload();
+    if (mode === "auto") {
+      payload.autoSubmit = true;
+    }
 
-    saveResult(result);
-    clearSession();
-    $("[data-exam-taking-action]").prop("disabled", true);
-    $("#examAnswerList input").prop("disabled", true);
-    showToast(
-      result.passed ? "success" : "warning",
-      mode === "auto" ? t("exams.takePage.toastTimeEnded", null, "Hết giờ làm bài") : t("exams.takePage.toastSubmitted", null, "Đã nộp bài"),
-      t("exams.takePage.toastSubmitMessage", { name: state.exam.name, score: score }, state.exam.name + " đã được nộp với số điểm " + score + "/100.")
-    );
+    Lms.apiClient.post("api/exam-attempts/" + state.attemptId + "/submit", payload).done(function (response) {
+      const data = getResponseData(response);
+      clearSession();
+      $("[data-exam-taking-action]").prop("disabled", true);
+      $("#examAnswerList input").prop("disabled", true);
+      showToast(
+        data && data.passed ? "success" : "warning",
+        mode === "auto" ? t("exams.takePage.toastTimeEnded", null, "Het gio lam bai") : t("exams.takePage.toastSubmitted", null, "Da nop bai"),
+        t("exams.takePage.toastSubmitMessage", { name: state.exam.name, score: data && typeof data.score !== "undefined" ? data.score : "--" }, state.exam.name + " da duoc nop.")
+      );
+      if (mode !== "auto") {
+        window.setTimeout(function () {
+          window.location.href = "/Results";
+        }, 800);
+      }
+    }).fail(function (error) {
+      state.submitted = false;
+      showToast("error", t("exams.takePage.toastSubmitErrorTitle", null, "Khong the nop bai"), error && error.message ? error.message : t("exams.takePage.toastSubmitErrorMessage", null, "Vui long thu lai."));
+      state.timerIntervalId = window.setInterval(renderTimer, 1000);
+      startAutosave();
+    });
   }
 
   function showSubmitConfirm() {
@@ -271,21 +322,21 @@
     const modal = $(
       '<div class="linear-exam-submit-modal">' +
         '<div class="app-modal-header">' +
-          '<h2 class="app-modal-title" data-i18n="exams.takePage.modalSubmitTitle">' + t("exams.takePage.modalSubmitTitle", null, "Nộp bài thi") + "</h2>" +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="exams.takePage.buttonClose">' + t("exams.takePage.buttonClose", null, "Đóng") + "</button>" +
+          '<h2 class="app-modal-title" data-i18n="exams.takePage.modalSubmitTitle">' + t("exams.takePage.modalSubmitTitle", null, "Nop bai thi") + "</h2>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="exams.takePage.buttonClose">' + t("exams.takePage.buttonClose", null, "Dong") + "</button>" +
         "</div>" +
         '<div class="app-modal-body">' +
           '<p class="u-mb-0"></p>' +
         "</div>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="exams.takePage.buttonCancel">' + t("exams.takePage.buttonCancel", null, "Hủy") + "</button>" +
-          '<button class="app-button app-button-primary" type="button" data-exam-confirm-submit data-i18n="exams.takePage.buttonSubmit">' + t("exams.takePage.buttonSubmit", null, "Nộp bài") + "</button>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close data-i18n="exams.takePage.buttonCancel">' + t("exams.takePage.buttonCancel", null, "Huy") + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-exam-confirm-submit data-i18n="exams.takePage.buttonSubmit">' + t("exams.takePage.buttonSubmit", null, "Nop bai") + "</button>" +
         "</div>" +
       "</div>"
     );
 
     modal.find(".app-modal-body p").html(
-      t("exams.takePage.modalSubmitConfirm", { count: "<strong>" + unanswered.length + "</strong>" }, "Bạn còn " + "<strong>" + unanswered.length + "</strong>" + " câu hỏi chưa trả lời. Bạn có chắc chắn muốn nộp bài?")
+      t("exams.takePage.modalSubmitConfirm", { count: "<strong>" + unanswered.length + "</strong>" }, "Ban con <strong>" + unanswered.length + "</strong> cau hoi chua tra loi. Ban co chac chan muon nop bai?")
     );
     modal.find("[data-modal-close]").on("click", Lms.ui.closeModal);
     modal.find("[data-exam-confirm-submit]").on("click", function () {
@@ -332,30 +383,27 @@
   function startAutosave() {
     window.clearInterval(state.autosaveIntervalId);
     state.autosaveIntervalId = window.setInterval(function () {
-      if (!state.submitted) {
-        saveSession();
-        showToast("info", t("exams.takePage.toastAutosavedTitle", null, "Tự động lưu"), t("exams.takePage.toastAutosavedMessage", null, "Bài làm của bạn đã được tự động lưu cục bộ."));
-      }
+      autosave(true);
     }, autosaveIntervalSeconds * 1000);
   }
 
   function render() {
     if (!state.exam) {
-      $("[data-exam-taking-title]").text(t("exams.takePage.notFoundTitle", null, "Không tìm thấy bài thi"));
-      $("[data-exam-taking-subtitle]").text(t("exams.takePage.notFoundDesc", null, "Quay lại danh sách bài thi và chọn bài thi khác."));
+      $("[data-exam-taking-title]").text(t("exams.takePage.notFoundTitle", null, "Khong tim thay bai thi"));
+      $("[data-exam-taking-subtitle]").text(t("exams.takePage.notFoundDesc", null, "Quay lai danh sach bai thi va chon bai thi khac."));
       $("[data-exam-question-content]").empty();
       $("#examAnswerList").html(
         '<div class="app-empty-state">' +
           '<div class="app-empty-icon" aria-hidden="true">!</div>' +
-          '<h3 class="app-empty-title">' + t("exams.takePage.notFoundTitle", null, "Không tìm thấy bài thi") + "</h3>" +
-          '<p class="app-empty-copy">' + t("exams.takePage.notFoundCopy", null, "Bài thi yêu cầu không tồn tại trong dữ liệu mô phỏng.") + "</p>" +
+          '<h3 class="app-empty-title">' + t("exams.takePage.notFoundTitle", null, "Khong tim thay bai thi") + "</h3>" +
+          '<p class="app-empty-copy">' + t("exams.takePage.notFoundCopy", null, "Bai thi yeu cau khong ton tai hoac ban khong co quyen truy cap.") + "</p>" +
         "</div>"
       );
       return;
     }
 
     $("[data-exam-taking-title]").text(state.exam.name);
-    $("[data-exam-taking-subtitle]").text(t("exams.takePage.readySubtitle", null, "Trả lời các câu hỏi và nộp bài khi hoàn thành."));
+    $("[data-exam-taking-subtitle]").text(t("exams.takePage.readySubtitle", null, "Tra loi cac cau hoi va nop bai khi hoan thanh."));
     renderTimer();
     renderNavigator();
     renderQuestion();
@@ -380,7 +428,7 @@
           return Number($(this).val());
         }).get();
       } else {
-        state.answers[question.id] = Number($(this).val());
+        state.answers[question.id] = [Number($(this).val())];
       }
 
       saveSession();
@@ -425,10 +473,48 @@
     });
 
     $(document).on("click", "[data-exam-taking-action='submit']", function () {
-      showSubmitConfirm();
+      autosave(false).always(showSubmitConfirm);
     });
 
     $(document).on("lms:i18n:changed", render);
+  }
+
+  function fetchAttempt(attemptId) {
+    return Lms.apiClient.get("api/exam-attempts/" + attemptId).done(function (response) {
+      const data = getResponseData(response);
+      state.attemptId = Number(data.attemptId);
+      state.exam = {
+        id: Number(data.examId),
+        name: data.examName || ""
+      };
+      state.durationMinutes = resolveDurationMinutes(data);
+      state.startedAt = normalizeUtcDateString(data.startedAt) || state.startedAt;
+      state.questions = Array.isArray(data.questions) ? data.questions.map(normalizeQuestion) : [];
+      hydrateAnswers(data.savedAnswers);
+      render();
+      state.timerIntervalId = window.setInterval(renderTimer, 1000);
+      startAutosave();
+    });
+  }
+
+  function startOrResumeAttempt() {
+    const session = getSession();
+    if (session && Number(session.examId) === state.examId) {
+      state.marked = session.marked || [];
+    }
+
+    return Lms.apiClient.post("api/exam-attempts/start", { examId: state.examId }).done(function (response) {
+      const data = getResponseData(response);
+      state.attemptId = Number(data.attemptId);
+      state.exam = {
+        id: Number(data.examId),
+        name: data.examName || ""
+      };
+      state.durationMinutes = resolveDurationMinutes(data);
+      state.startedAt = normalizeUtcDateString(data.startedAt) || state.startedAt;
+      saveSession();
+      fetchAttempt(state.attemptId);
+    });
   }
 
   function init() {
@@ -444,30 +530,11 @@
   }
 
   function loadPageData() {
-    $.when(
-      Lms.apiClient.get("exams.json"),
-      Lms.apiClient.get("questions.json")
-    ).done(function (examsResponse, questionsResponse) {
-      state.exam = getItems(examsResponse).find(function (exam) {
-        return exam.id === state.examId;
-      }) || null;
-      state.questions = getItems(questionsResponse);
-
-      const session = getSession();
-
-      if (session && Number(session.examId) === state.examId) {
-        state.answers = session.answers || {};
-        state.marked = session.marked || [];
-      }
-
-      render();
-      state.timerIntervalId = window.setInterval(renderTimer, 1000);
-      startAutosave();
-    }).fail(function () {
+    startOrResumeAttempt().fail(function (error) {
       showToast(
         "error",
-        t("exams.takePage.toastLoadErrorTitle", null, "Lỗi tải dữ liệu"),
-        t("exams.takePage.toastLoadErrorMessage", null, "Không thể tải dữ liệu làm bài thi.")
+        t("exams.takePage.toastLoadErrorTitle", null, "Loi tai du lieu"),
+        error && error.message ? error.message : t("exams.takePage.toastLoadErrorMessage", null, "Khong the tai du lieu lam bai thi.")
       );
       render();
     });

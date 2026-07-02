@@ -413,8 +413,8 @@
   margin-bottom: var(--space-4);
 }
 
-/* CSS-only Dashboard Mockup shapes */
-.mock-dashboard-mockup {
+/* CSS-only dashboard preview shapes */
+.dashboard-preview-card {
   width: 140px;
   height: 140px;
   border-radius: 20px;
@@ -428,7 +428,7 @@
   margin-right: var(--space-4);
 }
 
-.mockup-chart-circle {
+.dashboard-preview-chart-circle {
   width: 54px;
   height: 54px;
   border-radius: 50%;
@@ -437,13 +437,13 @@
   animation: app-spin 3s linear infinite;
 }
 
-.mockup-lines {
+.dashboard-preview-lines {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
 }
 
-.mockup-line-short {
+.dashboard-preview-line-short {
   height: 6px;
   width: 40%;
   background: #6257ff;
@@ -451,7 +451,7 @@
   border-radius: 3px;
 }
 
-.mockup-line-long {
+.dashboard-preview-line-long {
   height: 6px;
   width: 80%;
   background: #00a7a7;

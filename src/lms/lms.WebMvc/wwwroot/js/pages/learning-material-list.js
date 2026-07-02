@@ -11,20 +11,11 @@
     search: "",
     courseId: "",
     type: "",
-    status: ""
+    fileMode: ""
   };
 
   function t(key, params, fallback) {
     return Lms.i18n ? Lms.i18n.t(key, params, fallback) : (fallback || key);
-  }
-
-  function unwrap(response) {
-    return Array.isArray(response) ? response[0] : response;
-  }
-
-  function getItems(response) {
-    const payload = unwrap(response);
-    return payload && payload.data && Array.isArray(payload.data.items) ? payload.data.items : [];
   }
 
   function escapeHtml(value) {
@@ -42,43 +33,35 @@
     }
   }
 
-  function getBadgeClass(status) {
-    return status === "Published" ? "app-badge-success" : "app-badge-muted";
+  function getResponsePayload(response) {
+    return Array.isArray(response) ? response[0] : response;
   }
 
-  function getTypeBadgeClass(type) {
-    if (type === "Pdf") {
-      return "app-badge-danger";
-    }
-
-    if (type === "File") {
-      return "app-badge-warning";
-    }
-
-    if (type === "Link") {
-      return "app-badge-info";
-    }
-
-    return "app-badge-success";
+  function getResponseData(response) {
+    const payload = getResponsePayload(response);
+    return payload && payload.data ? payload.data : null;
   }
 
-  function translateType(type) {
-    return t("materials.adminListPage.types." + type, null, type);
-  }
-
-  function translateStatus(status) {
-    return t("materials.adminListPage.statuses." + status, null, status);
-  }
-
-  function getTypeIcon(type) {
-    if (type === "Pdf") return "bi-filetype-pdf";
-    if (type === "File") return "bi-paperclip";
-    if (type === "Link") return "bi-link-45deg";
-    return "bi-fonts";
+  function getResponseItems(response) {
+    const data = getResponseData(response);
+    return data && Array.isArray(data.items) ? data.items : [];
   }
 
   function renderPageTitle() {
-    document.title = t("materials.adminListPage.title", null, "Tài liệu học tập") + " - " + t("common.appName", null, "lms");
+    document.title = t("materials.adminListPage.title", null, "Tai lieu hoc tap") + " - " + t("common.appName", null, "lms");
+  }
+
+  function mapMaterial(item) {
+    return {
+      id: Number(item.id),
+      courseId: Number(item.courseId),
+      title: item.title || "",
+      contentType: item.contentType || "Text",
+      order: Number(item.order || 0),
+      hasFile: Boolean(item.hasFile),
+      textContent: item.textContent || "",
+      externalLink: item.externalLink || ""
+    };
   }
 
   function getCourse(courseId) {
@@ -93,12 +76,6 @@
     });
   }
 
-  function getNextMaterialId() {
-    return state.materials.reduce(function (maxId, material) {
-      return Math.max(maxId, Number(material.id) || 0);
-    }, 0) + 1;
-  }
-
   function getPageCount() {
     return Math.max(1, Math.ceil(state.filteredMaterials.length / state.pageSize));
   }
@@ -110,30 +87,64 @@
 
   function renderCourseOptions() {
     const $filter = $("[data-material-filter='course']");
+    const $formSelect = $("[name='courseId']");
     const currentValue = $filter.val() || "";
 
     $filter.find("option:not(:first)").remove();
+    $formSelect.find("option:not(:first)").remove();
+
     state.courses.forEach(function (course) {
-      $filter.append('<option value="' + course.id + '">' + escapeHtml(course.name) + "</option>");
+      const option = '<option value="' + course.id + '">' + escapeHtml(course.name) + "</option>";
+      $filter.append(option);
+      $formSelect.append(option);
     });
+
     $filter.val(currentValue);
   }
 
   function renderMetrics() {
-    const published = state.materials.filter(function (material) {
-      return material.status === "Published";
+    const fileBacked = state.materials.filter(function (material) {
+      return material.hasFile;
     }).length;
-    const duration = state.materials.reduce(function (total, material) {
-      return total + Number(material.durationMinutes || 0);
-    }, 0);
+    const textCount = state.materials.filter(function (material) {
+      return material.contentType === "Text";
+    }).length;
     const types = new Set(state.materials.map(function (material) {
       return material.contentType;
     })).size;
 
     $("[data-material-metric='total']").text(state.materials.length);
-    $("[data-material-metric='published']").text(published);
-    $("[data-material-metric='duration']").text(duration + " " + t("materials.adminListPage.minutesUnit", null, "m"));
+    $("[data-material-metric='published']").text(fileBacked);
+    $("[data-material-metric='duration']").text(textCount);
     $("[data-material-metric='types']").text(types);
+  }
+
+  function getTypeBadgeClass(type) {
+    if (type === "Pdf") {
+      return "app-badge-danger";
+    }
+    if (type === "File") {
+      return "app-badge-warning";
+    }
+    if (type === "Link") {
+      return "app-badge-info";
+    }
+    return "app-badge-success";
+  }
+
+  function getFileBadgeClass(hasFile) {
+    return hasFile ? "app-badge-success" : "app-badge-muted";
+  }
+
+  function getTypeIcon(type) {
+    if (type === "Pdf") return "bi-filetype-pdf";
+    if (type === "File") return "bi-paperclip";
+    if (type === "Link") return "bi-link-45deg";
+    return "bi-fonts";
+  }
+
+  function translateType(type) {
+    return t("materials.adminListPage.types." + type, null, type);
   }
 
   function renderRows() {
@@ -146,8 +157,8 @@
           '<td colspan="6">' +
             '<div class="app-empty-state">' +
               '<div class="image-slot image-slot-md image-slot-material u-mb-4" data-image-label="Empty materials illustration 320x180"><img src="/images/placeholders/material-placeholder.svg" alt="" aria-hidden="true" /></div>' +
-              '<h3 class="app-empty-title">' + escapeHtml(t("materials.adminListPage.noMaterialsTitle", null, "Không tìm thấy tài liệu")) + "</h3>" +
-              '<p class="app-empty-copy">' + escapeHtml(t("materials.adminListPage.noMaterialsCopy", null, "Thử từ khóa, khóa học, thể loại hoặc bộ lọc trạng thái khác.")) + "</p>" +
+              '<h3 class="app-empty-title">' + escapeHtml(t("materials.adminListPage.noMaterialsTitle", null, "Khong tim thay tai lieu")) + "</h3>" +
+              '<p class="app-empty-copy">' + escapeHtml(t("materials.adminListPage.noMaterialsCopy", null, "Thu tu khoa, khoa hoc, loai hoac file dinh kem khac.")) + "</p>" +
             "</div>" +
           "</td>" +
         "</tr>"
@@ -157,7 +168,7 @@
 
     rows.forEach(function (material) {
       const course = getCourse(material.courseId);
-      const courseName = course ? course.name : t("materials.adminListPage.unassignedCourse", null, "Khóa học chưa được gán");
+      const courseName = course ? course.name : t("materials.adminListPage.unassignedCourse", null, "Khoa hoc khong xac dinh");
 
       $rows.append(
         "<tr>" +
@@ -166,18 +177,18 @@
               '<span class="app-avatar admin-type-avatar" aria-hidden="true"><i class="bi ' + getTypeIcon(material.contentType) + '"></i></span>' +
               "<div>" +
                 "<strong>" + escapeHtml(material.title) + "</strong>" +
-                "<span>" + escapeHtml(t("materials.adminListPage.materialId", { id: material.id }, "Mã tài liệu #" + material.id)) + "</span>" +
+                "<span>" + escapeHtml(t("materials.adminListPage.materialId", { id: material.id }, "Ma tai lieu #" + material.id)) + "</span>" +
               "</div>" +
             "</div>" +
           "</td>" +
           "<td>" + escapeHtml(courseName) + "</td>" +
           '<td><span class="app-badge ' + getTypeBadgeClass(material.contentType) + '">' + escapeHtml(translateType(material.contentType)) + "</span></td>" +
-          "<td>" + escapeHtml(t("materials.adminListPage.durationMinutesValue", { minutes: material.durationMinutes }, material.durationMinutes + " phút")) + "</td>" +
-          '<td><span class="app-badge ' + getBadgeClass(material.status) + '">' + escapeHtml(translateStatus(material.status)) + "</span></td>" +
+          "<td>" + escapeHtml(t("materials.adminListPage.orderValue", { order: material.order }, "Thu tu " + material.order)) + "</td>" +
+          '<td><span class="app-badge ' + getFileBadgeClass(material.hasFile) + '">' + escapeHtml(material.hasFile ? t("materials.adminListPage.hasFile", null, "Co file") : t("materials.adminListPage.noFile", null, "Khong co file")) + "</span></td>" +
           '<td class="u-text-right">' +
             '<div class="admin-row-actions">' +
-              '<button class="app-button app-button-secondary" type="button" data-material-action="edit" data-material-id="' + material.id + '">' + escapeHtml(t("common.edit", null, "Sửa")) + "</button>" +
-              '<button class="app-button app-button-secondary" type="button" data-material-action="delete" data-material-id="' + material.id + '">' + escapeHtml(t("common.delete", null, "Xóa")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-material-action="edit" data-material-id="' + material.id + '">' + escapeHtml(t("common.edit", null, "Sua")) + "</button>" +
+              '<button class="app-button app-button-secondary" type="button" data-material-action="delete" data-material-id="' + material.id + '">' + escapeHtml(t("common.delete", null, "Xoa")) + "</button>" +
             "</div>" +
           "</td>" +
         "</tr>"
@@ -191,12 +202,12 @@
     const startRecord = state.filteredMaterials.length ? (state.page - 1) * state.pageSize + 1 : 0;
     const endRecord = Math.min(state.page * state.pageSize, state.filteredMaterials.length);
 
-    $("[data-material-result-count]").text(t("materials.adminListPage.records", { count: state.filteredMaterials.length }, state.filteredMaterials.length + " bản ghi"));
+    $("[data-material-result-count]").text(t("materials.adminListPage.records", { count: state.filteredMaterials.length }, state.filteredMaterials.length + " ban ghi"));
     $("[data-material-page-info]").text(
       t(
         "materials.adminListPage.showing",
         { start: startRecord, end: endRecord, total: state.filteredMaterials.length },
-        "Hiển thị " + startRecord + "-" + endRecord + " trên " + state.filteredMaterials.length + " tài liệu"
+        "Hien thi " + startRecord + "-" + endRecord + " tren " + state.filteredMaterials.length + " tai lieu"
       )
     );
     $("[data-material-page='prev']").prop("disabled", state.page <= 1);
@@ -225,9 +236,11 @@
       const matchesKeyword = !keyword || material.title.toLowerCase().includes(keyword);
       const matchesCourse = !state.courseId || material.courseId === Number(state.courseId);
       const matchesType = !state.type || material.contentType === state.type;
-      const matchesStatus = !state.status || material.status === state.status;
+      const matchesFileMode = !state.fileMode
+        || (state.fileMode === "has-file" && material.hasFile)
+        || (state.fileMode === "no-file" && !material.hasFile);
 
-      return matchesKeyword && matchesCourse && matchesType && matchesStatus;
+      return matchesKeyword && matchesCourse && matchesType && matchesFileMode;
     });
 
     state.page = Math.min(state.page, getPageCount());
@@ -241,8 +254,9 @@
       title: $form.find("[name='title']").val().trim(),
       courseId: Number($form.find("[name='courseId']").val()),
       contentType: $form.find("[name='contentType']").val(),
-      durationMinutes: Number($form.find("[name='durationMinutes']").val()),
-      status: $form.find("[name='status']").val()
+      textContent: $form.find("[name='textContent']").val().trim(),
+      externalLink: $form.find("[name='externalLink']").val().trim(),
+      order: Number($form.find("[name='order']").val())
     };
   }
 
@@ -259,171 +273,242 @@
     $(form).find("[data-material-error]").text("");
   }
 
-  function validateMaterialForm(form) {
+  function updateTypeSpecificFields(form) {
+    const type = $(form).find("[name='contentType']").val();
+    const isText = type === "Text";
+    const isLink = type === "Link";
+
+    $(form).find("[data-material-field='textContent']").toggle(isText);
+    $(form).find("[data-material-field='externalLink']").toggle(isLink);
+
+    if (!isText) {
+      $(form).find("[name='textContent']").removeClass("is-invalid");
+    }
+    if (!isLink) {
+      $(form).find("[name='externalLink']").removeClass("is-invalid");
+    }
+  }
+
+  function validateMaterialForm(form, isEdit) {
     const values = getFormValues(form);
     let valid = true;
 
     clearFormErrors(form);
 
     if (!values.title || values.title.length < 3) {
-      setFieldError(form, "title", t("materials.adminListPage.titleMin", null, "Tiêu đề phải có ít nhất 3 ký tự."));
+      setFieldError(form, "title", t("materials.adminListPage.titleMin", null, "Tieu de phai co it nhat 3 ky tu."));
       valid = false;
     }
 
-    if (!values.courseId) {
-      setFieldError(form, "courseId", t("materials.adminListPage.selectCourseWarning", null, "Vui lòng chọn khóa học."));
+    if (!isEdit && !values.courseId) {
+      setFieldError(form, "courseId", t("materials.adminListPage.selectCourseWarning", null, "Vui long chon khoa hoc."));
       valid = false;
     }
 
     if (!values.contentType) {
-      setFieldError(form, "contentType", t("materials.adminListPage.selectTypeWarning", null, "Vui lòng chọn thể loại tài liệu."));
+      setFieldError(form, "contentType", t("materials.adminListPage.selectTypeWarning", null, "Vui long chon loai tai lieu."));
       valid = false;
     }
 
-    if (!Number.isInteger(values.durationMinutes) || values.durationMinutes < 1) {
-      setFieldError(form, "durationMinutes", t("materials.adminListPage.durationWarning", null, "Thời lượng phải tối thiểu là 1 phút."));
+    if (!Number.isInteger(values.order) || values.order < 1) {
+      setFieldError(form, "order", t("materials.adminListPage.orderWarning", null, "Thu tu phai la so nguyen lon hon hoac bang 1."));
       valid = false;
     }
 
-    if (!values.status) {
-      setFieldError(form, "status", t("materials.adminListPage.selectStatusWarning", null, "Vui lòng chọn trạng thái."));
+    if (values.contentType === "Text" && !values.textContent) {
+      setFieldError(form, "textContent", t("materials.adminListPage.textRequired", null, "Noi dung Text khong duoc de trong."));
+      valid = false;
+    }
+
+    if (values.contentType === "Link" && !values.externalLink) {
+      setFieldError(form, "externalLink", t("materials.adminListPage.linkRequired", null, "Lien ket ngoai khong duoc de trong."));
       valid = false;
     }
 
     return valid;
   }
 
-  function buildCourseSelectOptions(selectedCourseId) {
-    return state.courses.map(function (course) {
-      const selected = course.id === Number(selectedCourseId) ? " selected" : "";
-      return '<option value="' + course.id + '"' + selected + ">" + escapeHtml(course.name) + "</option>";
-    }).join("");
-  }
-
   function buildMaterialForm(material) {
     const isEdit = Boolean(material);
+    const disabledCourse = isEdit ? ' disabled="disabled"' : "";
+    const disabledType = isEdit ? ' disabled="disabled"' : "";
+
     const modal = $(
       "<div>" +
         '<div class="app-modal-header">' +
           "<div>" +
-            '<h2 class="app-modal-title">' + escapeHtml(isEdit ? t("materials.adminListPage.editMaterial", null, "Sửa tài liệu") : t("materials.adminListPage.createMaterialModal", null, "Tạo tài liệu")) + "</h2>" +
-            '<p class="app-card-subtitle">' + escapeHtml(isEdit ? t("materials.adminListPage.editSubtitle", null, "Cập nhật thông tin tài liệu học tập mô phỏng.") : t("materials.adminListPage.createSubtitle", null, "Thêm tài liệu học tập mô phỏng mới trong bộ nhớ.")) + "</p>" +
+            '<h2 class="app-modal-title">' + escapeHtml(isEdit ? t("materials.adminListPage.editMaterial", null, "Sua tai lieu") : t("materials.adminListPage.createMaterialModal", null, "Tao tai lieu")) + "</h2>" +
+            '<p class="app-card-subtitle">' + escapeHtml(isEdit ? t("materials.adminListPage.editSubtitle", null, "Cap nhat noi dung va thu tu tai lieu.") : t("materials.adminListPage.createSubtitle", null, "Them tai lieu hoc tap moi vao backend.")) + "</p>" +
           "</div>" +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.close", null, "Đóng")) + "</button>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.close", null, "Dong")) + "</button>" +
         "</div>" +
         '<form class="app-modal-body admin-user-form" novalidate>' +
-          '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.formTitle", null, "Tiêu đề")) +
+          '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.formTitle", null, "Tieu de")) +
             '<input class="app-input" name="title" type="text" autocomplete="off" />' +
             '<span class="auth-error" data-material-error="title"></span>' +
           "</label>" +
-          '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.formCourse", null, "Khóa học")) +
-            '<select class="app-select" name="courseId">' +
-              '<option value="">' + escapeHtml(t("materials.adminListPage.selectCoursePlaceholder", null, "Chọn khóa học")) + "</option>" +
-              buildCourseSelectOptions(material ? material.courseId : "") +
-            "</select>" +
-            '<span class="auth-error" data-material-error="courseId"></span>' +
-          "</label>" +
           '<div class="admin-user-form-grid">' +
-            '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.formType", null, "Thể loại")) +
-              '<select class="app-select" name="contentType">' +
-                '<option value="">' + escapeHtml(t("materials.adminListPage.selectTypePlaceholder", null, "Chọn thể loại")) + "</option>" +
-                '<option value="Text">' + escapeHtml(t("materials.adminListPage.typeOptionText", null, "Văn bản")) + "</option>" +
+            '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.formCourse", null, "Khoa hoc")) +
+              '<select class="app-select" name="courseId"' + disabledCourse + '>' +
+                '<option value="">' + escapeHtml(t("materials.adminListPage.selectCoursePlaceholder", null, "Chon khoa hoc")) + "</option>" +
+              "</select>" +
+              '<span class="auth-error" data-material-error="courseId"></span>' +
+            "</label>" +
+            '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.formType", null, "Loai tai lieu")) +
+              '<select class="app-select" name="contentType"' + disabledType + '>' +
+                '<option value="">' + escapeHtml(t("materials.adminListPage.selectTypePlaceholder", null, "Chon loai")) + "</option>" +
+                '<option value="Text">' + escapeHtml(t("materials.adminListPage.typeOptionText", null, "Van ban")) + "</option>" +
                 '<option value="Pdf">' + escapeHtml(t("materials.adminListPage.typeOptionPdf", null, "PDF")) + "</option>" +
-                '<option value="File">' + escapeHtml(t("materials.adminListPage.typeOptionFile", null, "Tệp")) + "</option>" +
-                '<option value="Link">' + escapeHtml(t("materials.adminListPage.typeOptionLink", null, "Liên kết")) + "</option>" +
+                '<option value="File">' + escapeHtml(t("materials.adminListPage.typeOptionFile", null, "Tep")) + "</option>" +
+                '<option value="Link">' + escapeHtml(t("materials.adminListPage.typeOptionLink", null, "Lien ket")) + "</option>" +
               "</select>" +
               '<span class="auth-error" data-material-error="contentType"></span>' +
             "</label>" +
-            '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.formDuration", null, "Thời lượng (phút)")) +
-              '<input class="app-input" name="durationMinutes" type="number" min="1" step="1" />' +
-              '<span class="auth-error" data-material-error="durationMinutes"></span>' +
-            "</label>" +
           "</div>" +
-          '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.formStatus", null, "Trạng thái")) +
-            '<select class="app-select" name="status">' +
-              '<option value="">' + escapeHtml(t("materials.adminListPage.selectStatusPlaceholder", null, "Chọn trạng thái")) + "</option>" +
-              '<option value="Published">' + escapeHtml(t("materials.adminListPage.published", null, "Đã xuất bản")) + "</option>" +
-              '<option value="Draft">' + escapeHtml(t("materials.adminListPage.draft", null, "Bản nháp")) + "</option>" +
-            "</select>" +
-            '<span class="auth-error" data-material-error="status"></span>' +
+          '<label class="auth-field" data-material-field="textContent">' + escapeHtml(t("materials.adminListPage.formTextContent", null, "Noi dung van ban")) +
+            '<textarea class="app-input" name="textContent" rows="4"></textarea>' +
+            '<span class="auth-error" data-material-error="textContent"></span>' +
+          "</label>" +
+          '<label class="auth-field" data-material-field="externalLink">' + escapeHtml(t("materials.adminListPage.formExternalLink", null, "Lien ket ngoai")) +
+            '<input class="app-input" name="externalLink" type="url" autocomplete="off" />' +
+            '<span class="auth-error" data-material-error="externalLink"></span>' +
+          "</label>" +
+          '<label class="auth-field">' + escapeHtml(t("materials.adminListPage.formOrder", null, "Thu tu")) +
+            '<input class="app-input" name="order" type="number" min="1" step="1" />' +
+            '<span class="auth-error" data-material-error="order"></span>' +
           "</label>" +
         "</form>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.cancel", null, "Hủy")) + "</button>" +
-          '<button class="app-button app-button-primary" type="button" data-material-save>' + escapeHtml(isEdit ? t("materials.adminListPage.saveChanges", null, "Lưu thay đổi") : t("materials.adminListPage.createMaterial", null, "Tạo tài liệu")) + "</button>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.cancel", null, "Huy")) + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-material-save>' + escapeHtml(isEdit ? t("materials.adminListPage.saveChanges", null, "Luu thay doi") : t("materials.adminListPage.createMaterial", null, "Tao tai lieu")) + "</button>" +
         "</div>" +
       "</div>"
     );
 
-    modal.find("[name='title']").val(material ? material.title : "");
-    modal.find("[name='contentType']").val(material ? material.contentType : "Text");
-    modal.find("[name='durationMinutes']").val(material ? material.durationMinutes : 10);
-    modal.find("[name='status']").val(material ? material.status : "Draft");
+    const $courseSelect = modal.find("[name='courseId']");
+    state.courses.forEach(function (course) {
+      $courseSelect.append('<option value="' + course.id + '">' + escapeHtml(course.name) + "</option>");
+    });
 
+    modal.find("[name='title']").val(material ? material.title : "");
+    modal.find("[name='courseId']").val(material ? material.courseId : "");
+    modal.find("[name='contentType']").val(material ? material.contentType : "Text");
+    modal.find("[name='textContent']").val(material ? material.textContent : "");
+    modal.find("[name='externalLink']").val(material ? material.externalLink : "");
+    modal.find("[name='order']").val(material ? material.order : 1);
+
+    updateTypeSpecificFields(modal.find("form")[0]);
     return modal;
   }
 
-  function showMaterialForm(materialId) {
-    const editingMaterialId = materialId ? Number(materialId) : null;
-    const material = editingMaterialId ? findMaterial(editingMaterialId) : null;
-
-    if (editingMaterialId && !material) {
-      showToast("error", t("materials.adminListPage.materialNotFoundTitle", null, "Không tìm thấy tài liệu"), t("materials.adminListPage.materialNotFoundMessage", null, "Không tìm thấy tài liệu học tập được chọn."));
-      return;
+  function upsertMaterial(material) {
+    const existing = findMaterial(material.id);
+    if (existing) {
+      Object.assign(existing, material);
+      return existing;
     }
+    state.materials.unshift(material);
+    state.page = 1;
+    return material;
+  }
 
+  function createMaterial(values) {
+    return Lms.apiClient.post("api/learning-materials", {
+      courseId: values.courseId,
+      title: values.title,
+      contentType: values.contentType,
+      textContent: values.contentType === "Text" ? values.textContent : null,
+      externalLink: values.contentType === "Link" ? values.externalLink : null,
+      order: values.order
+    });
+  }
+
+  function updateMaterial(materialId, values) {
+    const target = findMaterial(materialId);
+    const contentType = target ? target.contentType : values.contentType;
+
+    return Lms.apiClient.put("api/learning-materials/" + materialId, {
+      title: values.title,
+      textContent: contentType === "Text" ? values.textContent : null,
+      externalLink: contentType === "Link" ? values.externalLink : null,
+      order: values.order
+    });
+  }
+
+  function getMaterialForEdit(materialId) {
+    return Lms.apiClient.get("api/learning-materials/" + materialId).then(function (response) {
+      return mapMaterial(getResponseData(response));
+    });
+  }
+
+  function openMaterialForm(material) {
+    const editingMaterialId = material ? Number(material.id) : null;
     const modal = buildMaterialForm(material);
     const form = modal.find("form")[0];
 
     modal.find("[data-modal-close]").on("click", Lms.ui.closeModal);
+    modal.find("[name='contentType']").on("change", function () {
+      updateTypeSpecificFields(form);
+    });
     modal.find("[data-material-save]").on("click", function () {
-      if (!validateMaterialForm(form)) {
+      if (!validateMaterialForm(form, Boolean(editingMaterialId))) {
         return;
       }
 
       const values = getFormValues(form);
+      const request = editingMaterialId ? updateMaterial(editingMaterialId, values) : createMaterial(values);
 
-      if (editingMaterialId) {
-        const target = findMaterial(editingMaterialId);
-        Object.assign(target, values);
-        showToast("success", t("materials.adminListPage.materialUpdatedTitle", null, "Đã cập nhật tài liệu"), t("materials.adminListPage.materialUpdatedMessage", { title: target.title }, target.title + " đã được cập nhật."));
-      } else {
-        const newMaterial = {
-          id: getNextMaterialId(),
-          ...values
-        };
-        state.materials.unshift(newMaterial);
-        state.page = 1;
-        showToast("success", t("materials.adminListPage.materialCreatedTitle", null, "Đã tạo tài liệu"), t("materials.adminListPage.materialCreatedMessage", { title: newMaterial.title }, newMaterial.title + " đã được thêm."));
-      }
-
-      Lms.ui.closeModal();
-      applyFilters();
+      request.done(function (response) {
+        const saved = upsertMaterial(mapMaterial(getResponseData(response)));
+        Lms.ui.closeModal();
+        applyFilters();
+        showToast(
+          "success",
+          editingMaterialId ? t("materials.adminListPage.materialUpdatedTitle", null, "Da cap nhat tai lieu") : t("materials.adminListPage.materialCreatedTitle", null, "Da tao tai lieu"),
+          editingMaterialId
+            ? t("materials.adminListPage.materialUpdatedMessage", { title: saved.title }, saved.title + " da duoc cap nhat.")
+            : t("materials.adminListPage.materialCreatedMessage", { title: saved.title }, saved.title + " da duoc them.")
+        );
+      }).fail(function (error) {
+        showToast("error", t("materials.adminListPage.saveFailedTitle", null, "Khong the luu tai lieu"), error && error.message ? error.message : t("materials.adminListPage.saveFailedMessage", null, "Vui long thu lai."));
+      });
     });
 
     Lms.ui.showModal(modal);
   }
 
+  function showMaterialForm(materialId) {
+    if (!materialId) {
+      openMaterialForm(null);
+      return;
+    }
+
+    getMaterialForEdit(Number(materialId)).done(function (material) {
+      openMaterialForm(material);
+    }).fail(function (error) {
+      showToast("error", t("materials.adminListPage.materialNotFoundTitle", null, "Khong tim thay tai lieu"), error && error.message ? error.message : t("materials.adminListPage.materialNotFoundMessage", null, "Khong tim thay tai lieu duoc chon."));
+    });
+  }
+
   function showDeleteConfirm(materialId) {
     const material = findMaterial(materialId);
-
     if (!material) {
-      showToast("error", t("materials.adminListPage.materialNotFoundTitle", null, "Không tìm thấy tài liệu"), t("materials.adminListPage.materialNotFoundMessage", null, "Không tìm thấy tài liệu học tập được chọn."));
+      showToast("error", t("materials.adminListPage.materialNotFoundTitle", null, "Khong tim thay tai lieu"), t("materials.adminListPage.materialNotFoundMessage", null, "Khong tim thay tai lieu duoc chon."));
       return;
     }
 
     const modal = $(
       "<div>" +
         '<div class="app-modal-header">' +
-          '<h2 class="app-modal-title">' + escapeHtml(t("materials.adminListPage.deleteMaterialTitle", null, "Xóa tài liệu")) + "</h2>" +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.close", null, "Đóng")) + "</button>" +
+          '<h2 class="app-modal-title">' + escapeHtml(t("materials.adminListPage.deleteMaterialTitle", null, "Xoa tai lieu")) + "</h2>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.close", null, "Dong")) + "</button>" +
         "</div>" +
         '<div class="app-modal-body">' +
-          '<p class="u-mb-0">' + escapeHtml(t("materials.adminListPage.deleteConfirmPrefix", null, "Xóa ")) + "<strong></strong>" + escapeHtml(t("materials.adminListPage.deleteConfirmSuffix", null, "? Thao tác mô phỏng này chỉ xóa khỏi bộ nhớ.")) + "</p>" +
+          '<p class="u-mb-0">' + escapeHtml(t("materials.adminListPage.deleteConfirmPrefix", null, "Xoa ")) + "<strong></strong>" + escapeHtml(t("materials.adminListPage.deleteConfirmSuffix", null, "? Tai lieu se bi soft delete tren backend.")) + "</p>" +
         "</div>" +
         '<div class="app-modal-footer">' +
-          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.cancel", null, "Hủy")) + "</button>" +
-          '<button class="app-button app-button-primary" type="button" data-material-confirm-delete>' + escapeHtml(t("materials.adminListPage.delete", null, "Xóa")) + "</button>" +
+          '<button class="app-button app-button-secondary" type="button" data-modal-close>' + escapeHtml(t("materials.adminListPage.cancel", null, "Huy")) + "</button>" +
+          '<button class="app-button app-button-primary" type="button" data-material-confirm-delete>' + escapeHtml(t("materials.adminListPage.delete", null, "Xoa")) + "</button>" +
         "</div>" +
       "</div>"
     );
@@ -431,12 +516,16 @@
     modal.find("strong").text(material.title);
     modal.find("[data-modal-close]").on("click", Lms.ui.closeModal);
     modal.find("[data-material-confirm-delete]").on("click", function () {
-      state.materials = state.materials.filter(function (item) {
-        return item.id !== material.id;
+      Lms.apiClient.delete("api/learning-materials/" + material.id).done(function () {
+        state.materials = state.materials.filter(function (item) {
+          return item.id !== material.id;
+        });
+        Lms.ui.closeModal();
+        applyFilters();
+        showToast("success", t("materials.adminListPage.materialDeletedTitle", null, "Da xoa tai lieu"), t("materials.adminListPage.materialDeletedMessage", { title: material.title }, material.title + " da duoc xoa khoi danh sach."));
+      }).fail(function (error) {
+        showToast("error", t("materials.adminListPage.deleteFailedTitle", null, "Xoa tai lieu that bai"), error && error.message ? error.message : t("materials.adminListPage.deleteFailedMessage", null, "Vui long thu lai."));
       });
-      Lms.ui.closeModal();
-      applyFilters();
-      showToast("success", t("materials.adminListPage.materialDeletedTitle", null, "Đã xóa tài liệu"), t("materials.adminListPage.materialDeletedMessage", { title: material.title }, material.title + " đã được xóa khỏi danh sách."));
     });
 
     Lms.ui.showModal(modal);
@@ -462,7 +551,7 @@
     });
 
     $("[data-material-filter='status']").on("change", function () {
-      state.status = $(this).val();
+      state.fileMode = $(this).val();
       state.page = 1;
       applyFilters();
     });
@@ -471,7 +560,7 @@
       state.search = "";
       state.courseId = "";
       state.type = "";
-      state.status = "";
+      state.fileMode = "";
       $("[data-material-filter='search']").val("");
       $("[data-material-filter='course']").val("");
       $("[data-material-filter='type']").val("");
@@ -512,35 +601,37 @@
     });
 
     $(document).on("click", "[data-material-action='export']", function () {
-      showToast("info", t("materials.adminListPage.exportTitle", null, "Xuất tài liệu"), t("materials.adminListPage.exportMessage", null, "Chức năng xuất sẽ được nối ở task báo cáo/xuất dữ liệu."));
+      showToast("info", t("materials.adminListPage.exportTitle", null, "Xuat tai lieu"), t("materials.adminListPage.exportMessage", null, "Chuc nang export se duoc noi o phase bao cao."));
     });
 
     $(document).on("lms:i18n:changed", render);
   }
 
+  function renderLoadError(message) {
+    $("#materialTableRows").html(
+      '<tr><td colspan="6">' +
+        '<div class="app-empty-state">' +
+          '<div class="app-empty-icon" aria-hidden="true">!</div>' +
+          '<h3 class="app-empty-title">' + escapeHtml(t("materials.adminListPage.loadErrorTitle", null, "Khong the tai tai lieu")) + "</h3>" +
+          '<p class="app-empty-copy">' + escapeHtml(message || t("materials.adminListPage.loadErrorCopy", null, "Vui long kiem tra API learning materials.")) + "</p>" +
+        "</div>" +
+      "</td></tr>"
+    );
+  }
+
   function loadPageData() {
     $.when(
-      Lms.apiClient.get("learning-materials.json"),
-      Lms.apiClient.get("courses.json")
+      Lms.apiClient.get("api/learning-materials?page=1&pageSize=500"),
+      Lms.apiClient.get("api/courses?page=1&pageSize=200")
     ).done(function (materialsResponse, coursesResponse) {
-      state.materials = getItems(materialsResponse).map(function (material) {
-        return { ...material };
-      });
-      state.courses = getItems(coursesResponse);
+      state.materials = getResponseItems(materialsResponse).map(mapMaterial);
+      state.courses = getResponseItems(coursesResponse);
       state.filteredMaterials = state.materials.slice();
       renderCourseOptions();
       render();
-    }).fail(function () {
-      $("#materialTableRows").html(
-        '<tr><td colspan="6">' +
-          '<div class="app-empty-state">' +
-            '<div class="app-empty-icon" aria-hidden="true">!</div>' +
-            '<h3 class="app-empty-title">' + escapeHtml(t("materials.adminListPage.loadErrorTitle", null, "Không thể tải tài liệu")) + "</h3>" +
-            '<p class="app-empty-copy">' + escapeHtml(t("materials.adminListPage.loadErrorCopy", null, "Vui lòng kiểm tra mock/learning-materials.json.")) + "</p>" +
-          "</div>" +
-        "</td></tr>"
-      );
-      showToast("error", t("materials.adminListPage.dataErrorTitle", null, "Lỗi dữ liệu tài liệu"), t("materials.adminListPage.dataErrorMessage", null, "Không thể tải dữ liệu mô phỏng tài liệu học tập."));
+    }).fail(function (error) {
+      renderLoadError(error && error.message ? error.message : null);
+      showToast("error", t("materials.adminListPage.dataErrorTitle", null, "Loi du lieu tai lieu"), error && error.message ? error.message : t("materials.adminListPage.dataErrorMessage", null, "Khong the tai du lieu tai lieu tu backend."));
     });
   }
 

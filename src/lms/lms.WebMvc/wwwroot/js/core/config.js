@@ -5,9 +5,7 @@
 
   Lms.config = {
     appName: "lms",
-    apiBaseUrl: "https://localhost:7001/api",
-    mockBaseUrl: "/mock",
-    useMock: true,
+    apiBaseUrl: "https://localhost:7117/api/v1",
     auth: {
       accessTokenKey: "lms.access_token",
       refreshTokenKey: "lms.refresh_token",
