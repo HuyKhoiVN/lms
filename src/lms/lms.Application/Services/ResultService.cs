@@ -56,8 +56,8 @@ public sealed class ResultService : IResultService
         var page = filter.Page < 1 ? 1 : filter.Page;
         var size = filter.PageSize is < 1 or > 100 ? 20 : filter.PageSize;
 
-        var items = await _resultRepo.GetByUserIdAsync(userId, filter.ExamId, page, size);
-        var total = await _resultRepo.GetCountByUserIdAsync(userId, filter.ExamId);
+        var items = await _resultRepo.GetByUserIdAsync(userId, filter.ExamId, filter.Keyword, filter.Passed, page, size);
+        var total = await _resultRepo.GetCountByUserIdAsync(userId, filter.ExamId, filter.Keyword, filter.Passed);
 
         var list = new List<ResultListItemResponse>(items.Count);
         foreach (var r in items)
@@ -82,8 +82,8 @@ public sealed class ResultService : IResultService
         var page = filter.Page < 1 ? 1 : filter.Page;
         var size = filter.PageSize is < 1 or > 100 ? 20 : filter.PageSize;
 
-        var items = await _resultRepo.GetPagedAsync(filter.ExamId, filter.UserId, page, size);
-        var total = await _resultRepo.GetCountAsync(filter.ExamId, filter.UserId);
+        var items = await _resultRepo.GetPagedAsync(filter.ExamId, filter.UserId, filter.Keyword, filter.Passed, page, size);
+        var total = await _resultRepo.GetCountAsync(filter.ExamId, filter.UserId, filter.Keyword, filter.Passed);
 
         var list = new List<ResultListItemResponse>(items.Count);
         foreach (var r in items)

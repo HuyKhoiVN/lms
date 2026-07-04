@@ -97,6 +97,13 @@
                     <option value="failed" data-i18n="results.listPage.optionFailed">Không đạt</option>
                 </select>
 
+                <label class="visually-hidden" for="resultPageSize">Số bản ghi mỗi trang</label>
+                <select class="app-select results-page-size-select" id="resultPageSize" data-result-filter="page-size">
+                    <option value="5">5 / trang</option>
+                    <option value="10">10 / trang</option>
+                    <option value="20">20 / trang</option>
+                </select>
+
                 <button class="app-button app-button-secondary" type="button" data-result-action="clear-filters">
                     <i class="bi bi-sliders" aria-hidden="true"></i>
                     <span data-i18n="results.listPage.clearFilters">Xóa bộ lọc</span>
@@ -125,6 +132,8 @@
                     </tbody>
                 </table>
             </div>
+
+            <nav class="results-pagination" aria-label="Phân trang lịch sử kết quả" data-result-pagination></nav>
         </main>
 
         <aside class="results-side student-result-side">

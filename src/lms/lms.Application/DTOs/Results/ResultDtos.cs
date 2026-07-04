@@ -10,6 +10,8 @@ public sealed class MyResultFilterRequest
     public int Page { get; set; } = 1;
     public int PageSize { get; set; } = 20;
     public int? ExamId { get; set; }
+    public string? Keyword { get; set; }
+    public bool? Passed { get; set; }
 }
 
 public sealed class ResultFilterRequest
@@ -18,6 +20,8 @@ public sealed class ResultFilterRequest
     public int PageSize { get; set; } = 20;
     public int? ExamId { get; set; }
     public int? UserId { get; set; }
+    public string? Keyword { get; set; }
+    public bool? Passed { get; set; }
 }
 
 // ─── Responses ─────────────────────────────────────────────────────────────────

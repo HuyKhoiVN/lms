@@ -19,34 +19,61 @@ public sealed class ExamResultRepository : IExamResultRepository
     public Task<ExamResult?> GetByAttemptIdAsync(int attemptId) =>
         _ctx.ExamResults.AsNoTracking().FirstOrDefaultAsync(x => x.AttemptId == attemptId);
 
-    public Task<List<ExamResult>> GetByUserIdAsync(int userId, int? examId, int page, int pageSize)
+    public Task<List<ExamResult>> GetByUserIdAsync(
+        int userId,
+        int? examId,
+        string? keyword,
+        bool? passed,
+        int page,
+        int pageSize)
     {
-        var q = _ctx.ExamResults.AsNoTracking().Where(x => x.UserId == userId);
-        if (examId.HasValue) q = q.Where(x => x.ExamId == examId.Value);
+        var q = BuildQuery(userId, examId, keyword, passed);
         return q.OrderByDescending(x => x.CompletedDate).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
     }
 
-    public Task<int> GetCountByUserIdAsync(int userId, int? examId)
+    public Task<int> GetCountByUserIdAsync(int userId, int? examId, string? keyword, bool? passed)
     {
-        var q = _ctx.ExamResults.AsNoTracking().Where(x => x.UserId == userId);
-        if (examId.HasValue) q = q.Where(x => x.ExamId == examId.Value);
+        var q = BuildQuery(userId, examId, keyword, passed);
         return q.CountAsync();
     }
 
-    public Task<List<ExamResult>> GetPagedAsync(int? examId, int? userId, int page, int pageSize)
+    public Task<List<ExamResult>> GetPagedAsync(
+        int? examId,
+        int? userId,
+        string? keyword,
+        bool? passed,
+        int page,
+        int pageSize)
     {
-        var q = _ctx.ExamResults.AsNoTracking().AsQueryable();
-        if (examId.HasValue) q = q.Where(x => x.ExamId == examId.Value);
-        if (userId.HasValue) q = q.Where(x => x.UserId == userId.Value);
+        var q = BuildQuery(userId, examId, keyword, passed);
         return q.OrderByDescending(x => x.CompletedDate).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
     }
 
-    public Task<int> GetCountAsync(int? examId, int? userId)
+    public Task<int> GetCountAsync(int? examId, int? userId, string? keyword, bool? passed)
+    {
+        var q = BuildQuery(userId, examId, keyword, passed);
+        return q.CountAsync();
+    }
+
+    private IQueryable<ExamResult> BuildQuery(int? userId, int? examId, string? keyword, bool? passed)
     {
         var q = _ctx.ExamResults.AsNoTracking().AsQueryable();
-        if (examId.HasValue) q = q.Where(x => x.ExamId == examId.Value);
+
         if (userId.HasValue) q = q.Where(x => x.UserId == userId.Value);
-        return q.CountAsync();
+        if (examId.HasValue) q = q.Where(x => x.ExamId == examId.Value);
+        if (passed.HasValue) q = q.Where(x => x.Passed == passed.Value);
+
+        if (!string.IsNullOrWhiteSpace(keyword))
+        {
+            var term = keyword.Trim();
+            q =
+                from result in q
+                join exam in _ctx.Exams.AsNoTracking() on result.ExamId equals exam.Id
+                where EF.Functions.Like(exam.Name, $"%{term}%")
+                select result;
+        }
+
+        return q;
     }
 
     public async Task AddAsync(ExamResult result)
