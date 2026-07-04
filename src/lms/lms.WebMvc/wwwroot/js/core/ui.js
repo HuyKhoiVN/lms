@@ -56,10 +56,15 @@
     return window.matchMedia("(max-width: 991.98px)").matches;
   }
 
+  function getSidebarShell() {
+    return $(".app-shell").has(".app-sidebar").first();
+  }
+
   function updateSidebarAccessibility() {
     const isMobile = isMobileSidebar();
-    const isOpen = $(".app-shell-admin").hasClass("is-sidebar-open");
-    const isCollapsed = $(".app-shell-admin").hasClass("is-sidebar-collapsed");
+    const $shell = getSidebarShell();
+    const isOpen = $shell.hasClass("is-sidebar-open");
+    const isCollapsed = $shell.hasClass("is-sidebar-collapsed");
 
     $(".app-sidebar-toggle").attr("aria-expanded", isMobile ? String(isOpen) : String(!isCollapsed));
     $(".app-sidebar-backdrop").attr("aria-hidden", isMobile ? String(!isOpen) : "true");
@@ -76,8 +81,9 @@
       return;
     }
 
-    const collapsed = Lms.storage.get(Lms.config.ui.sidebarStateKey, false);
-    $(".app-shell-admin").toggleClass("is-sidebar-collapsed", Boolean(collapsed) && !isMobileSidebar());
+    const $shell = getSidebarShell();
+    const collapsed = $shell.hasClass("app-shell-admin") && Lms.storage.get(Lms.config.ui.sidebarStateKey, false);
+    $shell.toggleClass("is-sidebar-collapsed", Boolean(collapsed) && !isMobileSidebar());
     updateSidebarAccessibility();
   }
 
@@ -86,14 +92,14 @@
 
     if (!$backdrop.length) {
       $backdrop = $('<button class="app-sidebar-backdrop" type="button" aria-label="Close menu"></button>');
-      $(".app-shell-admin").append($backdrop);
+      getSidebarShell().append($backdrop);
     }
 
     return $backdrop;
   }
 
   function closeMobileSidebar() {
-    $(".app-shell-admin").removeClass("is-sidebar-open");
+    getSidebarShell().removeClass("is-sidebar-open");
     updateSidebarAccessibility();
   }
 
@@ -101,7 +107,7 @@
     ensureSidebarBackdrop();
 
     $(".app-sidebar-toggle").off("click.lmsSidebar").on("click.lmsSidebar", function () {
-      const $shell = $(".app-shell-admin");
+      const $shell = getSidebarShell();
 
       if (isMobileSidebar()) {
         $shell.toggleClass("is-sidebar-open");

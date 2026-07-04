@@ -26,8 +26,12 @@
     return value ? new Date(value).toLocaleString() : "--";
   }
 
+  function clampScore(score) {
+    return Math.max(0, Math.min(100, Number(score || 0)));
+  }
+
   function getBadgeClass(passed) {
-    return passed ? "lms-status-success" : "lms-status-danger";
+    return passed ? "results-status-badge is-passed" : "results-status-badge is-failed";
   }
 
   function escapeHtml(value) {
@@ -50,9 +54,9 @@
       id: item.id,
       attemptId: item.attemptId,
       examId: item.examId,
-      examName: item.examName || t("common.exam", null, "Bai thi"),
+      examName: item.examName || t("common.exam", null, "Bài thi"),
       studentId: item.userId,
-      studentName: item.userName || t("common.student", null, "Hoc vien"),
+      studentName: t("common.student", null, "Học viên"),
       score: Number(item.score || 0),
       passed: Boolean(item.passed),
       submittedAt: item.completedDate,
@@ -61,7 +65,7 @@
   }
 
   function renderPageTitle() {
-    document.title = t("results.listPage.title", null, "Ket qua hoc tap") + " - " + t("common.appName", null, "lms");
+    document.title = t("results.listPage.title", null, "Kết quả học tập") + " - " + t("common.appName", null, "lms");
   }
 
   function renderMetrics() {
@@ -82,6 +86,7 @@
     $("[data-result-metric='passed']").text(passed);
     $("[data-result-metric='average']").text(average + "%");
     $("[data-result-metric='latest']").text(latest ? latest.score + "%" : "--");
+    $("[data-result-metric='latestExam']").text(latest ? latest.examName : "--");
   }
 
   function renderSpotlight() {
@@ -94,8 +99,8 @@
       $container.html(
         '<div class="lms-empty-compact">' +
           '<i class="bi bi-clipboard2-data" aria-hidden="true"></i>' +
-          "<h3>Chua co ket qua</h3>" +
-          "<p>Hoan thanh bai thi dau tien de xem tom tat ket qua tai day.</p>" +
+          "<h3>Chưa có kết quả</h3>" +
+          "<p>Hoàn thành bài thi đầu tiên để xem tóm tắt kết quả tại đây.</p>" +
         "</div>"
       );
       return;
@@ -103,29 +108,34 @@
 
     $container.html(
       '<div class="student-result-spotlight-card">' +
-        '<span class="' + getBadgeClass(latest.passed) + '">' + escapeHtml(latest.passed ? t("results.listPage.passed", null, "Dat") : t("results.listPage.failed", null, "Khong dat")) + "</span>" +
+        '<span class="' + getBadgeClass(latest.passed) + '">' + escapeHtml(latest.passed ? t("results.listPage.passed", null, "Đạt") : t("results.listPage.failed", null, "Không đạt")) + "</span>" +
         "<h3>" + escapeHtml(latest.examName) + "</h3>" +
         "<p>" + escapeHtml(formatDate(latest.submittedAt)) + "</p>" +
         '<div class="student-result-spotlight-score">' +
           "<strong>" + escapeHtml(latest.score) + "/100</strong>" +
           "<span>" + escapeHtml(
             latest.durationMinutes
-              ? t("results.listPage.durationValue", { minutes: latest.durationMinutes }, latest.durationMinutes + " phut")
-              : t("results.listPage.durationUnavailable", null, "Khong co thoi gian lam bai")
+              ? t("results.listPage.durationValue", { minutes: latest.durationMinutes }, latest.durationMinutes + " phút")
+              : t("results.listPage.durationUnavailable", null, "Chưa có dữ liệu")
           ) + "</span>" +
         "</div>" +
-        '<a class="app-button app-button-primary" href="/Results/Detail/' + encodeURIComponent(latest.id) + '">' + escapeHtml(t("results.listPage.buttonDetail", null, "Chi tiet")) + "</a>" +
+        '<div class="results-score-progress" aria-hidden="true"><span style="--progress-width: ' + clampScore(latest.score) + '%;"></span></div>' +
+        '<a class="app-button app-button-primary" href="/Results/Detail/' + encodeURIComponent(latest.id) + '">' + escapeHtml(t("results.listPage.buttonDetail", null, "Xem chi tiết")) + "</a>" +
       "</div>"
     );
   }
 
   function emptyMarkup() {
     return (
-      '<div class="lms-empty-compact student-result-reveal is-visible" data-result-list-reveal>' +
-        '<i class="bi bi-search" aria-hidden="true"></i>' +
-        "<h3>" + escapeHtml(t("results.listPage.noResultsTitle", null, "Khong tim thay ket qua")) + "</h3>" +
-        "<p>" + escapeHtml(t("results.listPage.noResultsCopy", null, "Thu ten bai thi hoac trang thai khac de xem ket qua phu hop hon.")) + "</p>" +
-      "</div>"
+      '<tr class="student-result-reveal is-visible" data-result-list-reveal>' +
+        '<td colspan="6">' +
+          '<div class="results-empty-state">' +
+            '<i class="bi bi-search" aria-hidden="true"></i>' +
+            "<h3>" + escapeHtml(t("results.listPage.noResultsTitle", null, "Không tìm thấy kết quả")) + "</h3>" +
+            "<p>" + escapeHtml(t("results.listPage.noResultsCopy", null, "Thử tên bài thi hoặc trạng thái khác để xem kết quả phù hợp hơn.")) + "</p>" +
+          "</div>" +
+        "</td>" +
+      "</tr>"
     );
   }
 
@@ -146,32 +156,27 @@
         : "--";
 
       const $row = $(
-        '<article class="student-result-row student-result-reveal ' + (result.passed ? "is-passed" : "is-failed") + '" data-result-list-reveal>' +
-          '<div class="student-result-row-main">' +
-            '<div class="student-result-row-head">' +
+        '<tr class="student-result-row student-result-reveal ' + (result.passed ? "is-passed" : "is-failed") + '" data-result-list-reveal>' +
+          '<td data-result-label="Bai thi">' +
+            '<div class="student-result-exam-cell">' +
               '<span class="student-result-avatar" aria-hidden="true"><i class="bi ' + (result.passed ? "bi-check2-circle" : "bi-x-circle") + '"></i></span>' +
-              "<div>" +
-                "<h3>" + escapeHtml(result.examName) + "</h3>" +
-                "<p>" + escapeHtml(result.studentName) + "</p>" +
-              "</div>" +
+              "<span>" +
+                "<strong>" + escapeHtml(result.examName) + "</strong>" +
+                "<small>" + escapeHtml(result.studentName) + "</small>" +
+              "</span>" +
             "</div>" +
-            '<div class="student-result-row-meta">' +
-              '<span class="' + getBadgeClass(result.passed) + '">' + escapeHtml(result.passed ? t("results.listPage.passed", null, "Dat") : t("results.listPage.failed", null, "Khong dat")) + "</span>" +
-              "<span>" + escapeHtml(formatDate(result.submittedAt)) + "</span>" +
-            "</div>" +
-          "</div>" +
-          '<div class="student-result-row-stat">' +
-            "<span>Diem so</span>" +
-            "<strong>" + escapeHtml(result.score) + "/100</strong>" +
-          "</div>" +
-          '<div class="student-result-row-stat">' +
-            "<span>Thoi gian lam bai</span>" +
-            "<strong>" + escapeHtml(durationText) + "</strong>" +
-          "</div>" +
-          '<div class="student-result-row-action">' +
-            '<a class="app-button app-button-secondary" href="/Results/Detail/' + encodeURIComponent(result.id) + '">' + escapeHtml(t("results.listPage.buttonDetail", null, "Chi tiet")) + "</a>" +
-          "</div>" +
-        "</article>"
+          "</td>" +
+          '<td data-result-label="Trang thai">' +
+            '<span class="' + getBadgeClass(result.passed) + '">' + escapeHtml(result.passed ? t("results.listPage.passed", null, "Đạt") : t("results.listPage.failed", null, "Không đạt")) + "</span>" +
+          "</td>" +
+          '<td data-result-label="Diem so"><strong class="student-result-score">' + escapeHtml(result.score) + "/100</strong></td>" +
+          '<td data-result-label="Thoi gian lam bai">' + escapeHtml(durationText) + "</td>" +
+          '<td data-result-label="Ngay thi">' + escapeHtml(formatDate(result.submittedAt)) + "</td>" +
+          '<td data-result-label="Thao tac">' +
+            '<a class="app-button app-button-secondary results-detail-button" href="/Results/Detail/' + encodeURIComponent(result.id) + '">' + escapeHtml(t("results.listPage.buttonDetail", null, "Chi tiết")) + "</a>" +
+            '<i class="bi bi-chevron-right results-row-chevron" aria-hidden="true"></i>' +
+          "</td>" +
+        "</tr>"
       );
 
       $rows.append($row);
@@ -281,10 +286,10 @@
       render();
       showToast(
         "error",
-        t("results.listPage.toastLoadErrorTitle", null, "Khong tai duoc ket qua"),
+        t("results.listPage.toastLoadErrorTitle", null, "Không tải được kết quả"),
         error && error.message
           ? error.message
-          : t("results.listPage.toastLoadErrorMessage", null, "Khong the tai lich su ket qua tu he thong.")
+          : t("results.listPage.toastLoadErrorMessage", null, "Không thể tải lịch sử kết quả từ hệ thống.")
       );
     });
   }

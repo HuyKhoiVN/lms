@@ -848,3 +848,444 @@
       #11172b;
   }
 }
+
+/* Shared student shell with sidebar */
+.app-shell-user {
+  display: block;
+  background: #f8fafc;
+}
+
+.app-shell-user::before {
+  background:
+    radial-gradient(circle at 76% 10%, rgba(99, 91, 255, 0.08), transparent 26%),
+    radial-gradient(circle at 18% 88%, rgba(22, 163, 74, 0.05), transparent 26%);
+}
+
+.learning-shell-main {
+  min-width: 0;
+  width: 100%;
+}
+
+.app-shell-user .learning-header {
+  height: 76px;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.9);
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+}
+
+.app-shell-user .learning-nav {
+  width: 100%;
+  max-width: none;
+  height: 76px;
+  padding: 0 clamp(18px, 3vw, 32px);
+  gap: clamp(12px, 2vw, 24px);
+}
+
+.app-shell-user .learning-brand {
+  flex: 0 0 auto;
+}
+
+.app-shell-user .learning-brand-mark,
+.app-shell-user .app-brand-mark {
+  border-radius: 10px;
+  background: linear-gradient(135deg, #635bff, #4f46e5);
+  box-shadow: 0 10px 24px rgba(99, 91, 255, 0.22);
+}
+
+.app-shell-user .learning-menu {
+  margin-left: clamp(8px, 2vw, 24px);
+  gap: 4px;
+}
+
+.app-shell-user .learning-menu-link {
+  position: relative;
+  height: 44px;
+  padding: 0 14px;
+  border-radius: 0;
+  background: transparent;
+  color: #344054;
+  font-size: 14px;
+}
+
+.app-shell-user .learning-menu-link:hover {
+  color: #635bff;
+  background: transparent;
+}
+
+.app-shell-user .learning-menu-link.active {
+  color: #4f46e5;
+  background: transparent;
+}
+
+.app-shell-user .learning-menu-link.active::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  bottom: 0;
+  left: 12px;
+  height: 3px;
+  border-radius: 999px;
+  background: #635bff;
+}
+
+.app-shell-user .learning-actions {
+  margin-left: auto;
+  flex-wrap: nowrap;
+}
+
+.app-shell-user .learning-search {
+  width: min(320px, 24vw);
+}
+
+.app-shell-user .app-search input,
+.app-shell-user .app-language-switcher,
+.app-shell-user .app-user-trigger,
+.app-shell-user .app-icon-button {
+  border-color: #e5e7eb;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.learning-notification-button {
+  position: relative;
+}
+
+.learning-notification-button span {
+  position: absolute;
+  top: 7px;
+  right: 8px;
+  width: 7px;
+  height: 7px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  background: #dc2626;
+}
+
+.app-shell-user .learning-main {
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 24px clamp(18px, 3vw, 32px) 40px;
+}
+
+.app-shell-user:has(.learning-sidebar) .learning-main {
+  padding-left: calc(218px + clamp(18px, 3vw, 32px));
+}
+
+.app-shell-user .learning-footer {
+  width: calc(100% - clamp(36px, 6vw, 64px));
+  max-width: none;
+}
+
+.app-shell-user:has(.learning-sidebar) .learning-footer {
+  margin-left: calc(218px + clamp(18px, 3vw, 32px));
+  width: calc(100% - 218px - clamp(36px, 6vw, 64px));
+}
+
+.app-shell-user .learning-sidebar {
+  position: fixed;
+  top: 76px;
+  bottom: 16px;
+  left: 18px;
+  z-index: 990;
+  width: 200px;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: 18px;
+  border: 1px solid rgba(229, 231, 235, 0.92);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.86);
+  color: #667085;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.04);
+  backdrop-filter: blur(18px);
+}
+
+.app-shell-user .app-brand {
+  display: none;
+}
+
+.app-shell-user .app-brand-link,
+.app-shell-user .app-brand-link:hover {
+  color: #111827;
+}
+
+.app-shell-user .app-nav {
+  padding: 14px 10px;
+}
+
+.app-shell-user .app-nav-link {
+  min-height: 46px;
+  margin-bottom: 6px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  color: #667085;
+  font-weight: 600;
+}
+
+.app-shell-user .app-nav-link:hover,
+.app-shell-user .app-nav-link:focus-visible {
+  border-color: rgba(99, 91, 255, 0.08);
+  background: #f5f7ff;
+  color: #4f46e5;
+  transform: translateX(2px);
+}
+
+.app-shell-user .app-nav-link.active {
+  border-color: rgba(99, 91, 255, 0.1);
+  background: #eef1ff;
+  color: #4f46e5;
+  box-shadow: none;
+}
+
+.app-shell-user .app-nav-link.active::before {
+  left: -10px;
+  background: #635bff;
+}
+
+.app-shell-user .app-nav-icon {
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  transition: transform 180ms cubic-bezier(0.4, 0, 0.2, 1), color 180ms ease;
+}
+
+.app-shell-user .app-nav-link:hover .app-nav-icon {
+  transform: translateX(2px);
+}
+
+.learning-sidebar-progress {
+  margin: 10px;
+  padding: 14px;
+  border: 1px solid rgba(229, 231, 235, 0.9);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.92), #ffffff);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.05);
+}
+
+.learning-sidebar-progress-icon {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: #eef1ff;
+  color: #635bff;
+}
+
+.learning-sidebar-progress p {
+  margin: 0;
+  color: #111827;
+  font-size: 13px;
+  font-weight: 750;
+}
+
+.learning-sidebar-progress small {
+  display: block;
+  margin-top: 6px;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.learning-sidebar-progress a {
+  display: inline-flex;
+  justify-content: center;
+  width: 100%;
+  min-height: 36px;
+  align-items: center;
+  margin-top: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  color: #4f46e5;
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+
+.learning-sidebar-progress a:hover {
+  border-color: rgba(99, 91, 255, 0.22);
+  background: #f5f7ff;
+}
+
+.learning-sidebar-toggle {
+  display: none;
+  flex: 0 0 40px;
+}
+
+@media (max-width: 1199.98px) {
+  .app-shell-user .learning-menu {
+    display: none;
+  }
+
+  .app-shell-user .learning-search {
+    width: min(360px, 36vw);
+  }
+}
+
+@media (max-width: 991.98px) {
+  .app-shell-user {
+    display: block;
+  }
+
+  .app-shell-user:has(.learning-sidebar) .learning-main {
+    padding-left: clamp(18px, 3vw, 32px);
+  }
+
+  .app-shell-user:has(.learning-sidebar) .learning-footer {
+    width: calc(100% - clamp(36px, 6vw, 64px));
+    margin-left: auto;
+  }
+
+  .learning-sidebar-toggle {
+    display: inline-flex;
+  }
+
+  .app-shell-user .learning-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(286px, 84vw);
+    min-height: 100vh;
+    transform: translateX(-105%);
+    transition: transform 220ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .app-shell-user.is-sidebar-open .learning-sidebar {
+    transform: translateX(0);
+  }
+
+  .app-shell-user.is-sidebar-open .app-sidebar-backdrop {
+    display: block;
+    animation: app-fade-in 140ms ease;
+  }
+
+  .app-shell-user .learning-nav {
+    flex-wrap: nowrap;
+  }
+
+  .app-shell-user .learning-actions {
+    width: auto;
+    justify-content: flex-end;
+  }
+
+  .app-shell-user .learning-search {
+    display: none;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .app-shell-user .learning-header,
+  .app-shell-user .learning-nav {
+    height: 68px;
+  }
+
+  .app-shell-user .learning-nav {
+    padding: 0 16px;
+  }
+
+  .app-shell-user .learning-brand span:last-child,
+  .app-shell-user .app-user-copy,
+  .learning-notification-button {
+    display: none;
+  }
+
+  .app-shell-user .learning-actions {
+    gap: 8px;
+  }
+
+  .app-shell-user .app-language-switcher {
+    min-width: 64px;
+  }
+
+  .app-shell-user .learning-main {
+    padding: 18px 14px 32px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .app-shell-user .learning-header,
+  .app-shell-user .learning-nav {
+    height: 66px;
+  }
+
+  .app-shell-user .learning-brand-mark,
+  .app-shell-user .app-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .app-shell-user .learning-menu-link {
+    height: 38px;
+    padding: 0 12px;
+    font-size: 13px;
+  }
+
+  .app-shell-user .learning-search {
+    width: min(320px, 22vw);
+  }
+
+  .app-shell-user .app-search input,
+  .app-shell-user .app-language-switcher,
+  .app-shell-user .app-user-trigger,
+  .app-shell-user .app-icon-button {
+    min-height: 38px;
+  }
+
+  .app-shell-user .learning-main {
+    padding-top: 18px;
+    padding-right: 32px;
+    padding-bottom: 26px;
+  }
+
+  .app-shell-user .learning-sidebar {
+    top: 76px;
+    bottom: 12px;
+    width: 198px;
+  }
+
+  .app-shell-user .app-nav {
+    padding: 10px;
+  }
+
+  .app-shell-user .app-nav-link {
+    min-height: 40px;
+    margin-bottom: 4px;
+    gap: 10px;
+    font-size: 13px;
+  }
+
+  .app-shell-user .app-nav-icon {
+    width: 26px;
+    height: 26px;
+    flex-basis: 26px;
+    font-size: 14px;
+  }
+
+  .learning-sidebar-progress {
+    padding: 12px;
+  }
+
+  .learning-sidebar-progress-icon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 10px;
+  }
+
+  .learning-sidebar-progress p {
+    font-size: 12px;
+  }
+
+  .learning-sidebar-progress small {
+    font-size: 11px;
+  }
+
+  .learning-sidebar-progress a {
+    min-height: 32px;
+    margin-top: 10px;
+    font-size: 12px;
+  }
+}

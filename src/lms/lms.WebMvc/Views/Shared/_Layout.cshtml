@@ -1,4 +1,4 @@
-﻿@{
+@{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? string.Empty;
     var isHome = string.Equals(currentController, "Home", StringComparison.OrdinalIgnoreCase);
     var isCourses = string.Equals(currentController, "Courses", StringComparison.OrdinalIgnoreCase);
@@ -6,6 +6,8 @@
     var isExams = string.Equals(currentController, "Exams", StringComparison.OrdinalIgnoreCase);
     var isResults = string.Equals(currentController, "Results", StringComparison.OrdinalIgnoreCase);
     var isCertificates = string.Equals(currentController, "Certificates", StringComparison.OrdinalIgnoreCase);
+    var isNotifications = string.Equals(currentController, "Notifications", StringComparison.OrdinalIgnoreCase);
+    var isSettings = string.Equals(currentController, "UserSettings", StringComparison.OrdinalIgnoreCase);
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -23,14 +25,74 @@
     <link rel="stylesheet" href="~/css/layout.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/components.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/animations.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/pages.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/utilities.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/pages.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lms.WebMvc.styles.css" asp-append-version="true" />
 </head>
 <body>
     <div class="app-shell app-shell-user">
+        <aside class="app-sidebar learning-sidebar" id="studentSidebar" aria-label="Điều hướng học viên" data-i18n-aria="layout.studentNavigation">
+            <div class="app-brand">
+                <a class="app-brand-link" asp-area="" asp-controller="Home" asp-action="Index">
+                    <span class="app-brand-mark">L</span>
+                    <span class="app-brand-text">lms</span>
+                </a>
+            </div>
+
+            <nav class="app-nav">
+                <div class="app-nav-section">
+                    <a class="app-nav-link @(isHome ? "active" : null)" asp-area="" asp-controller="Home" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-house-door"></i></span>
+                        <span data-i18n="nav.overview">Tổng quan</span>
+                    </a>
+                    <a class="app-nav-link @(isCourses ? "active" : null)" asp-area="" asp-controller="Courses" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-journal-bookmark"></i></span>
+                        <span data-i18n="nav.courses">Khóa học</span>
+                    </a>
+                    <a class="app-nav-link @(isMaterials ? "active" : null)" asp-area="" asp-controller="LearningMaterials" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-file-earmark-text"></i></span>
+                        <span data-i18n="nav.materials">Tài liệu</span>
+                    </a>
+                    <a class="app-nav-link @(isExams ? "active" : null)" asp-area="" asp-controller="Exams" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-clipboard-check"></i></span>
+                        <span data-i18n="nav.exams">Bài thi</span>
+                    </a>
+                    <a class="app-nav-link @(isResults ? "active" : null)" asp-area="" asp-controller="Results" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-clipboard2-data"></i></span>
+                        <span data-i18n="nav.results">Kết quả</span>
+                    </a>
+                    <a class="app-nav-link @(isCertificates ? "active" : null)" asp-area="" asp-controller="Certificates" asp-action="Index">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-award"></i></span>
+                        <span data-i18n="nav.certificates">Chứng chỉ</span>
+                    </a>
+                    <a class="app-nav-link @(isNotifications ? "active" : null)" href="/Notifications">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-bell"></i></span>
+                        <span data-i18n="nav.notifications">Thông báo</span>
+                    </a>
+                    <a class="app-nav-link @(isSettings ? "active" : null)" href="/UserSettings">
+                        <span class="app-nav-icon" aria-hidden="true"><i class="bi bi-gear"></i></span>
+                        <span data-i18n="nav.settings">Cài đặt</span>
+                    </a>
+                </div>
+            </nav>
+
+            <div class="learning-sidebar-progress" aria-label="Tiến độ học tập">
+                <span class="learning-sidebar-progress-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
+                <p>Theo dõi học tập</p>
+                <small>Xem kết quả, chứng chỉ và các bài thi cần tiếp tục.</small>
+                <a asp-area="" asp-controller="Results" asp-action="Index">Xem chi tiết</a>
+            </div>
+        </aside>
+
+        <button class="app-sidebar-backdrop" type="button" aria-label="Đóng menu điều hướng"></button>
+
+        <div class="learning-shell-main">
         <header class="learning-header">
             <nav class="learning-nav" aria-label="Điều hướng học viên" data-i18n-aria="layout.studentNavigation">
+                <button class="app-sidebar-toggle learning-sidebar-toggle" type="button" aria-label="Mở menu" aria-controls="studentSidebar" aria-expanded="false">
+                    <i class="bi bi-list" aria-hidden="true"></i>
+                </button>
+
                 <a class="learning-brand" asp-area="" asp-controller="Home" asp-action="Index">
                     <span class="learning-brand-mark">L</span>
                     <span>lms</span>
@@ -55,6 +117,10 @@
                         <option value="vi">VI</option>
                         <option value="en">EN</option>
                     </select>
+                    <a class="app-icon-button learning-notification-button" href="/Notifications" aria-label="Thông báo" data-i18n-aria="layout.notifications">
+                        <i class="bi bi-bell" aria-hidden="true"></i>
+                        <span aria-hidden="true"></span>
+                    </a>
                     <div class="app-user-menu" data-dropdown>
                         <button class="app-user-trigger" type="button" data-dropdown-toggle aria-haspopup="true" aria-expanded="false">
                             <span class="app-avatar" aria-hidden="true">S</span>
@@ -99,6 +165,7 @@
                 </div>
             </footer>
         }
+        </div>
     </div>
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
