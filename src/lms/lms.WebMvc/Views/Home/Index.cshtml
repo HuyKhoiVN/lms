@@ -1,82 +1,136 @@
-﻿@{
+@{
     ViewData["Title"] = "Bảng điều khiển học viên";
     ViewData["HideStudentFooter"] = true;
 }
 
 <section class="student-dashboard-page" aria-label="Bảng điều khiển học viên">
-    <section class="student-dashboard-command">
-        <div class="student-dashboard-welcome">
-            <p class="student-dashboard-kicker">Learning Dashboard</p>
-            <h1>Chào <span data-current-user-name>Người dùng</span></h1>
-            <p class="student-dashboard-intro">Tổng quan học tập và bài thi của bạn đang được đồng bộ từ hệ thống.</p>
-
-            <ul class="student-dashboard-task-list" aria-label="Tổng quan nhanh">
-                <li><strong data-student-metric="courses">--</strong> khóa học</li>
-                <li><strong data-student-metric="pendingExams">--</strong> bài thi đang mở</li>
-                <li><strong data-student-metric="certificates">--</strong> chứng chỉ</li>
-            </ul>
-
-            <div class="student-dashboard-actions">
-                <a class="app-button app-button-primary" href="#studentCourseCards">Tiếp tục học</a>
-                <a class="app-button app-button-secondary" asp-area="" asp-controller="Exams" asp-action="Index">Xem bài thi</a>
-            </div>
-        </div>
-
-        <aside class="student-dashboard-attention" aria-label="Kết quả gần nhất">
-            <div class="student-dashboard-attention-head">
-                <span class="student-dashboard-alert-icon" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
-                <span>Kết quả gần nhất</span>
-            </div>
-            <h2 data-student-latest-exam>Đang tải...</h2>
-            <p class="student-dashboard-due" data-student-latest-copy>Vui lòng chờ hệ thống đồng bộ dữ liệu.</p>
-
-            <dl class="student-dashboard-exam-facts">
-                <div>
-                    <dt>Điểm số</dt>
-                    <dd><span data-student-hero-score>--</span>/100</dd>
+    <div class="student-dashboard-top-grid">
+        <section class="student-dashboard-hero-card student-dashboard-reveal is-visible" data-dashboard-reveal>
+            <div class="student-dashboard-hero-copy">
+                <p class="student-dashboard-kicker">Learning Dashboard</p>
+                <h1>Chào <span data-current-user-name>Người dùng</span> <span aria-hidden="true">👋</span></h1>
+                <p class="student-dashboard-intro">Hôm nay là một ngày tuyệt vời để bạn học hỏi và phát triển!</p>
+                <div class="student-dashboard-actions">
+                    <a class="student-dashboard-primary-action" href="#studentCourseCards">
+                        <i class="bi bi-play-circle" aria-hidden="true"></i>
+                        <span>Tiếp tục học</span>
+                    </a>
+                    <a class="student-dashboard-secondary-action" asp-area="" asp-controller="Courses" asp-action="Index">
+                        <span>Xem lộ trình</span>
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </a>
                 </div>
-                <div>
-                    <dt>Bài thi cần làm</dt>
-                    <dd data-student-exam-count>--</dd>
-                </div>
-            </dl>
+            </div>
+            <div class="student-dashboard-hero-art" aria-hidden="true">
+                <span class="hero-art-card hero-art-card-main">
+                    <i class="bi bi-graph-up-arrow"></i>
+                </span>
+                <span class="hero-art-card hero-art-card-side">
+                    <i class="bi bi-pie-chart-fill"></i>
+                </span>
+                <span class="hero-art-plant"></span>
+            </div>
+        </section>
 
-            <div class="student-dashboard-progress-track" aria-hidden="true">
-                <span data-student-latest-progress style="width: 0%"></span>
+        <aside class="student-dashboard-latest-card student-dashboard-reveal is-visible" data-dashboard-reveal aria-label="Kết quả gần nhất">
+            <div class="student-dashboard-latest-head">
+                <span class="student-dashboard-soft-icon icon-blue" aria-hidden="true"><i class="bi bi-graph-up-arrow"></i></span>
+                <h2>Kết quả gần nhất</h2>
+                <a asp-area="" asp-controller="Results" asp-action="Index" aria-label="Xem kết quả"><i class="bi bi-chevron-right" aria-hidden="true"></i></a>
+            </div>
+            <div class="student-dashboard-latest-body">
+                <h3 data-student-latest-exam>Đang tải...</h3>
+                <p data-student-latest-copy>Vui lòng chờ hệ thống đồng bộ dữ liệu.</p>
+                <dl class="student-dashboard-exam-facts">
+                    <div>
+                        <dt>Điểm số</dt>
+                        <dd><span data-student-hero-score>--</span></dd>
+                    </div>
+                    <div>
+                        <dt>Bài thi cần làm</dt>
+                        <dd data-student-exam-count>--</dd>
+                    </div>
+                </dl>
+                <div class="student-dashboard-progress-track" aria-hidden="true">
+                    <span data-student-latest-progress style="width: 0%"></span>
+                </div>
             </div>
         </aside>
+    </div>
+
+    <section class="student-dashboard-metrics" aria-label="Thống kê học tập">
+        <article class="student-dashboard-metric student-dashboard-reveal is-visible" data-dashboard-reveal>
+            <span class="student-dashboard-soft-icon icon-indigo" aria-hidden="true"><i class="bi bi-book"></i></span>
+            <div>
+                <strong data-student-metric="courses">--</strong>
+                <span>Khóa học đang học</span>
+            </div>
+        </article>
+        <article class="student-dashboard-metric student-dashboard-reveal is-visible" data-dashboard-reveal>
+            <span class="student-dashboard-soft-icon icon-green" aria-hidden="true"><i class="bi bi-clipboard-check-fill"></i></span>
+            <div>
+                <strong data-student-metric="pendingExams">--</strong>
+                <span>Bài thi đang mở</span>
+            </div>
+        </article>
+        <article class="student-dashboard-metric student-dashboard-reveal is-visible" data-dashboard-reveal>
+            <span class="student-dashboard-soft-icon icon-violet" aria-hidden="true"><i class="bi bi-clock"></i></span>
+            <div>
+                <strong data-student-metric="learningHours">--</strong>
+                <span>Giờ học tích lũy</span>
+            </div>
+        </article>
+        <article class="student-dashboard-metric student-dashboard-reveal is-visible" data-dashboard-reveal>
+            <span class="student-dashboard-soft-icon icon-sky" aria-hidden="true"><i class="bi bi-star-fill"></i></span>
+            <div>
+                <strong data-student-metric="averageScore">--</strong>
+                <span>Điểm trung bình</span>
+            </div>
+        </article>
+        <article class="student-dashboard-metric student-dashboard-reveal is-visible" data-dashboard-reveal>
+            <span class="student-dashboard-soft-icon icon-orange" aria-hidden="true"><i class="bi bi-trophy"></i></span>
+            <div>
+                <strong data-student-metric="certificates">--</strong>
+                <span>Chứng chỉ</span>
+            </div>
+        </article>
     </section>
 
-    <section class="student-dashboard-workspace">
-        <div class="student-dashboard-main-column">
-            <section class="student-dashboard-card student-dashboard-section" id="continue-learning">
+    <section class="student-dashboard-content-grid">
+        <div class="student-dashboard-left-column">
+            <section class="student-dashboard-panel student-dashboard-courses-panel">
                 <div class="student-dashboard-section-head">
-                    <div>
-                        <p class="student-dashboard-kicker">Assigned Learning</p>
-                        <h2>Khóa học của bạn</h2>
-                    </div>
-                    <span class="student-dashboard-count" data-student-metric="averageScore">--</span>
+                    <h2>Khóa học đang học</h2>
+                    <a asp-area="" asp-controller="Courses" asp-action="Index">Xem tất cả <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
                 </div>
-
-                <div class="page-muted u-mb-4">Điểm trung bình từ các bài thi đã nộp.</div>
-                <div class="page-grid page-grid-3" id="studentCourseCards">
+                <div class="student-dashboard-course-grid" id="studentCourseCards">
                     <div class="app-loading">
                         <span class="app-spinner" aria-hidden="true"></span>
                         <span>Đang tải khóa học...</span>
                     </div>
                 </div>
             </section>
-        </div>
 
-        <aside class="student-dashboard-side-column">
-            <section class="student-dashboard-card student-dashboard-progress-summary">
+            <section class="student-dashboard-panel student-dashboard-quick-panel">
                 <div class="student-dashboard-section-head">
-                    <div>
-                        <p class="student-dashboard-kicker">Assessments</p>
-                        <h2>Bài thi đang mở</h2>
+                    <h2>Truy cập nhanh</h2>
+                </div>
+                <div class="student-dashboard-quick-grid" id="studentQuickAccess">
+                    <div class="app-loading">
+                        <span class="app-spinner" aria-hidden="true"></span>
+                        <span>Đang tải lối tắt...</span>
                     </div>
                 </div>
-                <div id="studentPendingExams">
+            </section>
+        </div>
+
+        <aside class="student-dashboard-right-column">
+            <section class="student-dashboard-panel student-dashboard-exams-panel">
+                <div class="student-dashboard-section-head">
+                    <h2>Bài thi đang mở</h2>
+                    <a asp-area="" asp-controller="Exams" asp-action="Index">Xem tất cả <i class="bi bi-arrow-right" aria-hidden="true"></i></a>
+                </div>
+                <div class="student-dashboard-exam-list" id="studentPendingExams">
                     <div class="app-loading">
                         <span class="app-spinner" aria-hidden="true"></span>
                         <span>Đang tải bài thi...</span>
@@ -84,10 +138,9 @@
                 </div>
             </section>
 
-            <section class="student-dashboard-card student-dashboard-certificate">
+            <section class="student-dashboard-panel student-dashboard-certificate-panel">
                 <div class="student-dashboard-section-head">
                     <h2>Chứng chỉ mới nhất</h2>
-                    <i class="bi bi-award" aria-hidden="true"></i>
                 </div>
                 <div id="studentCertificateSummary">
                     <div class="app-loading">
@@ -98,6 +151,10 @@
             </section>
         </aside>
     </section>
+
+    <footer class="student-dashboard-footer">
+        <span>© 2026 LMS Platform. Tất cả quyền được bảo lưu.</span>
+    </footer>
 </section>
 
 @section Scripts {
