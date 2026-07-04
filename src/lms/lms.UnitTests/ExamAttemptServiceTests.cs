@@ -96,6 +96,80 @@ public class ExamAttemptServiceTests
         Assert.Equal(45, repaired.DurationMinutes);
     }
 
+    [Fact]
+    public async Task Submit_ShouldScoreEachQuestionAsEqualShareOf100()
+    {
+        var context = CreateDbContext();
+        var service = CreateService(context);
+
+        await context.Exams.AddAsync(new Exam
+        {
+            Id = 20,
+            Name = "Bai thi tinh diem",
+            DurationMinutes = 30,
+            IsPublished = true,
+            PassScore = 70
+        });
+        await context.ExamAttempts.AddAsync(new ExamAttempt
+        {
+            Id = 21,
+            ExamId = 20,
+            UserId = 2,
+            StartedAt = DateTime.UtcNow,
+            DurationMinutes = 30,
+            Status = AttemptStatus.InProgress
+        });
+
+        for (var i = 1; i <= 5; i++)
+        {
+            await context.AttemptQuestionSnapshots.AddAsync(new AttemptQuestionSnapshot
+            {
+                AttemptId = 21,
+                QuestionId = i,
+                Content = "Question " + i,
+                QuestionType = "SingleChoice",
+                Score = 5,
+                Order = i
+            });
+            await context.AttemptAnswerSnapshots.AddAsync(new AttemptAnswerSnapshot
+            {
+                AttemptId = 21,
+                QuestionId = i,
+                AnswerOptionId = i * 10,
+                Content = "Correct " + i,
+                IsCorrect = true,
+                Order = 1
+            });
+            await context.AttemptAnswerSnapshots.AddAsync(new AttemptAnswerSnapshot
+            {
+                AttemptId = 21,
+                QuestionId = i,
+                AnswerOptionId = i * 10 + 1,
+                Content = "Wrong " + i,
+                IsCorrect = false,
+                Order = 2
+            });
+        }
+
+        await context.SaveChangesAsync();
+
+        var result = await service.SubmitAsync(2, 21, new SubmitAttemptRequest
+        {
+            Answers =
+            [
+                new QuestionAnswerDto { QuestionId = 1, SelectedOptionIds = [10] },
+                new QuestionAnswerDto { QuestionId = 2, SelectedOptionIds = [20] },
+                new QuestionAnswerDto { QuestionId = 3, SelectedOptionIds = [31] },
+                new QuestionAnswerDto { QuestionId = 4, SelectedOptionIds = [41] },
+                new QuestionAnswerDto { QuestionId = 5, SelectedOptionIds = [51] }
+            ]
+        });
+
+        Assert.True(result.Success);
+        Assert.Equal(40m, result.Data!.Score);
+        Assert.False(result.Data.Passed);
+    }
+
     private static ExamAttemptService CreateService(LmsDbContext context)
     {
         var access = new Mock<IExamAccessService>();

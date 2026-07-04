@@ -161,6 +161,7 @@ public sealed class ResultService : IResultService
         var qSnaps = await _qsRepo.GetByAttemptIdAsync(result.AttemptId);
         var aSnaps = await _asRepo.GetByAttemptIdAsync(result.AttemptId);
         var userAnswers = await _answerRepo.GetByAttemptIdAsync(result.AttemptId);
+        var scorePerQuestion = CalculateScorePerQuestion(qSnaps.Count);
 
         var questions = new List<QuestionReviewResponse>();
 
@@ -184,7 +185,7 @@ public sealed class ResultService : IResultService
             questions.Add(new QuestionReviewResponse
             {
                 QuestionId = qs.QuestionId, Content = qs.Content,
-                QuestionType = qs.QuestionType, MaxScore = qs.Score,
+                QuestionType = qs.QuestionType, MaxScore = scorePerQuestion,
                 ScoreEarned = det?.ScoreEarned ?? 0, IsCorrect = det?.IsCorrect ?? false,
                 Options = optResponses
             });
@@ -213,6 +214,7 @@ public sealed class ResultService : IResultService
         var qSnaps = await _qsRepo.GetByAttemptIdAsync(attemptId);
         var allASnaps = await _asRepo.GetByAttemptIdAsync(attemptId);
         var allAnswers = await _answerRepo.GetByAttemptIdAsync(attemptId);
+        var scorePerQuestion = CalculateScorePerQuestion(qSnaps.Count);
 
         var resultEntity = new ExamResult
         {
@@ -245,11 +247,18 @@ public sealed class ResultService : IResultService
                 ExamResultId = resultEntity.Id,
                 QuestionId = qs.QuestionId,
                 IsCorrect = isCorrect,
-                ScoreEarned = isCorrect ? qs.Score : 0
+                ScoreEarned = isCorrect ? scorePerQuestion : 0
             });
         }
 
         if (details.Count > 0)
             await _detailRepo.AddRangeAsync(details);
+    }
+
+    private static decimal CalculateScorePerQuestion(int questionCount)
+    {
+        return questionCount <= 0
+            ? 0m
+            : Math.Round(100m / questionCount, 2, MidpointRounding.AwayFromZero);
     }
 }

@@ -3599,14 +3599,21 @@
 }
 
 .admin-user-cell strong,
-.admin-user-cell span {
+.admin-user-cell > div > span {
   display: block;
 }
 
-.admin-user-cell span {
+.admin-user-cell > div > span {
   color: var(--color-text-secondary);
   font-size: var(--font-size-caption);
   line-height: var(--line-height-caption);
+}
+
+.admin-user-cell .app-avatar {
+  display: inline-grid;
+  flex: 0 0 36px;
+  place-items: center;
+  line-height: 1;
 }
 
 .admin-row-actions {

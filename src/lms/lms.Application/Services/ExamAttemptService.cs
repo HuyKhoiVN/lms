@@ -321,6 +321,7 @@ public sealed class ExamAttemptService : IExamAttemptService
     private async Task CreateSnapshotsAsync(int attemptId, Exam exam)
     {
         var examQuestions = await _examQuestionRepo.GetByExamIdAsync(exam.Id);
+        var questionScore = CalculateScorePerQuestion(examQuestions.Count);
 
         var qSnapshots = new List<AttemptQuestionSnapshot>();
         var aSnapshots = new List<AttemptAnswerSnapshot>();
@@ -334,7 +335,7 @@ public sealed class ExamAttemptService : IExamAttemptService
             {
                 AttemptId = attemptId, QuestionId = q.Id,
                 Content = q.Content, QuestionType = q.QuestionType,
-                Score = eq.Score, Order = eq.Order
+                Score = questionScore, Order = eq.Order
             });
 
             var options = await _answerOptionRepo.GetByQuestionIdAsync(q.Id);
@@ -373,6 +374,7 @@ public sealed class ExamAttemptService : IExamAttemptService
     private async Task<List<AttemptQuestionResponse>> BuildQuestionsAsync(int attemptId)
     {
         var qSnaps = await _qsRepo.GetByAttemptIdAsync(attemptId);
+        var questionScore = CalculateScorePerQuestion(qSnaps.Count);
         var result = new List<AttemptQuestionResponse>(qSnaps.Count);
         foreach (var qs in qSnaps)
         {
@@ -380,7 +382,7 @@ public sealed class ExamAttemptService : IExamAttemptService
             result.Add(new AttemptQuestionResponse
             {
                 QuestionId = qs.QuestionId, Content = qs.Content,
-                QuestionType = qs.QuestionType, Score = qs.Score, Order = qs.Order,
+                QuestionType = qs.QuestionType, Score = questionScore, Order = qs.Order,
                 Options = aSnaps.Select(a => new AttemptAnswerOptionResponse
                 {
                     AnswerOptionId = a.AnswerOptionId, Content = a.Content, Order = a.Order
@@ -405,7 +407,7 @@ public sealed class ExamAttemptService : IExamAttemptService
     /// Scoring dựa trên snapshot (không dùng live question bank).
     /// SingleChoice: đúng khi selected = set correct duy nhất.
     /// MultipleChoice: đúng khi set selected == set correct.
-    /// Điểm từng câu lấy từ AttemptQuestionSnapshot.Score.
+    /// Mỗi câu có trọng số bằng nhau: 100 / số lượng câu hỏi.
     /// </summary>
     private async Task<decimal> CalculateScoreAsync(int attemptId)
     {
@@ -413,7 +415,7 @@ public sealed class ExamAttemptService : IExamAttemptService
         var allASnaps = await _asRepo.GetByAttemptIdAsync(attemptId);
         var allAnswers = await _answerRepo.GetByAttemptIdAsync(attemptId);
 
-        decimal total = 0;
+        var correctCount = 0;
 
         foreach (var qs in qSnaps)
         {
@@ -431,10 +433,24 @@ public sealed class ExamAttemptService : IExamAttemptService
 
             // Compare sets
             if (correctIds.SetEquals(selectedIds))
-                total += qs.Score;
+                correctCount++;
         }
 
-        return total;
+        return CalculateTotalScore(correctCount, qSnaps.Count);
+    }
+
+    private static decimal CalculateScorePerQuestion(int questionCount)
+    {
+        return questionCount <= 0
+            ? 0m
+            : Math.Round(100m / questionCount, 2, MidpointRounding.AwayFromZero);
+    }
+
+    private static decimal CalculateTotalScore(int correctCount, int questionCount)
+    {
+        return questionCount <= 0
+            ? 0m
+            : Math.Round(correctCount * 100m / questionCount, 2, MidpointRounding.AwayFromZero);
     }
 
     private static ApiResponse<T> Fail<T>(string msg) => ApiResponse<T>.FailureResult(msg);
