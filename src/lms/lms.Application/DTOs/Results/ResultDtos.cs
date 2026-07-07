@@ -50,6 +50,13 @@ public sealed class ResultDetailResponse
     public decimal Score { get; set; }
     public bool Passed { get; set; }
     public DateTime CompletedDate { get; set; }
+    public decimal? PassScore { get; set; }
+    public int? DurationMinutes { get; set; }
+    public string? AttemptStatus { get; set; }
+    public string? ReviewMode { get; set; }
+    public string ReviewVisibility { get; set; } = "ResultOnly";
+    public int CorrectCount { get; set; }
+    public int WrongCount { get; set; }
     public List<QuestionResultResponse> Details { get; set; } = new();
 }
 
@@ -72,6 +79,7 @@ public sealed class ResultReviewResponse
     public decimal Score { get; set; }
     public bool Passed { get; set; }
     public string? ReviewMode { get; set; }
+    public string ReviewVisibility { get; set; } = "ResultOnly";
     public List<QuestionReviewResponse> Questions { get; set; } = new();
 }
 

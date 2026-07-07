@@ -1,4 +1,4 @@
-﻿@{
+@{
     ViewData["Title"] = "Khóa học";
 }
 
@@ -17,110 +17,138 @@
             </p>
         </div>
 
-        <div class="student-dashboard-actions">
-            <a class="app-button app-button-secondary" asp-area="" asp-controller="Exams" asp-action="Index">Xem bài thi</a>
-            <a class="app-button app-button-primary" asp-area="" asp-controller="LearningMaterials" asp-action="Index">Mở tài liệu</a>
+        <div class="student-course-hero-side">
+            <div class="student-dashboard-actions">
+                <a class="app-button app-button-secondary" asp-area="" asp-controller="Exams" asp-action="Index">
+                    <i class="bi bi-clipboard-check" aria-hidden="true"></i>
+                    <span>Xem bài thi</span>
+                </a>
+                <a class="app-button app-button-primary" asp-area="" asp-controller="LearningMaterials" asp-action="Index">
+                    <i class="bi bi-journal-text" aria-hidden="true"></i>
+                    <span>Mở tài liệu</span>
+                </a>
+            </div>
+
+            <div class="student-course-hero-illustration" aria-hidden="true">
+                <span class="student-course-hero-card student-course-hero-card-back">
+                    <i class="bi bi-file-earmark-text"></i>
+                </span>
+                <span class="student-course-hero-card student-course-hero-card-front">
+                    <i class="bi bi-journal-bookmark"></i>
+                </span>
+                <span class="student-course-hero-plant">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+                <span class="student-course-hero-shadow"></span>
+            </div>
         </div>
     </header>
 
-    <section class="student-course-metrics student-course-reveal" data-student-course-reveal>
-        <article class="lms-workspace-card student-course-metric-card">
-            <span>Tổng khóa học</span>
-            <strong data-student-course-metric="total">--</strong>
-        </article>
-        <article class="lms-workspace-card student-course-metric-card">
-            <span>Đang học</span>
-            <strong data-student-course-metric="active">--</strong>
-        </article>
-        <article class="lms-workspace-card student-course-metric-card">
-            <span>Tổng tài liệu</span>
-            <strong data-student-course-metric="materials">--</strong>
-        </article>
-        <article class="lms-workspace-card student-course-metric-card">
-            <span>Tiến độ trung bình</span>
-            <strong data-student-course-metric="completion">--</strong>
-        </article>
-    </section>
-
     <section class="student-course-layout">
-        <main class="lms-workspace-card student-course-main student-course-reveal" data-student-course-reveal>
-            <div class="lms-workspace-section-head">
-                <div>
-                    <p class="lms-workspace-kicker">Course Catalog</p>
-                    <h2>Không gian học tập</h2>
+        <main class="student-course-main student-course-reveal" data-student-course-reveal>
+            <div class="student-course-filter-bar" aria-label="Bộ lọc khóa học">
+                <div class="student-course-tabs" role="tablist" aria-label="Trạng thái khóa học">
+                    <button class="student-course-tab is-active" type="button" data-student-course-tab="" role="tab" aria-selected="true">Tất cả</button>
+                    <button class="student-course-tab" type="button" data-student-course-tab="active" role="tab" aria-selected="false">Đang học</button>
+                    <button class="student-course-tab" type="button" data-student-course-tab="not-started" role="tab" aria-selected="false">Chưa bắt đầu</button>
+                    <button class="student-course-tab" type="button" data-student-course-tab="completed" role="tab" aria-selected="false">Đã hoàn thành</button>
                 </div>
-                <span class="lms-workspace-count" data-student-course-count>-- khóa học</span>
+
+                <div class="student-course-filter-actions">
+                    <button class="student-course-filter-button" type="button" data-student-course-action="clear-filters">
+                        <i class="bi bi-funnel" aria-hidden="true"></i>
+                        <span>Bộ lọc</span>
+                    </button>
+                    <label class="visually-hidden" for="studentCourseSort">Sắp xếp</label>
+                    <select class="student-course-sort" id="studentCourseSort" data-student-course-filter="sort">
+                        <option value="default">Mới nhất</option>
+                        <option value="progress-desc">Tiến độ cao nhất</option>
+                        <option value="name-asc">Tên A-Z</option>
+                    </select>
+                </div>
             </div>
 
-            <div class="lms-task-filter-bar" role="search" aria-label="Bộ lọc khóa học">
-                <label class="visually-hidden" for="studentCourseSearch">Tìm kiếm khóa học</label>
-                <input class="app-input" id="studentCourseSearch" type="search" placeholder="Tìm kiếm khóa học..." data-student-course-filter="search" />
-
-                <label class="visually-hidden" for="studentCourseStatus">Trạng thái</label>
-                <select class="app-select" id="studentCourseStatus" data-student-course-filter="status">
-                    <option value="">Tất cả trạng thái</option>
-                    <option value="Published">Đang học</option>
-                    <option value="Draft">Sắp mở</option>
-                </select>
-
-                <label class="visually-hidden" for="studentCourseCompletion">Tiến độ</label>
-                <select class="app-select" id="studentCourseCompletion" data-student-course-filter="completion">
-                    <option value="">Tất cả tiến độ</option>
-                    <option value="high">Từ 70% trở lên</option>
-                    <option value="low">Dưới 70%</option>
-                </select>
-
-                <button class="app-button app-button-secondary" type="button" data-student-course-action="clear-filters">Xóa bộ lọc</button>
-            </div>
-
-            <div class="student-course-grid" id="studentCourseGrid">
-                <article class="student-course-card">
-                    <span class="app-skeleton" style="height: 180px; border-radius: 8px;"></span>
-                    <span class="app-skeleton u-mt-4" style="height: 22px;"></span>
-                    <span class="app-skeleton u-mt-4"></span>
+            <div class="student-course-list" id="studentCourseGrid">
+                <article class="student-course-row-card is-loading">
+                    <span class="app-skeleton"></span>
+                    <span class="app-skeleton"></span>
+                    <span class="app-skeleton"></span>
                 </article>
+            </div>
+
+            <div class="student-course-pagination" id="studentCoursePagination" aria-label="Phân trang khóa học">
+                <span data-student-course-page-summary>Hiển thị 0 khóa học</span>
+                <div class="student-course-pagination-actions">
+                    <button class="student-course-page-button" type="button" data-student-course-page="prev" disabled>
+                        <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                        <span>Trước</span>
+                    </button>
+                    <strong data-student-course-page-indicator>1 / 1</strong>
+                    <button class="student-course-page-button" type="button" data-student-course-page="next" disabled>
+                        <span>Sau</span>
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </div>
             </div>
         </main>
 
         <aside class="student-course-side">
-            <article class="lms-workspace-card student-course-side-card student-course-reveal" data-student-course-reveal>
-                <div class="lms-workspace-section-head">
-                    <div>
-                        <p class="lms-workspace-kicker">Focus</p>
-                        <h2>Tiếp theo nên học gì</h2>
+            <article class="student-course-side-card student-course-overview-card student-course-reveal" data-student-course-reveal>
+                <h2>Tổng quan</h2>
+                <div class="student-course-overview-grid">
+                    <div class="student-course-overview-item">
+                        <span class="student-course-overview-icon icon-indigo" aria-hidden="true"><i class="bi bi-book"></i></span>
+                        <small>Tổng khóa học</small>
+                        <strong data-student-course-metric="total">--</strong>
                     </div>
-                </div>
-
-                <div class="student-course-focus" id="studentCourseFocus">
-                    <div class="app-loading">
-                        <span class="app-spinner" aria-hidden="true"></span>
-                        <span>Đang tải đề xuất...</span>
+                    <div class="student-course-overview-item">
+                        <span class="student-course-overview-icon icon-green" aria-hidden="true"><i class="bi bi-play-circle"></i></span>
+                        <small>Đang học</small>
+                        <strong data-student-course-metric="active">--</strong>
+                    </div>
+                    <div class="student-course-overview-item">
+                        <span class="student-course-overview-icon icon-orange" aria-hidden="true"><i class="bi bi-check-circle"></i></span>
+                        <small>Đã hoàn thành</small>
+                        <strong data-student-course-metric="completed">--</strong>
+                    </div>
+                    <div class="student-course-overview-item">
+                        <span class="student-course-overview-icon icon-sky" aria-hidden="true"><i class="bi bi-pie-chart"></i></span>
+                        <small>Tiến độ trung bình</small>
+                        <strong data-student-course-metric="completion">--</strong>
                     </div>
                 </div>
             </article>
 
-            <article class="lms-workspace-card student-course-side-card student-course-reveal" data-student-course-reveal>
-                <div class="lms-workspace-section-head">
-                    <div>
-                        <p class="lms-workspace-kicker">Shortcuts</p>
-                        <h2>Đi nhanh</h2>
-                    </div>
+            <article class="student-course-side-card student-course-reveal" data-student-course-reveal>
+                <h2>Hành động nhanh</h2>
+                <div class="student-course-quick-list">
+                    <a class="student-course-quick-link" asp-area="" asp-controller="Courses" asp-action="Index">
+                        <span class="student-course-overview-icon icon-indigo" aria-hidden="true"><i class="bi bi-search"></i></span>
+                        <span><strong>Khám phá khóa học mới</strong><small>Tìm khóa học phù hợp với bạn</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="student-course-quick-link" asp-area="" asp-controller="Certificates" asp-action="Index">
+                        <span class="student-course-overview-icon icon-sky" aria-hidden="true"><i class="bi bi-award"></i></span>
+                        <span><strong>Xem chứng chỉ của tôi</strong><small>Theo dõi chứng chỉ đã đạt được</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="student-course-quick-link" asp-area="" asp-controller="Courses" asp-action="Index">
+                        <span class="student-course-overview-icon icon-orange" aria-hidden="true"><i class="bi bi-stars"></i></span>
+                        <span><strong>Đề xuất khóa học</strong><small>Dựa trên lịch sử học tập của bạn</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
                 </div>
+            </article>
 
-                <div class="student-course-shortcuts">
-                    <a class="student-course-shortcut" asp-area="" asp-controller="LearningMaterials" asp-action="Index">
-                        <strong>Tài liệu học tập</strong>
-                        <span>Mở danh sách học liệu được giao</span>
-                    </a>
-                    <a class="student-course-shortcut" asp-area="" asp-controller="Exams" asp-action="Index">
-                        <strong>Bài thi</strong>
-                        <span>Xem bài thi liên quan đến quá trình học</span>
-                    </a>
-                    <a class="student-course-shortcut" asp-area="" asp-controller="Results" asp-action="Index">
-                        <strong>Kết quả</strong>
-                        <span>Kiểm tra điểm và lịch sử nộp bài</span>
-                    </a>
-                </div>
+            <article class="student-course-side-card student-course-support-card student-course-reveal" data-student-course-reveal>
+                <h2>Bạn cần hỗ trợ?</h2>
+                <p>Nếu gặp vấn đề trong quá trình học, đừng ngần ngại liên hệ với chúng tôi.</p>
+                <button class="student-course-support-button" type="button" disabled>
+                    <i class="bi bi-headset" aria-hidden="true"></i>
+                    <span>Liên hệ hỗ trợ</span>
+                </button>
             </article>
         </aside>
     </section>

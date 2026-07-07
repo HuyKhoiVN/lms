@@ -85,8 +85,11 @@ public sealed class LearningMaterialService : ILearningMaterialService
         var items = new List<LearningMaterialListItemResponse>();
         foreach (var material in materials)
         {
-            var hasBlocks = _blockRepo != null && (await _blockRepo.GetByMaterialIdAsync(material.Id)).Any(IsFileBackedBlock);
-            var hasLegacyFile = (await _fileRepo.GetByMaterialIdAsync(material.Id)).Any();
+            var blocks = _blockRepo != null
+                ? await _blockRepo.GetByMaterialIdAsync(material.Id)
+                : new List<LearningMaterialBlock>();
+            var fileBackedBlock = blocks.FirstOrDefault(IsFileBackedBlock);
+            var legacyFile = (await _fileRepo.GetByMaterialIdAsync(material.Id)).FirstOrDefault();
             items.Add(new LearningMaterialListItemResponse
             {
                 Id = material.Id,
@@ -94,7 +97,11 @@ public sealed class LearningMaterialService : ILearningMaterialService
                 Title = material.Title,
                 ContentType = material.ContentType,
                 Order = material.Order,
-                HasFile = hasBlocks || hasLegacyFile
+                HasFile = fileBackedBlock != null || legacyFile != null,
+                ExternalLink = material.ExternalLink,
+                OriginalFileName = fileBackedBlock?.OriginalFileName ?? legacyFile?.OriginalFileName,
+                FileSize = fileBackedBlock?.FileSize ?? legacyFile?.FileSize,
+                FileContentType = fileBackedBlock?.ContentType ?? legacyFile?.ContentType
             });
         }
 

@@ -79,6 +79,10 @@ public sealed class LearningMaterialListItemResponse
     public string ContentType { get; set; } = string.Empty;
     public int Order { get; set; }
     public bool HasFile { get; set; }
+    public string? ExternalLink { get; set; }
+    public string? OriginalFileName { get; set; }
+    public long? FileSize { get; set; }
+    public string? FileContentType { get; set; }
 }
 
 public sealed class LearningMaterialDetailResponse

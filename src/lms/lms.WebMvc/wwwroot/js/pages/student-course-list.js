@@ -5,9 +5,10 @@
   const state = {
     courses: [],
     filteredCourses: [],
-    search: "",
-    status: "",
-    completion: ""
+    tab: "",
+    sort: "default",
+    page: 1,
+    pageSize: 3
   };
 
   function t(key, params, fallback) {
@@ -58,10 +59,6 @@
       .join("");
   }
 
-  function getBadgeClass(status) {
-    return status === "Published" ? "lms-status-success" : "lms-status-muted";
-  }
-
   function getApiOrigin() {
     return String(Lms.config && Lms.config.apiBaseUrl || "").replace(/\/api\/v1\/?$/i, "");
   }
@@ -74,12 +71,6 @@
       return url;
     }
     return getApiOrigin() + (url.charAt(0) === "/" ? url : "/" + url);
-  }
-
-  function translateStatus(status) {
-    return status === "Published"
-      ? t("courses.listPage.statuses.Published", null, "Đang học")
-      : t("courses.listPage.statuses.Draft", null, "Chưa xuất bản");
   }
 
   function getCourseImage(course, index) {
@@ -99,6 +90,32 @@
     return images[index % images.length];
   }
 
+  function getCourseState(course) {
+    const progress = Number(course.completionRate || 0);
+    if (progress >= 100) {
+      return "completed";
+    }
+    if (progress > 0) {
+      return "active";
+    }
+    return "not-started";
+  }
+
+  function getStatusLabel(course) {
+    const courseState = getCourseState(course);
+    if (courseState === "completed") {
+      return "Đã hoàn thành";
+    }
+    if (courseState === "active") {
+      return "Đang học";
+    }
+    return "Chưa bắt đầu";
+  }
+
+  function getStatusClass(course) {
+    return "student-course-status-" + getCourseState(course);
+  }
+
   function setProgress($element, value) {
     const safeValue = Math.max(0, Math.min(100, Number(value) || 0));
     $element.css("width", safeValue + "%");
@@ -107,11 +124,11 @@
   function renderMetrics() {
     const total = state.courses.length;
     const active = state.courses.filter(function (course) {
-      return course.status === "Published";
+      return getCourseState(course) === "active";
     }).length;
-    const materials = state.courses.reduce(function (sum, course) {
-      return sum + Number(course.materialCount || 0);
-    }, 0);
+    const completed = state.courses.filter(function (course) {
+      return getCourseState(course) === "completed";
+    }).length;
     const completion = total
       ? Math.round(state.courses.reduce(function (sum, course) {
         return sum + Number(course.completionRate || 0);
@@ -120,131 +137,127 @@
 
     $("[data-student-course-metric='total']").text(total);
     $("[data-student-course-metric='active']").text(active);
-    $("[data-student-course-metric='materials']").text(materials);
+    $("[data-student-course-metric='completed']").text(completed);
     $("[data-student-course-metric='completion']").text(completion + "%");
-  }
-
-  function renderFocus() {
-    const $container = $("#studentCourseFocus").empty();
-    const focusCourse = state.courses.slice().sort(function (a, b) {
-      return Number(b.completionRate || 0) - Number(a.completionRate || 0);
-    })[0];
-
-    if (!focusCourse) {
-      $container.html(
-        '<div class="lms-empty-compact">' +
-          '<i class="bi bi-journal-bookmark" aria-hidden="true"></i>' +
-          "<h3>Chưa có khóa học</h3>" +
-          "<p>Khi có khóa học được giao, khu vực này sẽ đề xuất nội dung nên tiếp tục.</p>" +
-        "</div>"
-      );
-      return;
-    }
-
-    $container.html(
-      '<div class="student-course-focus-card">' +
-        '<div class="student-course-focus-media image-slot image-slot-md image-slot-course" data-image-label="Course focus 320x180">' +
-          '<img src="' + getCourseImage(focusCourse, Number(focusCourse.id) || 0) + '" alt="" aria-hidden="true" />' +
-        "</div>" +
-        '<div class="student-course-focus-copy">' +
-          '<span class="' + getBadgeClass(focusCourse.status) + '">' + escapeHtml(translateStatus(focusCourse.status)) + "</span>" +
-          "<h3>" + escapeHtml(focusCourse.name) + "</h3>" +
-          "<p>" + escapeHtml(focusCourse.description || focusCourse.code || "") + "</p>" +
-          '<div class="student-course-focus-progress">' +
-            '<div class="lms-progress-track"><span style="width:' + Math.max(0, Math.min(100, Number(focusCourse.completionRate) || 0)) + '%"></span></div>' +
-            "<strong>" + escapeHtml(focusCourse.completionRate) + "% hoàn thành</strong>" +
-          "</div>" +
-          '<a class="app-button app-button-primary" href="/Courses/Detail/' + focusCourse.id + '">Tiếp tục học</a>' +
-        "</div>" +
-      "</div>"
-    );
   }
 
   function emptyMarkup() {
     return (
-      '<div class="lms-empty-compact">' +
+      '<div class="student-course-empty">' +
         '<i class="bi bi-search" aria-hidden="true"></i>' +
         "<h3>" + escapeHtml(t("courses.listPage.noCoursesTitle", null, "Không tìm thấy khóa học")) + "</h3>" +
-        "<p>" + escapeHtml(t("courses.listPage.noCoursesCopy", null, "Thử điều chỉnh từ khóa hoặc mức tiến độ để xem kết quả phù hợp hơn.")) + "</p>" +
+        "<p>" + escapeHtml(t("courses.listPage.noCoursesCopy", null, "Thử đổi trạng thái hoặc sắp xếp để xem kết quả phù hợp hơn.")) + "</p>" +
       "</div>"
     );
   }
 
+  function getVisibleCourses() {
+    const start = (state.page - 1) * state.pageSize;
+    return state.filteredCourses.slice(start, start + state.pageSize);
+  }
+
+  function renderPagination() {
+    const total = state.filteredCourses.length;
+    const totalPages = Math.max(1, Math.ceil(total / state.pageSize));
+    const from = total ? ((state.page - 1) * state.pageSize) + 1 : 0;
+    const to = total ? Math.min(total, state.page * state.pageSize) : 0;
+
+    $("[data-student-course-page-summary]").text(
+      total
+        ? "Hiển thị " + from + "-" + to + " trong " + total + " khóa học"
+        : "Hiển thị 0 khóa học"
+    );
+    $("[data-student-course-page-indicator]").text(state.page + " / " + totalPages);
+    $("[data-student-course-page='prev']").prop("disabled", state.page <= 1);
+    $("[data-student-course-page='next']").prop("disabled", state.page >= totalPages);
+  }
+
   function renderCourses() {
     const $grid = $("#studentCourseGrid").empty();
-
-    $("[data-student-course-count]").text(
-      t("courses.listPage.records", { count: state.filteredCourses.length }, state.filteredCourses.length + " khóa học")
-    );
+    const visibleCourses = getVisibleCourses();
 
     if (!state.filteredCourses.length) {
       $grid.html(emptyMarkup());
+      renderPagination();
       initReveal();
       return;
     }
 
-    state.filteredCourses.forEach(function (course, index) {
+    visibleCourses.forEach(function (course, index) {
       const progress = Math.max(0, Math.min(100, Number(course.completionRate) || 0));
+      const completedMaterials = Number(course.completedMaterials || 0);
+      const materialCount = Number(course.materialCount || 0);
       const actionLabel = progress > 0 ? "Tiếp tục học" : "Mở khóa học";
+      const imageIndex = ((state.page - 1) * state.pageSize) + index;
       const $card = $(
-        '<article class="student-course-card student-course-reveal" data-student-course-reveal>' +
-          '<div class="student-course-card-media image-slot image-slot-md image-slot-course" data-image-label="Course card 320x180">' +
-            '<img src="' + getCourseImage(course, index) + '" alt="" aria-hidden="true" />' +
-          "</div>" +
-          '<div class="student-course-card-body">' +
-            '<div class="student-course-card-top">' +
-              '<span class="student-course-thumb">' + escapeHtml(getInitials(course.name)) + "</span>" +
-              '<span class="' + getBadgeClass(course.status) + '">' + escapeHtml(translateStatus(course.status)) + "</span>" +
-            "</div>" +
-            "<h3>" + escapeHtml(course.name) + "</h3>" +
-            '<p class="student-course-card-copy">' + escapeHtml(course.description || course.code || "") + "</p>" +
-            '<dl class="student-course-card-stats">' +
-              "<div><dt>Tài liệu</dt><dd>" + escapeHtml(course.materialCount) + "</dd></div>" +
-              "<div><dt>Đã hoàn thành</dt><dd>" + escapeHtml(course.completedMaterials) + "/" + escapeHtml(course.materialCount) + "</dd></div>" +
-            "</dl>" +
-            '<div class="student-course-card-progress">' +
-              '<div class="student-course-card-progress-label"><span>Tiến độ</span><strong>' + progress + "%</strong></div>" +
-              '<div class="lms-progress-track"><span></span></div>' +
+        '<article class="student-course-row-card student-course-reveal" data-student-course-reveal>' +
+          '<a class="student-course-row-media" href="/Courses/Detail/' + course.id + '">' +
+            '<img src="' + escapeHtml(getCourseImage(course, imageIndex)) + '" alt="' + escapeHtml(course.name) + '" loading="lazy" data-course-image="' + imageIndex + '" />' +
+          "</a>" +
+          '<div class="student-course-row-body">' +
+            '<span class="student-course-category">' + escapeHtml(getInitials(course.name)) + "</span>" +
+            '<h3><a href="/Courses/Detail/' + course.id + '">' + escapeHtml(course.name) + "</a></h3>" +
+            '<p>' + escapeHtml(course.description || "Khóa học được giao trong hệ thống LMS.") + "</p>" +
+            '<div class="student-course-row-meta">' +
+              '<span><i class="bi bi-file-earmark" aria-hidden="true"></i>' + escapeHtml(course.code || "LMS") + "</span>" +
+              '<span><i class="bi bi-book" aria-hidden="true"></i>' + materialCount + " tài liệu</span>" +
+              '<span><i class="bi bi-check2-circle" aria-hidden="true"></i>' + completedMaterials + "/" + materialCount + " bài học</span>" +
             "</div>" +
           "</div>" +
-          '<div class="student-course-card-footer">' +
-            '<a class="app-button app-button-secondary" href="/Courses/Detail/' + course.id + '">Chi tiết</a>' +
-            '<a class="app-button app-button-primary" href="/Courses/Detail/' + course.id + '">' + actionLabel + "</a>" +
-          "</div>" +
+          '<aside class="student-course-progress-panel">' +
+            '<span class="student-course-status ' + getStatusClass(course) + '">' + escapeHtml(getStatusLabel(course)) + "</span>" +
+            '<div class="student-course-progress-copy"><span>Tiến độ</span><strong>' + progress + "%</strong></div>" +
+            '<div class="lms-progress-track"><span></span></div>' +
+            '<small>' + completedMaterials + "/" + materialCount + " bài học</small>" +
+            '<a class="student-course-action" href="/Courses/Detail/' + course.id + '">' + actionLabel + "</a>" +
+          "</aside>" +
         "</article>"
       );
 
       setProgress($card.find(".lms-progress-track span"), progress);
+      $card.find("[data-course-image]").on("error", function () {
+        $(this).attr("src", getCourseImage(null, imageIndex));
+      });
       $grid.append($card);
     });
 
+    renderPagination();
     initReveal();
+  }
+
+  function sortCourses(courses) {
+    const sorted = courses.slice();
+    if (state.sort === "progress-desc") {
+      sorted.sort(function (a, b) {
+        return Number(b.completionRate || 0) - Number(a.completionRate || 0);
+      });
+    }
+    if (state.sort === "name-asc") {
+      sorted.sort(function (a, b) {
+        return String(a.name || "").localeCompare(String(b.name || ""));
+      });
+    }
+    return sorted;
+  }
+
+  function applyFilters(resetPage) {
+    state.filteredCourses = sortCourses(state.courses.filter(function (course) {
+      return !state.tab || getCourseState(course) === state.tab;
+    }));
+
+    if (resetPage) {
+      state.page = 1;
+    }
+
+    const totalPages = Math.max(1, Math.ceil(state.filteredCourses.length / state.pageSize));
+    state.page = Math.min(state.page, totalPages);
+    renderCourses();
   }
 
   function render() {
     renderPageTitle();
     renderMetrics();
-    renderFocus();
-    renderCourses();
-  }
-
-  function applyFilters() {
-    const keyword = state.search.trim().toLowerCase();
-
-    state.filteredCourses = state.courses.filter(function (course) {
-      const matchesKeyword = !keyword
-        || String(course.name).toLowerCase().includes(keyword)
-        || String(course.description || "").toLowerCase().includes(keyword)
-        || String(course.code || "").toLowerCase().includes(keyword);
-      const matchesStatus = !state.status || course.status === state.status;
-      const matchesCompletion = !state.completion
-        || (state.completion === "high" && Number(course.completionRate) >= 70)
-        || (state.completion === "low" && Number(course.completionRate) < 70);
-
-      return matchesKeyword && matchesStatus && matchesCompletion;
-    });
-
-    renderCourses();
+    applyFilters(false);
   }
 
   function initReveal() {
@@ -281,27 +294,38 @@
   }
 
   function bindEvents() {
-    $("[data-student-course-filter='search']").on("input", function () {
-      state.search = $(this).val();
-      applyFilters();
+    $(document).on("click", "[data-student-course-tab]", function () {
+      const $tab = $(this);
+      state.tab = $tab.data("student-course-tab") || "";
+      $("[data-student-course-tab]").removeClass("is-active").attr("aria-selected", "false");
+      $tab.addClass("is-active").attr("aria-selected", "true");
+      applyFilters(true);
     });
 
-    $("[data-student-course-filter='status']").on("change", function () {
-      state.status = $(this).val();
-      applyFilters();
-    });
-
-    $("[data-student-course-filter='completion']").on("change", function () {
-      state.completion = $(this).val();
-      applyFilters();
+    $("[data-student-course-filter='sort']").on("change", function () {
+      state.sort = $(this).val() || "default";
+      applyFilters(true);
     });
 
     $(document).on("click", "[data-student-course-action='clear-filters']", function () {
-      state.search = "";
-      state.status = "";
-      state.completion = "";
-      $("[data-student-course-filter='search'], [data-student-course-filter='status'], [data-student-course-filter='completion']").val("");
-      applyFilters();
+      state.tab = "";
+      state.sort = "default";
+      $("[data-student-course-tab]").removeClass("is-active").attr("aria-selected", "false");
+      $("[data-student-course-tab='']").addClass("is-active").attr("aria-selected", "true");
+      $("[data-student-course-filter='sort']").val("default");
+      applyFilters(true);
+    });
+
+    $(document).on("click", "[data-student-course-page]", function () {
+      const direction = $(this).data("student-course-page");
+      const totalPages = Math.max(1, Math.ceil(state.filteredCourses.length / state.pageSize));
+      if (direction === "prev" && state.page > 1) {
+        state.page -= 1;
+      }
+      if (direction === "next" && state.page < totalPages) {
+        state.page += 1;
+      }
+      renderCourses();
     });
 
     $(document).on("lms:i18n:changed", render);
@@ -375,13 +399,7 @@
       });
     }).fail(function (error) {
       $("#studentCourseGrid").html(emptyMarkup());
-      $("#studentCourseFocus").html(
-        '<div class="lms-empty-compact">' +
-          '<i class="bi bi-exclamation-circle" aria-hidden="true"></i>' +
-          "<h3>Không thể tải khóa học</h3>" +
-          "<p>Vui lòng kiểm tra kết nối API và thử tải lại trang.</p>" +
-        "</div>"
-      );
+      renderPagination();
       showToast(
         "error",
         t("courses.listPage.dataErrorTitle", null, "Lỗi dữ liệu khóa học"),

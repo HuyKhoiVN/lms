@@ -137,6 +137,11 @@
   color: var(--color-primary);
 }
 
+.learning-footer-links a[data-i18n="layout.terms"],
+.learning-footer-links a[data-i18n="layout.support"] {
+  display: none;
+}
+
 .app-shell-admin {
   background: var(--color-app-bg);
   align-items: flex-start;

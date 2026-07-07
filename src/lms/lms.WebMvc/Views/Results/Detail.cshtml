@@ -1,11 +1,11 @@
-﻿@{
+@{
     ViewData["Title"] = "Chi tiết kết quả";
     var resultId = ViewData["ResultId"] ?? "";
 }
 
-<section class="lms-workspace-page student-result-detail-page" data-result-detail-id="@resultId" aria-label="Chi tiết kết quả">
-    <header class="lms-workspace-header student-result-detail-reveal" data-result-detail-reveal>
-        <div class="lms-workspace-header-main">
+<section class="lms-workspace-page student-result-report-page" data-result-detail-id="@resultId" aria-label="Chi tiết kết quả">
+    <header class="student-result-report-hero student-result-detail-reveal" data-result-detail-reveal>
+        <div class="student-result-report-hero-main">
             <nav class="page-breadcrumb" aria-label="Breadcrumb">
                 <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="results.detailPage.breadcrumbHome">Trang chủ</a>
                 <span>/</span>
@@ -13,100 +13,145 @@
                 <span>/</span>
                 <span data-i18n="results.detailPage.breadcrumbCurrent">Chi tiết</span>
             </nav>
-            <p class="lms-workspace-kicker">Result Review</p>
+            <p class="lms-workspace-kicker">RESULT REVIEW</p>
             <h1 data-result-detail-title data-i18n="results.detailPage.title">Chi tiết kết quả</h1>
-            <p class="lms-workspace-description" data-result-detail-subtitle data-i18n="results.detailPage.subtitle">Đang tải kết quả...</p>
+            <p class="student-result-report-subtitle" data-result-detail-subtitle data-i18n="results.detailPage.subtitle">Đang tải kết quả...</p>
         </div>
 
-        <a class="app-button app-button-secondary" asp-area="" asp-controller="Results" asp-action="Index" data-i18n="results.detailPage.backToResults">Quay lại danh sách</a>
+        <div class="student-result-report-hero-side">
+            <a class="student-result-report-back" asp-area="" asp-controller="Results" asp-action="Index">
+                <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                <span data-i18n="results.detailPage.backToResults">Quay lại kết quả</span>
+            </a>
+            <div class="student-result-report-illustration" aria-hidden="true">
+                <svg viewBox="0 0 360 190" role="img" focusable="false">
+                    <path class="result-illustration-curve" d="M24 162C71 108 87 33 170 50c69 14 71 91 166 43v69H24Z" />
+                    <circle class="result-illustration-orb" cx="286" cy="76" r="40" />
+                    <g class="result-illustration-board">
+                        <rect x="139" y="24" width="106" height="138" rx="18" />
+                        <rect x="166" y="15" width="52" height="28" rx="11" />
+                        <rect x="178" y="8" width="14" height="18" rx="7" />
+                        <path d="M165 69h50M165 91h44M165 113h58" />
+                        <rect x="165" y="130" width="50" height="10" rx="5" />
+                    </g>
+                    <g class="result-illustration-chart">
+                        <rect x="214" y="101" width="11" height="35" rx="4" />
+                        <rect x="232" y="82" width="11" height="54" rx="4" />
+                        <rect x="250" y="113" width="11" height="23" rx="4" />
+                    </g>
+                    <g class="result-illustration-check">
+                        <circle cx="282" cy="72" r="31" />
+                        <path d="m268 72 10 10 20-22" />
+                    </g>
+                    <g class="result-illustration-ribbon">
+                        <circle cx="137" cy="122" r="30" />
+                        <path d="m127 148-12 27 21-8 19 9-10-28" />
+                        <path d="m137 107 5 10 11 2-8 8 2 12-10-5-10 5 2-12-8-8 11-2 5-10Z" />
+                    </g>
+                </svg>
+            </div>
+        </div>
     </header>
 
-    <section class="student-result-detail-hero student-result-detail-reveal" data-result-detail-reveal>
-        <div class="student-result-detail-score-ring" data-result-score-ring>
+    <section class="student-result-summary-card student-result-detail-reveal" data-result-detail-reveal>
+        <div class="student-result-summary-ring" data-result-score-ring>
             <span data-result-detail-metric="scoreHero">--</span>
         </div>
-        <div class="student-result-detail-hero-copy">
-            <p class="lms-workspace-kicker">Score Summary</p>
-            <h2 data-result-score-hero-title data-i18n="results.detailPage.cardTitleSummary">Thông tin lượt thi</h2>
-            <p class="lms-workspace-description" data-result-score-hero-copy data-i18n="results.detailPage.cardSubtitleSummary">Thông tin nộp bài và chính sách xem lại.</p>
+        <div class="student-result-summary-copy">
+            <span class="student-result-summary-badge" data-result-detail-status>--</span>
+            <h2 data-result-summary-title data-i18n="results.detailPage.cardTitleSummary">Thông tin lượt thi</h2>
+            <p data-result-summary-copy data-i18n="results.detailPage.cardSubtitleSummary">Thông tin nộp bài và chính sách xem lại.</p>
         </div>
-        <div class="student-result-detail-hero-art image-slot image-slot-md image-slot-result" data-image-label="Result detail visual 320x180">
-            <img src="~/images/placeholders/result-placeholder.svg" alt="" aria-hidden="true" />
-        </div>
-    </section>
-
-    <section class="student-result-detail-metrics student-result-detail-reveal" data-result-detail-reveal>
-        <article class="lms-workspace-card student-result-detail-metric-card">
-            <span data-i18n="results.detailPage.metricScore">Điểm số</span>
-            <strong data-result-detail-metric="score">--</strong>
-        </article>
-        <article class="lms-workspace-card student-result-detail-metric-card">
-            <span data-i18n="results.detailPage.metricCorrect">Số câu đúng</span>
-            <strong data-result-detail-metric="correct">--</strong>
-        </article>
-        <article class="lms-workspace-card student-result-detail-metric-card">
-            <span data-i18n="results.detailPage.metricWrong">Số câu sai</span>
-            <strong data-result-detail-metric="wrong">--</strong>
-        </article>
-        <article class="lms-workspace-card student-result-detail-metric-card">
-            <span data-i18n="results.detailPage.metricDuration">Thời lượng</span>
-            <strong data-result-detail-metric="duration">--</strong>
-        </article>
-    </section>
-
-    <section class="student-result-detail-layout">
-        <aside class="student-result-detail-side">
-            <article class="lms-workspace-card student-result-detail-side-card student-result-detail-reveal" data-result-detail-reveal>
-                <div class="lms-workspace-section-head">
-                    <div>
-                        <p class="lms-workspace-kicker">Attempt</p>
-                        <h2 data-i18n="results.detailPage.cardTitleSummary">Thông tin lượt thi</h2>
-                    </div>
-                </div>
-
-                <dl class="student-result-detail-summary">
-                    <div>
-                        <dt data-i18n="results.detailPage.summaryStatus">Trạng thái</dt>
-                        <dd><span class="lms-status-info" data-result-detail-status>--</span></dd>
-                    </div>
-                    <div>
-                        <dt data-i18n="results.detailPage.summaryPassScore">Điểm đạt</dt>
-                        <dd data-result-detail-info="passScore">--</dd>
-                    </div>
-                    <div>
-                        <dt data-i18n="results.detailPage.summaryReview">Chính sách xem lại</dt>
-                        <dd data-result-detail-info="reviewPolicy">--</dd>
-                    </div>
-                    <div>
-                        <dt data-i18n="results.detailPage.summarySubmitted">Đã nộp lúc</dt>
-                        <dd data-result-detail-info="submittedAt">--</dd>
-                    </div>
-                    <div>
-                        <dt data-i18n="results.detailPage.summaryStudent">Thành viên</dt>
-                        <dd data-result-detail-info="studentName">--</dd>
-                    </div>
-                </dl>
+        <div class="student-result-summary-metrics">
+            <article>
+                <span class="student-result-metric-icon icon-score"><i class="bi bi-star" aria-hidden="true"></i></span>
+                <small data-i18n="results.detailPage.metricScore">Điểm</small>
+                <strong data-result-detail-metric="score">--</strong>
+                <em data-i18n="results.detailPage.metricScoreHint">Điểm của bạn</em>
             </article>
-        </aside>
-
-        <main class="lms-workspace-card student-result-detail-main student-result-detail-reveal" data-result-detail-reveal>
-            <div class="lms-workspace-section-head">
-                <div>
-                    <p class="lms-workspace-kicker">Review</p>
-                    <h2 data-i18n="results.detailPage.cardTitleReview">Xem lại bài làm</h2>
-                    <p class="lms-workspace-description" data-result-review-copy data-i18n="results.detailPage.cardSubtitleReview">Đang tải chính sách xem lại...</p>
-                </div>
-                <span class="lms-workspace-count" data-result-review-count data-i18n="results.detailPage.reviewQuestionsCount">-- câu hỏi</span>
-            </div>
-
-            <div id="resultReviewContent">
-                <div class="app-loading">
-                    <span class="app-spinner" aria-hidden="true"></span>
-                    <span data-i18n="results.detailPage.loadingDetail">Đang tải chi tiết kết quả...</span>
-                </div>
-            </div>
-        </main>
+            <article>
+                <span class="student-result-metric-icon icon-correct"><i class="bi bi-check-circle" aria-hidden="true"></i></span>
+                <small data-i18n="results.detailPage.metricCorrect">Đúng</small>
+                <strong data-result-detail-metric="correct">--</strong>
+                <em data-i18n="results.detailPage.metricCorrectHint">Câu trả lời đúng</em>
+            </article>
+            <article>
+                <span class="student-result-metric-icon icon-wrong"><i class="bi bi-x-circle" aria-hidden="true"></i></span>
+                <small data-i18n="results.detailPage.metricWrong">Sai</small>
+                <strong data-result-detail-metric="wrong">--</strong>
+                <em data-i18n="results.detailPage.metricWrongHint">Câu trả lời sai</em>
+            </article>
+            <article>
+                <span class="student-result-metric-icon icon-time"><i class="bi bi-clock" aria-hidden="true"></i></span>
+                <small data-i18n="results.detailPage.metricDuration">Thời gian</small>
+                <strong data-result-detail-metric="duration">--</strong>
+                <em data-i18n="results.detailPage.metricDurationHint">Thời gian làm bài</em>
+            </article>
+        </div>
     </section>
+
+    <section class="student-result-attempt-card student-result-detail-reveal" data-result-detail-reveal>
+        <div class="student-result-attempt-item">
+            <i class="bi bi-clipboard-check" aria-hidden="true"></i>
+            <div>
+                <span data-i18n="results.detailPage.summaryStatus">Trạng thái</span>
+                <strong data-result-detail-info="statusText">--</strong>
+            </div>
+        </div>
+        <div class="student-result-attempt-item">
+            <i class="bi bi-bullseye" aria-hidden="true"></i>
+            <div>
+                <span data-i18n="results.detailPage.summaryPassScore">Điểm đạt</span>
+                <strong data-result-detail-info="passScore">--</strong>
+            </div>
+        </div>
+        <div class="student-result-attempt-item">
+            <i class="bi bi-clock-history" aria-hidden="true"></i>
+            <div>
+                <span data-i18n="results.detailPage.summaryDuration">Thời lượng</span>
+                <strong data-result-detail-info="duration">--</strong>
+            </div>
+        </div>
+        <div class="student-result-attempt-item">
+            <i class="bi bi-calendar4-week" aria-hidden="true"></i>
+            <div>
+                <span data-i18n="results.detailPage.summarySubmitted">Lần nộp</span>
+                <strong data-result-detail-info="submittedAt">--</strong>
+            </div>
+        </div>
+        <div class="student-result-attempt-item">
+            <i class="bi bi-lock" aria-hidden="true"></i>
+            <div>
+                <span data-i18n="results.detailPage.summaryReview">Chính sách xem lại</span>
+                <strong data-result-detail-info="reviewPolicy">--</strong>
+            </div>
+        </div>
+        <div class="student-result-attempt-item">
+            <i class="bi bi-person" aria-hidden="true"></i>
+            <div>
+                <span data-i18n="results.detailPage.summaryStudent">Thành viên</span>
+                <strong data-result-detail-info="studentName">--</strong>
+            </div>
+        </div>
+    </section>
+
+    <main class="student-result-review-area student-result-detail-reveal" data-result-detail-reveal>
+        <div class="student-result-review-head">
+            <div>
+                <p class="lms-workspace-kicker">REVIEW</p>
+                <h2 data-i18n="results.detailPage.cardTitleReview">Xem lại bài làm</h2>
+                <p data-result-review-copy data-i18n="results.detailPage.cardSubtitleReview">Đang tải chính sách xem lại...</p>
+            </div>
+            <span data-result-review-count data-i18n="results.detailPage.reviewQuestionsCount">-- câu hỏi</span>
+        </div>
+
+        <div id="resultReviewContent">
+            <div class="app-loading">
+                <span class="app-spinner" aria-hidden="true"></span>
+                <span data-i18n="results.detailPage.loadingDetail">Đang tải chi tiết kết quả...</span>
+            </div>
+        </div>
+    </main>
 </section>
 
 @section Scripts {

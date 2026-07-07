@@ -2,15 +2,17 @@
   "use strict";
 
   const Lms = window.Lms || {};
-  const notesKey = "lms.student.materialNotes";
   const state = {
     materials: [],
-    filteredMaterials: [],
     courses: [],
     progressByMaterialId: {},
     search: "",
     courseId: "",
-    type: ""
+    type: "",
+    page: 1,
+    pageSize: 6,
+    total: 0,
+    searchTimer: null
   };
 
   function t(key, params, fallback) {
@@ -26,27 +28,32 @@
       .replace(/'/g, "&#039;");
   }
 
-  function getResponsePayload(response) {
+  function unwrap(response) {
     return Array.isArray(response) ? response[0] : response;
   }
 
-  function getResponseData(response) {
-    const payload = getResponsePayload(response);
+  function getData(response) {
+    const payload = unwrap(response);
     return payload && payload.data ? payload.data : null;
   }
 
-  function getResponseItems(response) {
-    const data = getResponseData(response);
-    return data && Array.isArray(data.items) ? data.items : [];
+  function getPagedData(response) {
+    const data = getData(response) || {};
+    return {
+      items: Array.isArray(data.items) ? data.items : [],
+      total: Number(data.total || 0),
+      page: Number(data.page || state.page || 1),
+      pageSize: Number(data.pageSize || state.pageSize || 6)
+    };
   }
 
-  function getNotes() {
-    return Lms.storage ? Lms.storage.get(notesKey, {}) : {};
+  function getItems(response) {
+    return getPagedData(response).items;
   }
 
   function getCourse(courseId) {
     return state.courses.find(function (course) {
-      return course.id === Number(courseId);
+      return Number(course.id) === Number(courseId);
     });
   }
 
@@ -54,68 +61,157 @@
     return state.progressByMaterialId[Number(materialId)] || null;
   }
 
-  function isCompleted(materialId) {
-    const progress = getMaterialProgress(materialId);
-    return Boolean(progress && progress.isCompleted);
+  function clampProgress(value) {
+    return Math.max(0, Math.min(100, Math.round(Number(value || 0))));
   }
 
   function getContentTypeLabel(type) {
     const labels = {
-      Text: t("materials.studentListPage.typeText", null, "Van ban"),
+      Text: t("materials.studentListPage.typeText", null, "Văn bản"),
       Pdf: t("materials.studentListPage.typePdf", null, "PDF"),
-      File: t("materials.studentListPage.typeFile", null, "Tep tin"),
-      Link: t("materials.studentListPage.typeLink", null, "Lien ket"),
-      Image: t("materials.studentListPage.typeImage", null, "Hinh anh"),
+      File: t("materials.studentListPage.typeFile", null, "Tệp"),
+      Link: t("materials.studentListPage.typeLink", null, "Liên kết"),
+      Image: t("materials.studentListPage.typeImage", null, "Hình ảnh"),
       Video: t("materials.studentListPage.typeVideo", null, "Video"),
-      Mixed: t("materials.studentListPage.typeMixed", null, "Tong hop")
+      Mixed: t("materials.studentListPage.typeMixed", null, "Tổng hợp")
     };
-    return labels[type] || type;
+
+    return labels[type] || type || labels.Text;
   }
 
-  function getTypeBadgeClass(type) {
-    if (type === "Pdf") {
-      return "lms-status-danger";
+  function getFileExtension(material) {
+    const fileName = String(material.originalFileName || "");
+    const match = fileName.match(/\.([^.]+)$/);
+    if (match) {
+      return match[1].toUpperCase();
     }
-    if (type === "File") {
-      return "lms-status-warning";
+    if (material.contentType === "Pdf") {
+      return "PDF";
+    }
+    if (material.contentType === "Link") {
+      return "LINK";
+    }
+    if (material.contentType === "Text") {
+      return "TEXT";
+    }
+    return material.contentType ? String(material.contentType).toUpperCase() : "FILE";
+  }
+
+  function formatFileSize(bytes) {
+    const size = Number(bytes || 0);
+    if (!size) {
+      return "";
+    }
+    if (size >= 1024 * 1024) {
+      return (size / (1024 * 1024)).toFixed(size >= 10 * 1024 * 1024 ? 0 : 1).replace(/\.0$/, "") + " MB";
+    }
+    return Math.max(1, Math.round(size / 1024)) + " KB";
+  }
+
+  function getTypeTone(type, extension) {
+    const ext = String(extension || "").toLowerCase();
+    if (type === "Pdf" || ext === "pdf") {
+      return "pdf";
     }
     if (type === "Link") {
-      return "lms-status-info";
+      return "link";
     }
-    if (type === "Image" || type === "Video" || type === "Mixed") {
-      return "lms-status-info";
+    if (type === "Video") {
+      return "video";
     }
-    return "lms-status-success";
+    if (type === "Text" || ext === "doc" || ext === "docx" || ext === "txt") {
+      return "text";
+    }
+    if (ext === "zip" || ext === "rar" || ext === "7z") {
+      return "archive";
+    }
+    return "file";
   }
 
-  function getTypeMarkClass(type) {
-    const classes = {
-      Text: "is-text",
-      Pdf: "is-pdf",
-      File: "is-file",
-      Link: "is-link",
-      Image: "is-image",
-      Video: "is-video",
-      Mixed: "is-mixed"
+  function getTypeIcon(type, tone) {
+    if (tone === "pdf") {
+      return "bi-file-earmark-pdf";
+    }
+    if (tone === "link") {
+      return "bi-link-45deg";
+    }
+    if (tone === "archive") {
+      return "bi-folder2";
+    }
+    if (tone === "video") {
+      return "bi-play-btn";
+    }
+    if (tone === "text") {
+      return "bi-file-text";
+    }
+    if (type === "Image") {
+      return "bi-image";
+    }
+    return "bi-file-earmark";
+  }
+
+  function getActionLabel(material) {
+    if (material.contentType === "Link") {
+      return "Truy cập";
+    }
+    if (material.contentType === "File") {
+      const extension = getFileExtension(material).toLowerCase();
+      if (extension === "zip" || extension === "rar" || extension === "7z") {
+        return "Tải xuống";
+      }
+    }
+    if (material.contentType === "Text" || material.contentType === "Mixed") {
+      return "Tiếp tục đọc";
+    }
+    return "Mở tài liệu";
+  }
+
+  function getActionIcon(material) {
+    if (material.contentType === "Link") {
+      return "bi-link-45deg";
+    }
+    if (getActionLabel(material) === "Tải xuống") {
+      return "bi-download";
+    }
+    if (material.contentType === "Text" || material.contentType === "Mixed") {
+      return "bi-journal-text";
+    }
+    return "bi-book";
+  }
+
+  function buildMaterialUrl() {
+    const query = new URLSearchParams();
+    query.set("page", String(state.page));
+    query.set("pageSize", String(state.pageSize));
+
+    if (state.search.trim()) {
+      query.set("keyword", state.search.trim());
+    }
+
+    if (state.courseId) {
+      query.set("courseId", state.courseId);
+    }
+
+    if (state.type) {
+      query.set("contentType", state.type);
+    }
+
+    return "api/learning-materials?" + query.toString();
+  }
+
+  function normalizeMaterial(item) {
+    return {
+      id: Number(item.id),
+      courseId: Number(item.courseId),
+      title: item.title || "",
+      contentType: item.contentType || "Text",
+      order: Number(item.order || 0),
+      hasFile: Boolean(item.hasFile),
+      externalLink: item.externalLink || "",
+      originalFileName: item.originalFileName || "",
+      fileSize: item.fileSize || null,
+      fileContentType: item.fileContentType || ""
     };
-    return classes[type] || "is-text";
-  }
-
-  function getTypeIcon(type) {
-    const icons = {
-      Text: "bi-file-text",
-      Pdf: "bi-file-earmark-pdf",
-      File: "bi-paperclip",
-      Link: "bi-link-45deg",
-      Image: "bi-image",
-      Video: "bi-play-btn",
-      Mixed: "bi-collection"
-    };
-    return icons[type] || "bi-file-earmark";
-  }
-
-  function getProgressBadgeClass(completed) {
-    return completed ? "lms-status-success" : "lms-status-muted";
   }
 
   function renderCourseOptions() {
@@ -133,101 +229,98 @@
     return (
       '<div class="lms-empty-compact student-material-empty student-material-reveal is-visible" data-material-reveal>' +
         '<i class="bi bi-folder2-open" aria-hidden="true"></i>' +
-        '<h3>' + escapeHtml(t("materials.studentListPage.noMaterialsFoundTitle", null, "Khong tim thay tai lieu phu hop.")) + "</h3>" +
-        '<p>' + escapeHtml(t("materials.studentListPage.noMaterialsFoundCopy", null, "Hay thu doi tu khoa, khoa hoc hoac loai tai lieu khac.")) + "</p>" +
+        '<h3>' + escapeHtml(t("materials.studentListPage.noMaterialsFoundTitle", null, "Không tìm thấy tài liệu phù hợp.")) + "</h3>" +
+        '<p>' + escapeHtml(t("materials.studentListPage.noMaterialsFoundCopy", null, "Hãy thử đổi từ khóa, khóa học hoặc loại tài liệu khác.")) + "</p>" +
       "</div>"
     );
   }
 
   function renderErrorState(message) {
     return (
-      '<div class="lms-empty-compact">' +
+      '<div class="lms-empty-compact student-material-empty student-material-reveal is-visible" data-material-reveal>' +
         '<i class="bi bi-exclamation-circle" aria-hidden="true"></i>' +
-        '<h3>' + escapeHtml(t("materials.studentListPage.loadErrorTitle", null, "Khong the tai tai lieu")) + "</h3>" +
-        '<p>' + escapeHtml(message || t("materials.studentListPage.loadErrorCopy", null, "Vui long kiem tra API learning materials.")) + "</p>" +
+        '<h3>' + escapeHtml(t("materials.studentListPage.loadErrorTitle", null, "Không thể tải tài liệu")) + "</h3>" +
+        '<p>' + escapeHtml(message || t("materials.studentListPage.loadErrorCopy", null, "Vui lòng kiểm tra API learning materials.")) + "</p>" +
       "</div>"
     );
   }
 
+  function renderPagination() {
+    const totalPages = Math.max(1, Math.ceil(state.total / state.pageSize));
+    const from = state.total ? ((state.page - 1) * state.pageSize) + 1 : 0;
+    const to = state.total ? Math.min(state.total, state.page * state.pageSize) : 0;
+
+    $("[data-student-material-count]").text(
+      t("materials.studentListPage.records", { count: state.total }, state.total + " tài liệu")
+    );
+    $("[data-student-material-page-summary]").text(
+      state.total
+        ? "Hiển thị " + from + "-" + to + " trong " + state.total + " tài liệu"
+        : "Hiển thị 0 tài liệu"
+    );
+    $("[data-student-material-page-indicator]").text(state.page + " / " + totalPages);
+    $("[data-student-material-page='prev']").prop("disabled", state.page <= 1);
+    $("[data-student-material-page='next']").prop("disabled", state.page >= totalPages);
+  }
+
   function renderMaterialCard(material) {
     const course = getCourse(material.courseId);
-    const completed = isCompleted(material.id);
-    const actionText = completed
-      ? t("materials.studentListPage.buttonReview", null, "Xem lai")
-      : t("materials.studentListPage.buttonOpen", null, "Mo");
-    const courseName = course ? course.name : t("materials.studentListPage.unknownCourse", null, "Khoa hoc khong xac dinh");
+    const courseName = course ? course.name : t("materials.studentListPage.unknownCourse", null, "Khóa học không xác định");
     const progress = getMaterialProgress(material.id);
-    const progressPercent = progress ? Math.round(Number(progress.progressPercent || 0)) : 0;
-    const statusText = completed
-      ? t("materials.studentListPage.completed", null, "Da hoan thanh")
-      : progressPercent > 0
-        ? t("materials.studentListPage.inProgress", null, "Dang hoc")
-        : t("materials.studentListPage.notStarted", null, "Chua bat dau");
-    const notes = getNotes();
-    const hasNote = Boolean(notes[material.id]);
+    const progressPercent = clampProgress(progress ? progress.progressPercent : 0);
+    const extension = getFileExtension(material);
+    const size = formatFileSize(material.fileSize);
+    const tone = getTypeTone(material.contentType, extension);
+    const typeLabel = getContentTypeLabel(material.contentType);
+    const metaParts = [extension];
+
+    if (size) {
+      metaParts.push(size);
+    } else if (material.contentType === "Link" && material.externalLink) {
+      metaParts[0] = material.externalLink;
+    }
 
     return (
       '<article class="student-material-card student-material-reveal" data-material-reveal>' +
-        '<div class="student-material-type-row">' +
-          '<span class="student-material-type-mark ' + getTypeMarkClass(material.contentType) + '" aria-hidden="true">' +
-            '<i class="bi ' + getTypeIcon(material.contentType) + '"></i>' +
-          "</span>" +
-          '<span class="' + getTypeBadgeClass(material.contentType) + '">' + escapeHtml(getContentTypeLabel(material.contentType)) + "</span>" +
+        '<div class="student-material-card-top">' +
+          '<span class="student-material-icon student-material-icon-' + tone + '" aria-hidden="true"><i class="bi ' + getTypeIcon(material.contentType, tone) + '"></i></span>' +
+          '<span class="student-material-type-badge student-material-type-' + tone + '">' + escapeHtml(typeLabel) + "</span>" +
+          '<span class="student-material-menu" aria-hidden="true"><i class="bi bi-three-dots"></i></span>' +
         "</div>" +
         '<h3 class="student-material-card-title">' + escapeHtml(material.title) + "</h3>" +
-        '<p class="student-material-course">' + escapeHtml(courseName) + "</p>" +
+        '<p class="student-material-course"><span>Khóa học:</span> ' + escapeHtml(courseName) + "</p>" +
         '<div class="student-material-meta-row">' +
-          '<span>' + escapeHtml(t("materials.studentListPage.orderValue", { order: material.order }, "Thu tu " + material.order)) + "</span>" +
-          '<span class="' + getProgressBadgeClass(completed) + '">' + escapeHtml(statusText) + "</span>" +
+          "<span>" + escapeHtml(metaParts.join(" • ")) + "</span>" +
+          '<span>' + escapeHtml(progressPercent + "% đã đọc") + "</span>" +
         "</div>" +
-        '<div class="student-material-meta-row">' +
-          "<span>" + escapeHtml(progressPercent + "%") + "</span>" +
-          "<span>" + escapeHtml(hasNote ? t("materials.studentListPage.hasNote", null, "Co ghi chu") : t("materials.studentListPage.noNote", null, "Chua ghi chu")) + "</span>" +
-        "</div>" +
-        '<div class="student-material-card-footer">' +
-          '<a class="app-button app-button-primary" href="/LearningMaterials/Viewer/' + material.id + '">' + escapeHtml(actionText) + "</a>" +
-        "</div>" +
+        '<div class="student-material-progress" aria-hidden="true"><span style="width: ' + progressPercent + '%"></span></div>' +
+        '<a class="student-material-action" href="/LearningMaterials/Viewer/' + material.id + '">' +
+          '<i class="bi ' + getActionIcon(material) + '" aria-hidden="true"></i>' +
+          '<span>' + escapeHtml(getActionLabel(material)) + "</span>" +
+        "</a>" +
       "</article>"
     );
   }
 
-  function render() {
+  function renderMaterials() {
     const $grid = $("#studentMaterialGrid").empty();
 
-    $("[data-student-material-count]").text(
-      t("materials.studentListPage.records", { count: state.filteredMaterials.length }, state.filteredMaterials.length + " tai lieu")
-    );
+    renderPagination();
 
-    if (!state.filteredMaterials.length) {
-      $grid.append(renderEmptyState());
+    if (!state.materials.length) {
+      $grid.html(renderEmptyState());
       $("[data-student-material-primary-link]").addClass("is-disabled").attr("aria-disabled", "true").attr("href", "#");
+      initMaterialReveal();
       return;
     }
 
-    $grid.html(state.filteredMaterials.map(renderMaterialCard).join(""));
-    const firstMaterial = state.filteredMaterials[0];
-    const href = firstMaterial ? "/LearningMaterials/Viewer/" + firstMaterial.id : "#";
+    $grid.html(state.materials.map(renderMaterialCard).join(""));
+    const firstMaterial = state.materials[0];
     $("[data-student-material-primary-link]")
       .toggleClass("is-disabled", !firstMaterial)
       .attr("aria-disabled", firstMaterial ? null : "true")
-      .attr("href", href);
+      .attr("href", firstMaterial ? "/LearningMaterials/Viewer/" + firstMaterial.id : "#");
     initMaterialReveal();
-  }
-
-  function applyFilters() {
-    const keyword = state.search.trim().toLowerCase();
-
-    state.filteredMaterials = state.materials.filter(function (material) {
-      const course = getCourse(material.courseId);
-      const materialTitle = String(material.title || "").toLowerCase();
-      const courseName = String(course ? course.name : "").toLowerCase();
-      const matchesKeyword = !keyword || materialTitle.includes(keyword) || courseName.includes(keyword);
-      const matchesCourse = !state.courseId || material.courseId === Number(state.courseId);
-      const matchesType = !state.type || material.contentType === state.type;
-      return matchesKeyword && matchesCourse && matchesType;
-    });
-
-    render();
   }
 
   function initMaterialReveal() {
@@ -263,69 +356,91 @@
     });
   }
 
+  function loadMaterials() {
+    if (!Lms.apiClient) {
+      $("#studentMaterialGrid").html(renderErrorState());
+      return;
+    }
+
+    Lms.apiClient.get(buildMaterialUrl()).done(function (response) {
+      const pageData = getPagedData(response);
+      state.materials = pageData.items.map(normalizeMaterial);
+      state.total = pageData.total;
+      state.page = pageData.page;
+      state.pageSize = pageData.pageSize || state.pageSize;
+      renderMaterials();
+    }).fail(function (error) {
+      $("#studentMaterialGrid").html(renderErrorState(error && error.message ? error.message : null));
+      initMaterialReveal();
+    });
+  }
+
   function bindEvents() {
     $("[data-student-material-filter='search']").on("input", function () {
+      window.clearTimeout(state.searchTimer);
       state.search = $(this).val();
-      applyFilters();
+      state.page = 1;
+      state.searchTimer = window.setTimeout(loadMaterials, 250);
     });
 
     $("[data-student-material-filter='course']").on("change", function () {
       state.courseId = $(this).val();
-      applyFilters();
+      state.page = 1;
+      loadMaterials();
     });
 
     $("[data-student-material-filter='type']").on("change", function () {
       state.type = $(this).val();
-      applyFilters();
+      state.page = 1;
+      loadMaterials();
     });
 
     $("[data-student-material-action='clear-filters']").on("click", function () {
       state.search = "";
       state.courseId = "";
       state.type = "";
+      state.page = 1;
       $("[data-student-material-filter='search']").val("");
       $("[data-student-material-filter='course']").val("");
       $("[data-student-material-filter='type']").val("");
-      applyFilters();
+      loadMaterials();
+    });
+
+    $(document).on("click", "[data-student-material-page]", function () {
+      const direction = String($(this).data("student-material-page"));
+      const totalPages = Math.max(1, Math.ceil(state.total / state.pageSize));
+
+      if (direction === "prev" && state.page > 1) {
+        state.page -= 1;
+      }
+
+      if (direction === "next" && state.page < totalPages) {
+        state.page += 1;
+      }
+
+      loadMaterials();
     });
 
     $(document).on("lms:i18n:changed", function () {
       renderCourseOptions();
-      render();
+      renderMaterials();
     });
   }
 
-  function loadPageData() {
-    if (!Lms.apiClient) {
-      $("#studentMaterialGrid").html(renderErrorState());
-      return;
-    }
-
+  function loadSupportData() {
     $.when(
-      Lms.apiClient.get("api/learning-materials?page=1&pageSize=500"),
       Lms.apiClient.get("api/courses?page=1&pageSize=200"),
       Lms.apiClient.get("api/learning-progress/my?page=1&pageSize=500")
-    ).done(function (materialsResponse, coursesResponse, progressResponse) {
-      state.materials = getResponseItems(materialsResponse).map(function (item) {
-        return {
-          id: Number(item.id),
-          courseId: Number(item.courseId),
-          title: item.title || "",
-          contentType: item.contentType || "Text",
-          order: Number(item.order || 0),
-          hasFile: Boolean(item.hasFile)
-        };
-      });
-      state.courses = getResponseItems(coursesResponse);
+    ).done(function (coursesResponse, progressResponse) {
+      state.courses = getItems(coursesResponse);
       state.progressByMaterialId = {};
-      getResponseItems(progressResponse).forEach(function (item) {
+      getItems(progressResponse).forEach(function (item) {
         state.progressByMaterialId[Number(item.learningMaterialId)] = item;
       });
-      state.filteredMaterials = state.materials.slice();
       renderCourseOptions();
-      render();
-    }).fail(function (error) {
-      $("#studentMaterialGrid").html(renderErrorState(error && error.message ? error.message : null));
+      loadMaterials();
+    }).fail(function () {
+      loadMaterials();
     });
   }
 
@@ -333,12 +448,17 @@
     bindEvents();
     initMaterialReveal();
 
-    if (Lms.i18n && Lms.i18n.ready) {
-      Lms.i18n.ready.always(loadPageData);
+    if (!Lms.apiClient) {
+      $("#studentMaterialGrid").html(renderErrorState());
       return;
     }
 
-    loadPageData();
+    if (Lms.i18n && Lms.i18n.ready) {
+      Lms.i18n.ready.always(loadSupportData);
+      return;
+    }
+
+    loadSupportData();
   }
 
   $(init);

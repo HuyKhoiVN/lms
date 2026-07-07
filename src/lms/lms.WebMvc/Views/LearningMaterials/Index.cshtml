@@ -1,66 +1,140 @@
-﻿@{
+@{
     ViewData["Title"] = "Tài liệu học tập";
 }
 
 <section class="lms-workspace-page student-material-assigned-page" aria-label="Tài liệu học tập được giao">
-    <header class="lms-workspace-header student-material-reveal" data-material-reveal>
+    <header class="lms-workspace-header student-material-hero student-material-reveal" data-material-reveal>
         <div class="lms-workspace-header-main">
             <nav class="page-breadcrumb" aria-label="Breadcrumb">
                 <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="materials.studentListPage.breadcrumbHome">Trang chủ</a>
                 <span>/</span>
                 <span data-i18n="materials.studentListPage.breadcrumbMaterials">Tài liệu</span>
             </nav>
-            <p class="lms-workspace-kicker">Assigned Learning Content</p>
+            <p class="lms-workspace-kicker">ASSIGNED LEARNING CONTENT</p>
             <h1 data-i18n="materials.studentListPage.title">Tài liệu học tập</h1>
             <p class="lms-workspace-description" data-i18n="materials.studentListPage.subtitle">
-                Danh sách học liệu được giao theo khóa học, trạng thái và tiến độ của bạn.
+                Mở các tài liệu dạng văn bản, PDF, tệp tin và liên kết được giao trong không gian học tập của bạn.
             </p>
         </div>
 
-        <a class="app-button app-button-primary is-disabled" href="#" aria-disabled="true" data-student-material-primary-link data-i18n="materials.studentListPage.buttonContinue">Tiếp tục học</a>
+        <div class="student-material-hero-side">
+            <a class="app-button app-button-primary is-disabled" href="#" aria-disabled="true" data-student-material-primary-link data-i18n="materials.studentListPage.buttonContinue">Tiếp tục học</a>
+
+            <div class="student-material-hero-illustration" aria-hidden="true">
+                <span class="student-material-hero-folder">
+                    <i class="bi bi-folder2-open"></i>
+                </span>
+                <span class="student-material-hero-doc">
+                    <i class="bi bi-file-earmark-text"></i>
+                </span>
+                <span class="student-material-hero-pdf">PDF</span>
+                <span class="student-material-hero-image">
+                    <i class="bi bi-image"></i>
+                </span>
+                <span class="student-material-hero-paper"></span>
+                <span class="student-material-hero-plant">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+                <span class="student-material-hero-shadow"></span>
+            </div>
+        </div>
     </header>
 
-    <section class="lms-workspace-card student-material-reveal" data-material-reveal>
-        <div class="lms-workspace-section-head">
-            <div>
-                <p class="lms-workspace-kicker">Materials</p>
-                <h2 data-i18n="materials.studentListPage.assignedMaterials">Tài liệu được giao</h2>
-            </div>
-            <span class="lms-workspace-count" data-student-material-count data-i18n="materials.studentListPage.records">-- tài liệu</span>
-        </div>
-
-        <div class="lms-task-filter-bar" role="search" aria-label="Bộ lọc tài liệu học tập">
-            <label class="visually-hidden" for="studentMaterialSearch" data-i18n="materials.studentListPage.searchLabel">Tìm kiếm tài liệu</label>
-            <input class="app-input" id="studentMaterialSearch" type="search" placeholder="Tìm kiếm tài liệu..." data-student-material-filter="search" data-i18n-placeholder="materials.studentListPage.searchPlaceholder" />
-
-            <label class="visually-hidden" for="studentMaterialCourseFilter" data-i18n="materials.studentListPage.courseLabel">Khóa học</label>
-            <select class="app-select" id="studentMaterialCourseFilter" data-student-material-filter="course">
-                <option value="" data-i18n="materials.studentListPage.allCourses">Tất cả khóa học</option>
-            </select>
-
-            <label class="visually-hidden" for="studentMaterialTypeFilter" data-i18n="materials.studentListPage.typeLabel">Loại tài liệu</label>
-            <select class="app-select" id="studentMaterialTypeFilter" data-student-material-filter="type">
-                <option value="" data-i18n="materials.studentListPage.allTypes">Tất cả các loại</option>
-                <option value="Text" data-i18n="materials.studentListPage.typeText">Văn bản</option>
-                <option value="Pdf" data-i18n="materials.studentListPage.typePdf">PDF</option>
-                <option value="File" data-i18n="materials.studentListPage.typeFile">Tệp tin</option>
-                <option value="Link" data-i18n="materials.studentListPage.typeLink">Liên kết</option>
-            </select>
-
-            <button class="app-button app-button-secondary" type="button" data-student-material-action="clear-filters" data-i18n="materials.studentListPage.clearFilters">Xóa bộ lọc</button>
-        </div>
-
-        <div class="student-material-grid" id="studentMaterialGrid">
-            <article class="student-material-card student-material-reveal" data-material-reveal>
-                <div class="student-material-type-row">
-                    <span class="app-skeleton" style="width: 42px; height: 42px; border-radius: 8px;"></span>
-                    <span class="app-skeleton" style="width: 80px; height: 26px; border-radius: 999px;"></span>
+    <section class="student-material-layout">
+        <main class="student-material-main student-material-reveal" data-material-reveal>
+            <section class="student-material-library">
+                <div class="student-material-section-head">
+                    <h2 data-i18n="materials.studentListPage.assignedMaterials">Tài liệu được giao</h2>
+                    <span data-student-material-count>-- tài liệu</span>
                 </div>
-                <span class="app-skeleton u-mt-4" style="height: 24px;"></span>
-                <span class="app-skeleton u-mt-4"></span>
-                <span class="app-skeleton u-mt-4"></span>
+
+                <div class="student-material-filter-bar" role="search" aria-label="Bộ lọc tài liệu học tập">
+                    <label class="visually-hidden" for="studentMaterialSearch" data-i18n="materials.studentListPage.searchLabel">Tìm kiếm tài liệu</label>
+                    <div class="student-material-search">
+                        <i class="bi bi-search" aria-hidden="true"></i>
+                        <input id="studentMaterialSearch" type="search" placeholder="Tìm kiếm tài liệu..." data-student-material-filter="search" data-i18n-placeholder="materials.studentListPage.searchPlaceholder" />
+                    </div>
+
+                    <label class="visually-hidden" for="studentMaterialCourseFilter" data-i18n="materials.studentListPage.courseLabel">Khóa học</label>
+                    <select id="studentMaterialCourseFilter" data-student-material-filter="course">
+                        <option value="" data-i18n="materials.studentListPage.allCourses">Tất cả khóa học</option>
+                    </select>
+
+                    <label class="visually-hidden" for="studentMaterialTypeFilter" data-i18n="materials.studentListPage.typeLabel">Loại tài liệu</label>
+                    <select id="studentMaterialTypeFilter" data-student-material-filter="type">
+                        <option value="" data-i18n="materials.studentListPage.allTypes">Tất cả định dạng</option>
+                        <option value="Text" data-i18n="materials.studentListPage.typeText">Văn bản</option>
+                        <option value="Pdf" data-i18n="materials.studentListPage.typePdf">PDF</option>
+                        <option value="File" data-i18n="materials.studentListPage.typeFile">Tệp</option>
+                        <option value="Link" data-i18n="materials.studentListPage.typeLink">Liên kết</option>
+                        <option value="Image" data-i18n="materials.studentListPage.typeImage">Hình ảnh</option>
+                        <option value="Video" data-i18n="materials.studentListPage.typeVideo">Video</option>
+                    </select>
+
+                    <button class="student-material-filter-button" type="button" data-student-material-action="clear-filters">
+                        <i class="bi bi-sliders" aria-hidden="true"></i>
+                        <span>Bộ lọc</span>
+                    </button>
+                </div>
+
+                <div class="student-material-grid" id="studentMaterialGrid">
+                    <article class="student-material-card student-material-reveal" data-material-reveal>
+                        <span class="app-skeleton"></span>
+                        <span class="app-skeleton"></span>
+                        <span class="app-skeleton"></span>
+                    </article>
+                </div>
+
+                <div class="student-material-pagination" id="studentMaterialPagination" aria-label="Phân trang tài liệu">
+                    <span data-student-material-page-summary>Hiển thị 0 tài liệu</span>
+                    <div class="student-material-pagination-actions">
+                        <button class="student-material-page-button" type="button" data-student-material-page="prev" disabled>
+                            <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                            <span>Trước</span>
+                        </button>
+                        <strong data-student-material-page-indicator>1 / 1</strong>
+                        <button class="student-material-page-button" type="button" data-student-material-page="next" disabled>
+                            <span>Sau</span>
+                            <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <aside class="student-material-side">
+            <article class="student-material-side-card student-material-reveal" data-material-reveal>
+                <h2>Hành động nhanh</h2>
+                <div class="student-material-quick-list">
+                    <a class="student-material-quick-link" asp-area="" asp-controller="LearningMaterials" asp-action="Index">
+                        <span class="student-material-quick-icon icon-indigo" aria-hidden="true"><i class="bi bi-star"></i></span>
+                        <span><strong>Tài liệu yêu thích</strong><small>Xem danh sách tài liệu đã đánh dấu.</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="student-material-quick-link" asp-area="" asp-controller="LearningMaterials" asp-action="Index">
+                        <span class="student-material-quick-icon icon-sky" aria-hidden="true"><i class="bi bi-clock-history"></i></span>
+                        <span><strong>Tài liệu đã xem gần đây</strong><small>Xem lại các tài liệu gần nhất.</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="student-material-quick-link" asp-area="" asp-controller="LearningMaterials" asp-action="Index">
+                        <span class="student-material-quick-icon icon-blue" aria-hidden="true"><i class="bi bi-download"></i></span>
+                        <span><strong>Tài liệu tải xuống</strong><small>Quản lý tài liệu ngoại tuyến.</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                </div>
             </article>
-        </div>
+
+            <article class="student-material-side-card student-material-support-card student-material-reveal" data-material-reveal>
+                <h2>Bạn cần hỗ trợ?</h2>
+                <p>Nếu bạn gặp vấn đề trong quá trình học, đừng ngần ngại liên hệ với chúng tôi.</p>
+                <button class="student-material-support-button" type="button" disabled>
+                    <i class="bi bi-headset" aria-hidden="true"></i>
+                    <span>Liên hệ hỗ trợ</span>
+                </button>
+            </article>
+        </aside>
     </section>
 </section>
 

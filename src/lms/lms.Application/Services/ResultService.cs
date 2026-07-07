@@ -114,6 +114,7 @@ public sealed class ResultService : IResultService
 
         var exam = await _examRepo.GetByIdAsync(result.ExamId);
         var user = await _userRepo.GetByIdAsync(result.UserId);
+        var attempt = await _attemptRepo.GetByIdAsync(result.AttemptId);
         var details = await _detailRepo.GetByResultIdAsync(result.Id);
 
         var qSnaps = await _qsRepo.GetByAttemptIdAsync(result.AttemptId);
@@ -135,6 +136,13 @@ public sealed class ResultService : IResultService
             Id = result.Id, AttemptId = result.AttemptId, ExamId = result.ExamId,
             ExamName = exam?.Name, UserId = result.UserId, UserName = user?.UserName,
             Score = result.Score, Passed = result.Passed, CompletedDate = result.CompletedDate,
+            PassScore = exam?.PassScore,
+            DurationMinutes = attempt?.DurationMinutes ?? exam?.DurationMinutes,
+            AttemptStatus = attempt?.Status,
+            ReviewMode = exam?.ReviewMode ?? ExamReviewMode.ResultOnly,
+            ReviewVisibility = MapReviewVisibility(exam?.ReviewMode ?? ExamReviewMode.ResultOnly),
+            CorrectCount = detailList.Count(d => d.IsCorrect),
+            WrongCount = Math.Max(0, detailList.Count - detailList.Count(d => d.IsCorrect)),
             Details = detailList
         });
     }
@@ -151,10 +159,21 @@ public sealed class ResultService : IResultService
 
         var exam = await _examRepo.GetByIdAsync(result.ExamId);
         var reviewMode = exam?.ReviewMode ?? ExamReviewMode.ResultOnly;
+        var reviewVisibility = MapReviewVisibility(reviewMode);
 
-        // NoReview → chặn
-        if (reviewMode == ExamReviewMode.NoReview)
-            return ApiResponse<ResultReviewResponse>.FailureResult("Bài thi không hỗ trợ xem review.");
+        if (reviewMode == ExamReviewMode.NoReview || reviewMode == ExamReviewMode.ResultOnly)
+        {
+            return ApiResponse<ResultReviewResponse>.SuccessResult(new ResultReviewResponse
+            {
+                Id = result.Id,
+                ExamId = result.ExamId,
+                Score = result.Score,
+                Passed = result.Passed,
+                ReviewMode = reviewMode,
+                ReviewVisibility = reviewVisibility,
+                Questions = new List<QuestionReviewResponse>()
+            });
+        }
 
         // Build review
         var details = await _detailRepo.GetByResultIdAsync(result.Id);
@@ -195,11 +214,24 @@ public sealed class ResultService : IResultService
         {
             Id = result.Id, ExamId = result.ExamId,
             Score = result.Score, Passed = result.Passed,
-            ReviewMode = reviewMode, Questions = questions
+            ReviewMode = reviewMode,
+            ReviewVisibility = reviewVisibility,
+            Questions = questions
         });
     }
 
     // ─── Generate result from attempt ──────────────────────────────────────────
+
+    private static string MapReviewVisibility(string? reviewMode)
+    {
+        return reviewMode switch
+        {
+            ExamReviewMode.NoReview => "None",
+            ExamReviewMode.AnswerOnly => "AnswersOnly",
+            ExamReviewMode.FullReview => "FullReview",
+            _ => "ResultOnly"
+        };
+    }
 
     public async Task GenerateResultAsync(int attemptId)
     {

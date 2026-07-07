@@ -1,68 +1,160 @@
-﻿@{
+@{
     ViewData["Title"] = "Bài thi";
 }
 
 <section class="lms-workspace-page student-exam-task-page" aria-label="Bài thi được giao">
-    <header class="lms-workspace-header student-exam-list-reveal" data-exam-list-reveal>
+    <header class="lms-workspace-header student-exam-hero student-exam-list-reveal" data-exam-list-reveal>
         <div class="lms-workspace-header-main">
             <nav class="page-breadcrumb" aria-label="Breadcrumb">
                 <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="exams.studentListPage.breadcrumbHome">Trang chủ</a>
                 <span>/</span>
                 <span data-i18n="exams.studentListPage.breadcrumbExams">Bài thi</span>
             </nav>
-            <p class="lms-workspace-kicker">Bài thi được giao</p>
+            <p class="lms-workspace-kicker">ASSIGNED EXAMS</p>
             <h1 data-i18n="exams.studentListPage.title">Bài thi</h1>
-            <p class="lms-workspace-description" data-i18n="exams.studentListPage.subtitle">Theo dõi bài thi được giao và bắt đầu khi bạn sẵn sàng.</p>
+            <p class="lms-workspace-description" data-i18n="exams.studentListPage.subtitle">Xem các bài thi được giao và bắt đầu khi bạn sẵn sàng.</p>
         </div>
 
-        <a class="app-button app-button-primary is-disabled" href="#" aria-disabled="true" data-student-exam-primary-link data-i18n="exams.studentListPage.buttonStart">Làm bài thi</a>
+        <div class="student-exam-hero-side">
+            <div class="student-dashboard-actions">
+                <a class="app-button app-button-secondary is-disabled" href="#" aria-disabled="true" data-student-exam-primary-link>
+                    <i class="bi bi-clipboard-check" aria-hidden="true"></i>
+                    <span data-i18n="exams.studentListPage.buttonStart">Bắt đầu</span>
+                </a>
+                <a class="app-button app-button-primary" asp-area="" asp-controller="LearningMaterials" asp-action="Index">
+                    <i class="bi bi-journal-text" aria-hidden="true"></i>
+                    <span>Mở tài liệu</span>
+                </a>
+            </div>
+
+            <div class="student-exam-hero-illustration" aria-hidden="true">
+                <span class="student-exam-hero-clock">
+                    <i class="bi bi-stopwatch"></i>
+                </span>
+                <span class="student-exam-hero-board">
+                    <i class="bi bi-ui-checks-grid"></i>
+                    <em></em>
+                    <em></em>
+                    <em></em>
+                </span>
+                <span class="student-exam-hero-chart">
+                    <i class="bi bi-bar-chart-fill"></i>
+                </span>
+                <span class="student-exam-hero-plant">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+                <span class="student-exam-hero-shadow"></span>
+            </div>
+        </div>
     </header>
 
-    <section class="student-exam-attention student-exam-list-reveal" data-exam-list-reveal>
-        <div class="student-exam-attention-copy">
-            <p class="lms-workspace-kicker">Cần hoàn thành</p>
-            <h2 data-student-exam-attention-title>Safety Certification Exam</h2>
-            <p data-student-exam-attention-copy>Bài thi ưu tiên cần hoàn thành trong đợt học hiện tại.</p>
-            <div class="student-exam-attention-meta">
-                <span data-student-exam-attention-duration>45 phút</span>
-                <span data-student-exam-attention-score>Điểm đạt 80</span>
-                <span class="lms-status-warning" data-student-exam-attention-status">Đang mở</span>
-            </div>
-        </div>
+    <section class="student-exam-layout">
+        <main class="student-exam-main student-exam-list-reveal" data-exam-list-reveal>
+            <div class="student-exam-filter-bar" aria-label="Bộ lọc bài thi">
+                <nav class="student-exam-tabs" role="tablist" aria-label="Trạng thái bài thi">
+                    <a class="student-exam-tab is-active" href="#" role="tab" aria-selected="true" data-student-exam-tab="">Tất cả</a>
+                    <a class="student-exam-tab" href="#" role="tab" aria-selected="false" data-student-exam-tab="open">Đang mở</a>
+                    <a class="student-exam-tab" href="#" role="tab" aria-selected="false" data-student-exam-tab="locked">Chưa mở</a>
+                    <a class="student-exam-tab" href="#" role="tab" aria-selected="false" data-student-exam-tab="completed">Đã hoàn thành</a>
+                </nav>
 
-        <dl class="student-exam-attention-side">
-            <div>
-                <dt>Chính sách xem lại</dt>
-                <dd data-student-exam-attention-review>Toàn bộ kết quả</dd>
+                <div class="student-exam-filter-actions">
+                    <button class="student-exam-filter-button" type="button" data-student-exam-action="clear-filters">
+                        <i class="bi bi-funnel" aria-hidden="true"></i>
+                        <span>Bộ lọc</span>
+                    </button>
+                    <label class="visually-hidden" for="studentExamSort">Sắp xếp</label>
+                    <select class="student-exam-sort" id="studentExamSort" data-student-exam-filter="sort">
+                        <option value="default">Sắp xếp</option>
+                        <option value="name-asc">Tên A-Z</option>
+                        <option value="duration-asc">Thời lượng tăng dần</option>
+                    </select>
+                </div>
             </div>
-            <div>
-                <dt>Số câu hỏi</dt>
-                <dd data-student-exam-attention-questions>20</dd>
-            </div>
-            <div>
-                <dt>Hành động</dt>
-                <dd><a class="app-button app-button-primary is-disabled" data-student-exam-attention-link href="#" aria-disabled="true">Thực hiện ngay</a></dd>
-            </div>
-        </dl>
-    </section>
 
-    <section class="lms-workspace-card student-exam-list-reveal" data-exam-list-reveal>
-        <div class="lms-workspace-section-head">
-            <div>
-                <p class="lms-workspace-kicker">Danh sách đánh giá</p>
-                <h2 data-i18n="exams.studentListPage.availableExams">Bài thi được giao</h2>
+            <div class="student-exam-list" id="studentExamGrid">
+                <article class="student-exam-row student-exam-list-reveal" data-exam-list-reveal>
+                    <span class="app-skeleton"></span>
+                    <span class="app-skeleton"></span>
+                    <span class="app-skeleton"></span>
+                </article>
             </div>
-            <span class="lms-workspace-count" data-student-exam-count data-i18n="exams.studentListPage.records">-- bài thi</span>
-        </div>
 
-        <div class="student-exam-list" id="studentExamGrid">
-            <article class="student-exam-row student-exam-list-reveal" data-exam-list-reveal>
-                <div class="student-exam-row-main">
-                    <span class="app-skeleton" style="height: 24px;"></span>
-                    <span class="app-skeleton u-mt-4"></span>
+            <div class="student-exam-pagination" id="studentExamPagination" aria-label="Phân trang bài thi">
+                <span data-student-exam-page-summary>Hiển thị 0 bài thi</span>
+                <div class="student-exam-pagination-actions">
+                    <button class="student-exam-page-button" type="button" data-student-exam-page="prev" disabled>
+                        <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                        <span>Trước</span>
+                    </button>
+                    <strong data-student-exam-page-indicator>1 / 1</strong>
+                    <button class="student-exam-page-button" type="button" data-student-exam-page="next" disabled>
+                        <span>Sau</span>
+                        <i class="bi bi-arrow-right" aria-hidden="true"></i>
+                    </button>
+                </div>
+            </div>
+        </main>
+
+        <aside class="student-exam-side">
+            <article class="student-exam-side-card student-exam-overview-card student-exam-list-reveal" data-exam-list-reveal>
+                <h2>Tổng quan</h2>
+                <div class="student-exam-overview-grid">
+                    <div class="student-exam-overview-item">
+                        <span class="student-exam-overview-icon icon-indigo" aria-hidden="true"><i class="bi bi-book"></i></span>
+                        <small>Tổng bài thi</small>
+                        <strong data-student-exam-metric="total">--</strong>
+                    </div>
+                    <div class="student-exam-overview-item">
+                        <span class="student-exam-overview-icon icon-green" aria-hidden="true"><i class="bi bi-play-circle"></i></span>
+                        <small>Đang mở</small>
+                        <strong data-student-exam-metric="open">--</strong>
+                    </div>
+                    <div class="student-exam-overview-item">
+                        <span class="student-exam-overview-icon icon-orange" aria-hidden="true"><i class="bi bi-check-circle"></i></span>
+                        <small>Đã hoàn thành</small>
+                        <strong data-student-exam-metric="completed">--</strong>
+                    </div>
+                    <div class="student-exam-overview-item">
+                        <span class="student-exam-overview-icon icon-sky" aria-hidden="true"><i class="bi bi-pie-chart"></i></span>
+                        <small>Điểm trung bình</small>
+                        <strong data-student-exam-metric="average">--</strong>
+                    </div>
                 </div>
             </article>
-        </div>
+
+            <article class="student-exam-side-card student-exam-list-reveal" data-exam-list-reveal>
+                <h2>Hành động nhanh</h2>
+                <div class="student-exam-quick-list">
+                    <a class="student-exam-quick-link" asp-area="" asp-controller="Results" asp-action="Index">
+                        <span class="student-exam-overview-icon icon-indigo" aria-hidden="true"><i class="bi bi-clipboard-data"></i></span>
+                        <span><strong>Kết quả của tôi</strong><small>Xem kết quả các bài thi đã làm</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="student-exam-quick-link" asp-area="" asp-controller="Certificates" asp-action="Index">
+                        <span class="student-exam-overview-icon icon-green" aria-hidden="true"><i class="bi bi-award"></i></span>
+                        <span><strong>Chứng chỉ của tôi</strong><small>Quản lý chứng chỉ đã đạt được</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                    <a class="student-exam-quick-link" asp-area="" asp-controller="Courses" asp-action="Index">
+                        <span class="student-exam-overview-icon icon-orange" aria-hidden="true"><i class="bi bi-book"></i></span>
+                        <span><strong>Khóa học đang học</strong><small>Tiếp tục học các khóa học của bạn</small></span>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </article>
+
+            <article class="student-exam-side-card student-exam-support-card student-exam-list-reveal" data-exam-list-reveal>
+                <h2>Bạn cần hỗ trợ?</h2>
+                <p>Nếu bạn gặp vấn đề trong quá trình học, đừng ngần ngại liên hệ với chúng tôi.</p>
+                <button class="student-exam-support-button" type="button" disabled>
+                    <i class="bi bi-headset" aria-hidden="true"></i>
+                    <span>Liên hệ hỗ trợ</span>
+                </button>
+            </article>
+        </aside>
     </section>
 </section>
 
