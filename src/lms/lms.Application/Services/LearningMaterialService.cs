@@ -99,6 +99,7 @@ public sealed class LearningMaterialService : ILearningMaterialService
                 Order = material.Order,
                 HasFile = fileBackedBlock != null || legacyFile != null,
                 ExternalLink = material.ExternalLink,
+                DurationMinutes = material.DurationMinutes,
                 OriginalFileName = fileBackedBlock?.OriginalFileName ?? legacyFile?.OriginalFileName,
                 FileSize = fileBackedBlock?.FileSize ?? legacyFile?.FileSize,
                 FileContentType = fileBackedBlock?.ContentType ?? legacyFile?.ContentType
@@ -130,6 +131,12 @@ public sealed class LearningMaterialService : ILearningMaterialService
                 "ExternalLink khong duoc trong cho hoc lieu loai Link.");
         }
 
+        if (request.DurationMinutes is <= 0)
+        {
+            return ApiResponse<LearningMaterialDetailResponse>.FailureResult(
+                "DurationMinutes phai lon hon 0 neu duoc nhap.");
+        }
+
         var course = await _courseRepo.GetByIdAsync(request.CourseId);
         if (course is null)
         {
@@ -143,6 +150,7 @@ public sealed class LearningMaterialService : ILearningMaterialService
             ContentType = request.ContentType,
             TextContent = request.TextContent,
             ExternalLink = request.ExternalLink,
+            DurationMinutes = request.DurationMinutes,
             Order = request.Order,
             IsDelete = false,
             CreatedDate = DateTime.UtcNow,
@@ -206,11 +214,21 @@ public sealed class LearningMaterialService : ILearningMaterialService
                 "ExternalLink khong duoc trong cho hoc lieu loai Link.");
         }
 
+        if (request.DurationMinutes is <= 0)
+        {
+            return ApiResponse<LearningMaterialDetailResponse>.FailureResult(
+                "DurationMinutes phai lon hon 0 neu duoc nhap.");
+        }
+
         var before = $"{{\"Title\":\"{material.Title}\",\"Order\":{material.Order}}}";
 
         material.Title = request.Title;
         material.TextContent = request.TextContent;
         material.ExternalLink = request.ExternalLink;
+        if (request.DurationMinutes.HasValue)
+        {
+            material.DurationMinutes = request.DurationMinutes;
+        }
         material.Order = request.Order;
         material.UpdateDate = DateTime.UtcNow;
         material.UpdatedBy = adminId;
@@ -459,6 +477,7 @@ public sealed class LearningMaterialService : ILearningMaterialService
             ContentType = material.ContentType,
             TextContent = material.TextContent,
             ExternalLink = material.ExternalLink,
+            DurationMinutes = material.DurationMinutes,
             Order = material.Order,
             CreatedDate = material.CreatedDate,
             Files = files.Select(f => new MaterialFileResponse

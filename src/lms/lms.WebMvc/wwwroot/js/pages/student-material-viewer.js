@@ -101,6 +101,47 @@
     return state.progress ? Math.round(Number(state.progress.progressPercent || 0)) : 0;
   }
 
+  function clampPercent(value) {
+    return Math.max(0, Math.min(100, Math.round(Number(value || 0))));
+  }
+
+  function getStatusText(complete, percent) {
+    if (complete) {
+      return t("materials.viewerPage.statusCompleted", null, "Đã hoàn thành");
+    }
+
+    if (percent > 0) {
+      return t("materials.viewerPage.statusInProgress", null, "Đang tiến hành");
+    }
+
+    return t("materials.viewerPage.statusNotStarted", null, "Chưa bắt đầu");
+  }
+
+  function formatDuration(value) {
+    const minutes = Number(value || 0);
+    if (minutes > 0) {
+      return t("materials.viewerPage.durationMinutes", { minutes }, minutes + " phút");
+    }
+
+    return t("materials.viewerPage.durationMissing", null, "Chưa cập nhật");
+  }
+
+  function getBlockCount() {
+    return getBlocks().length;
+  }
+
+  function getFileCount() {
+    return state.material && Array.isArray(state.material.files) ? state.material.files.length : 0;
+  }
+
+  function getCourseCode() {
+    if (!state.course) {
+      return "--";
+    }
+
+    return state.course.code || ("COURSE-" + state.course.id);
+  }
+
   function getContentTypeLabel(type) {
     const labels = {
       Text: t("materials.viewerPage.typeText", null, "Van ban"),
@@ -116,18 +157,18 @@
 
   function getTypeBadgeClass(type) {
     if (type === "Pdf") {
-      return "lms-status-danger";
+      return "is-pdf";
     }
     if (type === "File") {
-      return "lms-status-warning";
+      return "is-file";
     }
     if (type === "Link") {
-      return "lms-status-info";
+      return "is-link";
     }
     if (type === "Image" || type === "Video" || type === "Mixed") {
-      return "lms-status-info";
+      return "is-media";
     }
-    return "lms-status-success";
+    return "is-text";
   }
 
   function getPlaceholderIconClass(type) {
@@ -170,7 +211,7 @@
           "<h3>" + escapeHtml(title) + "</h3>" +
           "<p>" + escapeHtml(copy) + "</p>" +
         "</div>" +
-        '<button class="app-button app-button-secondary" type="button" data-material-viewer-action="' + action + '">' + escapeHtml(actionLabel) + "</button>" +
+        '<button class="student-material-viewer-button is-secondary" type="button" data-material-viewer-action="' + action + '">' + escapeHtml(actionLabel) + "</button>" +
       "</div>"
     );
   }
@@ -184,8 +225,10 @@
       '<div class="student-material-file-list">' +
         state.material.files.map(function (file) {
           return (
-            '<button class="app-button app-button-secondary" type="button" data-material-viewer-action="download-file" data-file-id="' + file.id + '">' +
-              escapeHtml(file.originalFileName || ("file-" + file.id)) +
+            '<button class="student-material-file-row" type="button" data-material-viewer-action="download-file" data-file-id="' + file.id + '">' +
+              '<span><i class="bi bi-paperclip" aria-hidden="true"></i></span>' +
+              '<strong>' + escapeHtml(file.originalFileName || ("file-" + file.id)) + "</strong>" +
+              '<small>' + escapeHtml(formatFileSize(file.fileSize)) + "</small>" +
             "</button>"
           );
         }).join("") +
@@ -198,6 +241,19 @@
     return blocks.sort(function (a, b) {
       return Number(a.sortOrder || 0) - Number(b.sortOrder || 0);
     });
+  }
+
+  function formatFileSize(bytes) {
+    const size = Number(bytes || 0);
+    if (!size) {
+      return t("materials.viewerPage.fileSizeUnknown", null, "Không rõ dung lượng");
+    }
+
+    if (size >= 1024 * 1024) {
+      return (size / (1024 * 1024)).toFixed(1).replace(/\.0$/, "") + " MB";
+    }
+
+    return Math.max(1, Math.round(size / 1024)) + " KB";
   }
 
   function getBlockEndpoint(block, action) {
@@ -271,7 +327,7 @@
           '<div><h3>' + escapeHtml(block.originalFileName || t("materials.viewerPage.filePlaceholderTitle", null, "File material")) + "</h3>" +
           renderBlockCaption(block) +
           '<p>' + escapeHtml(t("materials.viewerPage.fileDownloadCopy", null, "Download this file to view it on your device.")) + "</p></div>" +
-          '<button class="app-button app-button-secondary" type="button" data-material-viewer-action="download-block" data-block-id="' + block.id + '">' + escapeHtml(t("materials.viewerPage.buttonDownload", null, "Download")) + "</button>" +
+          '<button class="student-material-viewer-button is-secondary" type="button" data-material-viewer-action="download-block" data-block-id="' + block.id + '">' + escapeHtml(t("materials.viewerPage.buttonDownload", null, "Download")) + "</button>" +
         "</div>" +
       "</section>"
     );
@@ -284,7 +340,7 @@
           '<span class="student-material-viewer-placeholder-icon is-link" aria-hidden="true"><i class="bi bi-link-45deg"></i></span>' +
           '<div><h3>' + escapeHtml(block.caption || t("materials.viewerPage.linkPlaceholderTitle", null, "External resource")) + "</h3>" +
           '<p>' + escapeHtml(block.url || "") + "</p></div>" +
-          '<button class="app-button app-button-secondary" type="button" data-material-viewer-action="open-block-link" data-block-id="' + block.id + '">' + escapeHtml(t("materials.viewerPage.buttonOpenLinkPlaceholder", null, "Open link")) + "</button>" +
+          '<button class="student-material-viewer-button is-secondary" type="button" data-material-viewer-action="open-block-link" data-block-id="' + block.id + '">' + escapeHtml(t("materials.viewerPage.buttonOpenLinkPlaceholder", null, "Open link")) + "</button>" +
         "</div>" +
       "</section>"
     );
@@ -410,33 +466,49 @@
 
     const courseName = state.course ? state.course.name : t("materials.viewerPage.unknownCourse", null, "Khoa hoc khong xac dinh");
     const complete = isComplete();
-    const percent = getProgressPercent();
+    const percent = clampPercent(getProgressPercent());
+    const typeLabel = getContentTypeLabel(state.material.contentType);
+    const statusText = getStatusText(complete, percent);
+    const durationText = formatDuration(state.material.durationMinutes);
+    const blockCount = getBlockCount();
+    const fileCount = getFileCount();
 
     $("[data-material-viewer-title]").text(state.material.title);
     $("[data-material-viewer-course]").text(courseName);
     $("[data-material-viewer-heading]").text(state.material.title);
     $("[data-material-viewer-type]")
-      .removeClass("lms-status-success lms-status-danger lms-status-warning lms-status-info")
+      .removeClass("is-text is-pdf is-file is-link is-media")
       .addClass(getTypeBadgeClass(state.material.contentType))
-      .text(getContentTypeLabel(state.material.contentType));
-    $("[data-material-viewer-progress-status]").text(
-      complete
-        ? t("materials.viewerPage.statusCompleted", null, "Da hoan thanh")
-        : percent > 0
-          ? t("materials.viewerPage.statusInProgress", null, "Dang tien hanh")
-          : t("materials.viewerPage.statusNotStarted", null, "Chua bat dau")
-    );
-    $("[data-material-viewer-duration]").text(
-      t("materials.viewerPage.orderValue", { order: state.material.order }, "Thu tu " + state.material.order)
-    );
+      .text(typeLabel);
+    $("[data-material-viewer-progress-status]").text(statusText);
+    $("[data-material-viewer-duration]").text(durationText);
     $("[data-material-viewer-course-name]").text(courseName);
+    $("[data-material-viewer-file-count]").text(fileCount);
     $("[data-material-viewer-progress-percent]").text(percent + "%");
     $("[data-material-viewer-progress-ring]")
       .toggleClass("is-complete", complete)
       .css("--progress", percent + "%");
-    $("[data-material-viewer-action='complete']").text(
-      complete ? t("materials.viewerPage.statusCompleted", null, "Da hoan thanh") : t("materials.viewerPage.buttonComplete", null, "Danh dau hoan thanh")
-    );
+    $("[data-material-viewer-progress-bar]").css("width", percent + "%");
+    $("[data-material-viewer-chip='type']").text(typeLabel);
+    $("[data-material-viewer-chip='status']").text(statusText);
+    $("[data-material-viewer-chip='duration']").text(durationText);
+    $("[data-material-viewer-chip='blocks']").text(t("materials.viewerPage.blockCount", { count: blockCount }, blockCount + " khối"));
+    $("[data-material-viewer-hero-type]").text(typeLabel);
+    $("[data-material-viewer-hero-course]").text(getCourseCode());
+    $("[data-material-viewer-mini-stat='course']").text(getCourseCode());
+    $("[data-material-viewer-mini-stat='duration']").text(durationText);
+    $("[data-material-viewer-mini-stat='blocks']").text(blockCount);
+    $("[data-material-viewer-course-link]")
+      .attr("href", state.course ? "/Courses/Detail/" + state.course.id : "#")
+      .toggleClass("is-disabled", !state.course);
+    const completeButtonText = complete
+      ? t("materials.viewerPage.statusCompleted", null, "Đã hoàn thành")
+      : t("materials.viewerPage.buttonComplete", null, "Đánh dấu hoàn thành");
+    const $completeButton = $("[data-material-viewer-action='complete']");
+    $completeButton
+      .toggleClass("is-complete", complete)
+      .find("span")
+      .text(completeButtonText);
     $("[data-material-viewer-note]").val(getNotes()[state.materialId] || "");
     revokeObjectUrls();
     $("#materialViewerContent").html(renderContent());

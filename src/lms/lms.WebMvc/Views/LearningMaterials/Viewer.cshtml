@@ -1,11 +1,11 @@
-﻿@{
+@{
     ViewData["Title"] = "Chi tiết tài liệu";
     var materialId = ViewData["MaterialId"] ?? 0;
 }
 
 <section class="lms-workspace-page student-material-viewer-page" data-student-material-id="@materialId" aria-label="Màn hình học tài liệu">
-    <header class="lms-workspace-header student-material-viewer-reveal" data-viewer-reveal>
-        <div class="lms-workspace-header-main">
+    <header class="student-material-viewer-hero student-material-viewer-reveal" data-viewer-reveal>
+        <div class="student-material-viewer-hero-main">
             <nav class="page-breadcrumb" aria-label="Breadcrumb">
                 <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="materials.viewerPage.breadcrumbHome">Trang chủ</a>
                 <span>/</span>
@@ -13,25 +13,66 @@
                 <span>/</span>
                 <span data-i18n="materials.viewerPage.breadcrumbCurrent">Chi tiết tài liệu</span>
             </nav>
-            <p class="lms-workspace-kicker">Focus Learning</p>
+
+            <p class="lms-workspace-kicker" data-i18n="materials.viewerPage.kicker">FOCUS READER</p>
             <h1 data-material-viewer-title data-i18n="materials.viewerPage.title">Chi tiết tài liệu</h1>
-            <p class="lms-workspace-description" data-material-viewer-course data-i18n="materials.viewerPage.loading">Đang tải tài liệu...</p>
+            <p data-material-viewer-course data-i18n="materials.viewerPage.loading">Đang tải tài liệu...</p>
+
+            <div class="student-material-viewer-chips" aria-label="Thông tin tài liệu">
+                <span data-material-viewer-chip="type">--</span>
+                <span data-material-viewer-chip="status">--</span>
+                <span data-material-viewer-chip="duration">--</span>
+                <span data-material-viewer-chip="blocks">--</span>
+            </div>
+
+            <div class="student-material-viewer-hero-actions">
+                <button class="student-material-viewer-button is-primary" type="button" data-material-viewer-action="complete">
+                    <i class="bi bi-check2-circle" aria-hidden="true"></i>
+                    <span data-i18n="materials.viewerPage.buttonComplete">Đánh dấu hoàn thành</span>
+                </button>
+                <a class="student-material-viewer-button is-secondary" asp-area="" asp-controller="LearningMaterials" asp-action="Index">
+                    <i class="bi bi-arrow-left" aria-hidden="true"></i>
+                    <span data-i18n="materials.viewerPage.backToMaterials">Quay lại danh sách</span>
+                </a>
+            </div>
         </div>
 
-        <div class="student-dashboard-actions">
-            <a class="app-button app-button-secondary" asp-area="" asp-controller="LearningMaterials" asp-action="Index" data-i18n="materials.viewerPage.backToMaterials">Quay lại danh sách</a>
-            <button class="app-button app-button-primary" type="button" data-material-viewer-action="complete" data-i18n="materials.viewerPage.buttonComplete">Hoàn thành</button>
+        <div class="student-material-viewer-hero-panel" aria-hidden="true">
+            <div class="student-material-viewer-illustration">
+                <span class="viewer-illustration-sheet"></span>
+                <span class="viewer-illustration-screen"><i class="bi bi-file-earmark-text"></i></span>
+                <span class="viewer-illustration-play"><i class="bi bi-play-circle"></i></span>
+                <span class="viewer-illustration-check"><i class="bi bi-check2"></i></span>
+                <strong data-material-viewer-hero-type>--</strong>
+                <small data-material-viewer-hero-course>--</small>
+            </div>
+
+            <div class="student-material-viewer-mini-stats">
+                <div>
+                    <small data-i18n="materials.viewerPage.summaryCourse">Khóa học</small>
+                    <strong data-material-viewer-mini-stat="course">--</strong>
+                </div>
+                <div>
+                    <small data-i18n="materials.viewerPage.summaryDuration">Thời lượng</small>
+                    <strong data-material-viewer-mini-stat="duration">--</strong>
+                </div>
+                <div>
+                    <small data-i18n="materials.viewerPage.blocksLabel">Khối nội dung</small>
+                    <strong data-material-viewer-mini-stat="blocks">--</strong>
+                </div>
+            </div>
         </div>
     </header>
 
     <section class="student-material-viewer-layout">
-        <article class="lms-workspace-card student-material-viewer-main student-material-viewer-surface student-material-viewer-reveal" data-viewer-reveal>
-            <div class="lms-workspace-section-head">
+        <main class="student-material-viewer-main student-material-viewer-reveal" data-viewer-reveal>
+            <div class="student-material-viewer-reader-head">
                 <div>
-                    <p class="lms-workspace-kicker">Content</p>
+                    <p class="lms-workspace-kicker" data-i18n="materials.viewerPage.contentKicker">CONTENT</p>
                     <h2 data-material-viewer-heading data-i18n="materials.viewerPage.loadingContent">Đang tải nội dung</h2>
+                    <p data-i18n="materials.viewerPage.readerSubtitle">Không gian đọc tập trung cho học liệu được giao.</p>
                 </div>
-                <span class="lms-status-info" data-material-viewer-type>--</span>
+                <span class="student-material-viewer-type" data-material-viewer-type>--</span>
             </div>
 
             <div id="materialViewerContent" class="student-material-viewer-content">
@@ -40,26 +81,26 @@
                     <span data-i18n="materials.viewerPage.loading">Đang tải tài liệu...</span>
                 </div>
             </div>
-        </article>
+        </main>
 
         <aside class="student-material-viewer-side">
-            <article class="lms-workspace-card student-material-viewer-widget student-material-viewer-reveal" data-viewer-reveal>
-                <div class="lms-workspace-section-head">
-                    <div>
-                        <p class="lms-workspace-kicker">Progress</p>
-                        <h2 data-i18n="materials.viewerPage.cardTitleProgress">Tiến trình</h2>
-                    </div>
+            <article class="student-material-viewer-widget student-material-viewer-reveal" data-viewer-reveal>
+                <div class="student-material-viewer-section-head">
+                    <p class="lms-workspace-kicker" data-i18n="materials.viewerPage.progressKicker">PROGRESS</p>
+                    <h2 data-i18n="materials.viewerPage.cardTitleProgress">Tiến trình</h2>
                 </div>
 
-                <div class="student-material-progress-ring" data-material-viewer-progress-ring>
-                    <span data-material-viewer-progress-percent>0%</span>
+                <div class="student-material-progress-card">
+                    <div class="student-material-progress-ring" data-material-viewer-progress-ring>
+                        <span data-material-viewer-progress-percent>0%</span>
+                    </div>
+                    <strong data-material-viewer-progress-status>--</strong>
+                    <div class="student-material-viewer-progress-line">
+                        <span data-material-viewer-progress-bar></span>
+                    </div>
                 </div>
 
                 <dl class="student-material-summary-list">
-                    <div>
-                        <dt data-i18n="materials.viewerPage.summaryStatus">Trạng thái</dt>
-                        <dd data-material-viewer-progress-status>--</dd>
-                    </div>
                     <div>
                         <dt data-i18n="materials.viewerPage.summaryDuration">Thời lượng</dt>
                         <dd data-material-viewer-duration>--</dd>
@@ -68,34 +109,60 @@
                         <dt data-i18n="materials.viewerPage.summaryCourse">Khóa học</dt>
                         <dd data-material-viewer-course-name>--</dd>
                     </div>
+                    <div>
+                        <dt data-i18n="materials.viewerPage.filesLabel">Tệp đính kèm</dt>
+                        <dd data-material-viewer-file-count>--</dd>
+                    </div>
                 </dl>
             </article>
 
-            <article class="lms-workspace-card student-material-viewer-widget student-material-viewer-reveal" data-viewer-reveal>
-                <div class="lms-workspace-section-head">
-                    <div>
-                        <p class="lms-workspace-kicker">Notes</p>
-                        <h2>Ghi chú</h2>
-                    </div>
+            <article class="student-material-viewer-widget student-material-viewer-reveal" data-viewer-reveal>
+                <div class="student-material-viewer-section-head">
+                    <p class="lms-workspace-kicker" data-i18n="materials.viewerPage.notesKicker">NOTES</p>
+                    <h2 data-i18n="materials.viewerPage.notesTitle">Ghi chú</h2>
                 </div>
 
                 <div class="student-material-notes">
-                    <textarea class="app-input" data-material-viewer-note placeholder="Ghi lại nội dung cần nhớ..."></textarea>
-                    <button class="app-button app-button-secondary" type="button" data-material-viewer-action="save-note" data-i18n="materials.viewerPage.buttonSaveNote">Lưu ghi chú</button>
+                    <label class="visually-hidden" for="materialViewerNote" data-i18n="materials.viewerPage.notesTitle">Ghi chú</label>
+                    <textarea id="materialViewerNote" data-material-viewer-note placeholder="Ghi lại nội dung cần nhớ..." data-i18n-placeholder="materials.viewerPage.notePlaceholder"></textarea>
+                    <button class="student-material-viewer-button is-secondary" type="button" data-material-viewer-action="save-note">
+                        <i class="bi bi-journal-check" aria-hidden="true"></i>
+                        <span data-i18n="materials.viewerPage.buttonSaveNote">Lưu ghi chú</span>
+                    </button>
                 </div>
             </article>
 
-            <article class="lms-workspace-card student-material-viewer-widget student-material-viewer-reveal" data-viewer-reveal>
-                <div class="lms-workspace-section-head">
-                    <div>
-                        <p class="lms-workspace-kicker">Resources</p>
-                        <h2>Tài nguyên</h2>
-                    </div>
+            <article class="student-material-viewer-widget student-material-viewer-reveal" data-viewer-reveal>
+                <div class="student-material-viewer-section-head">
+                    <p class="lms-workspace-kicker" data-i18n="materials.viewerPage.resourcesKicker">RESOURCES</p>
+                    <h2 data-i18n="materials.viewerPage.resourcesTitle">Tài nguyên</h2>
                 </div>
 
                 <div class="student-material-side-actions">
-                    <button class="app-button app-button-secondary" type="button" data-material-viewer-action="download" data-i18n="materials.viewerPage.buttonDownload">Tải xuống tài liệu</button>
-                    <button class="app-button app-button-secondary" type="button" data-material-viewer-action="open-link">Mở liên kết ngoài</button>
+                    <button class="student-material-viewer-resource" type="button" data-material-viewer-action="download">
+                        <span class="icon-blue"><i class="bi bi-download" aria-hidden="true"></i></span>
+                        <div>
+                            <strong data-i18n="materials.viewerPage.buttonDownload">Tải xuống tài liệu</strong>
+                            <small data-i18n="materials.viewerPage.downloadSubtitle">Tải tệp đính kèm đầu tiên nếu có.</small>
+                        </div>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                    <button class="student-material-viewer-resource" type="button" data-material-viewer-action="open-link">
+                        <span class="icon-indigo"><i class="bi bi-box-arrow-up-right" aria-hidden="true"></i></span>
+                        <div>
+                            <strong data-i18n="materials.viewerPage.buttonOpenLinkPlaceholder">Mở liên kết</strong>
+                            <small data-i18n="materials.viewerPage.openLinkSubtitle">Mở tài nguyên ngoài từ API.</small>
+                        </div>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </button>
+                    <a class="student-material-viewer-resource" href="#" data-material-viewer-course-link>
+                        <span class="icon-green"><i class="bi bi-journal-bookmark" aria-hidden="true"></i></span>
+                        <div>
+                            <strong data-i18n="materials.viewerPage.openCourseTitle">Mở khóa học</strong>
+                            <small data-i18n="materials.viewerPage.openCourseSubtitle">Quay lại learning path của khóa học.</small>
+                        </div>
+                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
+                    </a>
                 </div>
             </article>
         </aside>

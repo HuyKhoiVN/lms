@@ -17,6 +17,7 @@ public sealed class LearningMaterialConfiguration : IEntityTypeConfiguration<Lea
         builder.Property(x => x.ContentType).IsRequired().HasMaxLength(50);
         builder.Property(x => x.ExternalLink).HasMaxLength(1000);
         builder.Property(x => x.TextContent); // defaults to nvarchar(max)
+        builder.Property(x => x.DurationMinutes);
         builder.Property(x => x.Order).IsRequired();
 
         builder.HasIndex(x => x.CourseId);

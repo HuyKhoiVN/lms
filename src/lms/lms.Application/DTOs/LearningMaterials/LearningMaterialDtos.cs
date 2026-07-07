@@ -49,6 +49,8 @@ public sealed class CreateLearningMaterialRequest
     /// <summary>Bắt buộc khi ContentType = Link.</summary>
     public string? ExternalLink { get; set; }
 
+    public int? DurationMinutes { get; set; }
+
     public int Order { get; set; }
 }
 
@@ -57,6 +59,7 @@ public sealed class UpdateLearningMaterialRequest
     public string Title { get; set; } = string.Empty;
     public string? TextContent { get; set; }
     public string? ExternalLink { get; set; }
+    public int? DurationMinutes { get; set; }
     public int Order { get; set; }
 }
 
@@ -80,6 +83,7 @@ public sealed class LearningMaterialListItemResponse
     public int Order { get; set; }
     public bool HasFile { get; set; }
     public string? ExternalLink { get; set; }
+    public int? DurationMinutes { get; set; }
     public string? OriginalFileName { get; set; }
     public long? FileSize { get; set; }
     public string? FileContentType { get; set; }
@@ -93,6 +97,7 @@ public sealed class LearningMaterialDetailResponse
     public string ContentType { get; set; } = string.Empty;
     public string? TextContent { get; set; }
     public string? ExternalLink { get; set; }
+    public int? DurationMinutes { get; set; }
     public int Order { get; set; }
     public DateTime? CreatedDate { get; set; }
     public List<MaterialFileResponse> Files { get; set; } = new();

@@ -9,5 +9,6 @@ public class LearningMaterial : AuditableEntity
     public string ContentType { get; set; } = string.Empty; // e.g. Text, PDF, File, Link
     public string? TextContent { get; set; }
     public string? ExternalLink { get; set; }
+    public int? DurationMinutes { get; set; }
     public int Order { get; set; }
 }
