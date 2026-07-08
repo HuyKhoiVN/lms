@@ -6,6 +6,7 @@ builder.Services
     .AddLmsPersistence(builder.Configuration)
     .AddLmsApplication()
     .AddLmsInfrastructure()
+    .AddLmsApiCache(builder.Configuration)
     .AddLmsAuthentication(builder.Configuration)
     .AddLmsControllers()
     .AddLmsCors()

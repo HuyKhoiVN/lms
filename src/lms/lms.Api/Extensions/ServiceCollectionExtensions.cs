@@ -157,6 +157,16 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddLmsApiCache(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddMemoryCache();
+        services.Configure<ApiCacheOptions>(configuration.GetSection(ApiCacheOptions.SectionName));
+        services.AddSingleton<IApiCacheInvalidator, MemoryApiCacheInvalidator>();
+        services.AddScoped<ApiGetCacheFilter>();
+
+        return services;
+    }
+
     /// <summary>
     /// Đăng ký JWT Bearer với <see cref="JwtOptions"/>.
     /// </summary>
@@ -224,6 +234,7 @@ public static class ServiceCollectionExtensions
         services.AddControllers(options =>
         {
             options.Filters.Add<ValidationActionFilter>();
+            options.Filters.AddService<ApiGetCacheFilter>();
         });
 
         // Tắt 400 ProblemDetails mặc định để middleware envelope tự xử lý.

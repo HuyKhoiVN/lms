@@ -25,6 +25,7 @@
     <ProjectReference Include="..\lms.Infrastructure\lms.Infrastructure.csproj" />
     <ProjectReference Include="..\lms.Persistence\lms.Persistence.csproj" />
     <ProjectReference Include="..\lms.Domain\lms.Domain.csproj" />
+    <ProjectReference Include="..\lms.Api\lms.Api.csproj" />
   </ItemGroup>
 
 </Project>
