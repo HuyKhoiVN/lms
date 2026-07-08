@@ -3,6 +3,7 @@
 
   const Lms = window.Lms || {};
   const authConfig = Lms.config.auth;
+  let refreshPromise = null;
 
   function getAccessToken() {
     return Lms.storage.get(authConfig.accessTokenKey, null);
@@ -16,8 +17,37 @@
     return Lms.storage.get(authConfig.currentUserKey, null);
   }
 
+  function hasRefreshToken() {
+    return Boolean(getRefreshToken());
+  }
+
+  function parseJwtPayload(token) {
+    if (!token || token.split(".").length < 2) {
+      return null;
+    }
+
+    try {
+      const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+      const json = decodeURIComponent(window.atob(base64).split("").map(function (char) {
+        return "%" + ("00" + char.charCodeAt(0).toString(16)).slice(-2);
+      }).join(""));
+      return JSON.parse(json);
+    } catch {
+      return null;
+    }
+  }
+
+  function isAccessTokenExpired() {
+    const payload = parseJwtPayload(getAccessToken());
+    if (!payload || !payload.exp) {
+      return true;
+    }
+
+    return payload.exp * 1000 <= Date.now();
+  }
+
   function isAuthenticated() {
-    return Boolean(getAccessToken() && getCurrentUser());
+    return Boolean(getAccessToken() && !isAccessTokenExpired() && getCurrentUser());
   }
 
   function getHomePath(user) {
@@ -38,6 +68,60 @@
     Lms.storage.remove(authConfig.accessTokenKey);
     Lms.storage.remove(authConfig.refreshTokenKey);
     Lms.storage.remove(authConfig.currentUserKey);
+  }
+
+  function refreshSession() {
+    const refreshToken = getRefreshToken();
+
+    if (!refreshToken || !Lms.apiClient) {
+      return $.Deferred().reject().promise();
+    }
+
+    if (refreshPromise) {
+      return refreshPromise;
+    }
+
+    const deferred = $.Deferred();
+    refreshPromise = deferred.promise();
+
+    Lms.apiClient.post("api/auth/refresh-token", {
+      refreshToken: refreshToken
+    }, {
+      skipAuthRefresh: true
+    }).done(function (response) {
+      const session = response && response.data ? response.data : null;
+      if (!session) {
+        clearSession();
+        deferred.reject();
+        return;
+      }
+
+      setSession(session);
+      deferred.resolve(session);
+    }).fail(function () {
+      clearSession();
+      deferred.reject();
+    }).always(function () {
+      refreshPromise = null;
+    });
+
+    return deferred.promise();
+  }
+
+  function ensureSession() {
+    if (isLoginPath()) {
+      return $.Deferred().resolve().promise();
+    }
+
+    if (isAuthenticated()) {
+      return $.Deferred().resolve(getCurrentUser()).promise();
+    }
+
+    if (hasRefreshToken()) {
+      return refreshSession();
+    }
+
+    return $.Deferred().resolve().promise();
   }
 
   function getCurrentPath() {
@@ -85,9 +169,13 @@
 
     const user = getCurrentUser();
 
-    if (!isAuthenticated()) {
+    if (!isAuthenticated() && !hasRefreshToken()) {
       window.location.href = `/Auth/Login?returnUrl=${encodeURIComponent(window.location.pathname)}`;
       return false;
+    }
+
+    if (!user) {
+      return true;
     }
 
     if (isAdminPath() && user.role !== "Admin") {
@@ -128,10 +216,14 @@
     getAccessToken,
     getRefreshToken,
     getCurrentUser,
+    hasRefreshToken,
+    isAccessTokenExpired,
     isAuthenticated,
     getHomePath,
     setSession,
     clearSession,
+    refreshSession,
+    ensureSession,
     handleUnauthorized,
     logout,
     guardRoute,

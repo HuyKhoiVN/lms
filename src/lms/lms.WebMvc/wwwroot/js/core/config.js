@@ -5,7 +5,12 @@
 
   Lms.config = {
     appName: "lms",
-    apiBaseUrl: "https://localhost:7117/api/v1",
+    apiBaseUrl: "",
+    backendReady: {
+      path: "/health/ready",
+      retryIntervalMs: 1500,
+      retryMaxIntervalMs: 5000
+    },
     auth: {
       accessTokenKey: "lms.access_token",
       refreshTokenKey: "lms.refresh_token",

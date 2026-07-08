@@ -47,7 +47,7 @@
   }
 
   function getApiUrl(path) {
-    return String(Lms.config && Lms.config.apiBaseUrl || "").replace(/\/$/, "") + "/" + String(path || "").replace(/^\//, "");
+    return Lms.apiClient && Lms.apiClient.buildUrl ? Lms.apiClient.buildUrl(path) : "";
   }
 
   function getAccessToken() {
@@ -60,9 +60,12 @@
       return Promise.reject(new Error("Missing access token"));
     }
 
-    return window.fetch(url, {
-      method: "GET",
-      headers: { Authorization: "Bearer " + token }
+    const readyWait = Lms.backendReady && Lms.backendReady.wait ? Lms.backendReady.wait() : $.Deferred().resolve().promise();
+    return readyWait.then(function () {
+      return window.fetch(url, {
+        method: "GET",
+        headers: { Authorization: "Bearer " + token }
+      });
     }).then(function (response) {
       if (!response.ok) {
         throw new Error("Download failed");
@@ -662,16 +665,19 @@
 
   function downloadAuthenticatedFile(fileId, fileName) {
     const token = getAccessToken();
-    const url = Lms.apiClient && Lms.apiClient.request ? Lms.config.apiBaseUrl + "/files/" + fileId + "/download" : null;
+    const url = Lms.apiClient && Lms.apiClient.buildUrl ? Lms.apiClient.buildUrl("files/" + fileId + "/download") : null;
 
     if (!token || !url) {
       showToast("error", t("materials.viewerPage.toastDownloadTitle", null, "Không thể tải file"), t("materials.viewerPage.toastDownloadMessage", null, "Phiên đăng nhập không hợp lệ hoặc api client chưa sẵn sàng."));
       return;
     }
 
-    window.fetch(url, {
-      method: "GET",
-      headers: { Authorization: "Bearer " + token }
+    const readyWait = Lms.backendReady && Lms.backendReady.wait ? Lms.backendReady.wait() : $.Deferred().resolve().promise();
+    readyWait.then(function () {
+      return window.fetch(url, {
+        method: "GET",
+        headers: { Authorization: "Bearer " + token }
+      });
     }).then(function (response) {
       if (!response.ok) throw new Error("Download failed");
       return response.blob();

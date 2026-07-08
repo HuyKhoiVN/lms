@@ -25,7 +25,7 @@ public class TokenService : ITokenService
         var secret = _configuration["Jwt:Secret"] ?? "this_is_a_very_secret_key_for_lms_api_development_2026_06_25";
         var issuer = _configuration["Jwt:Issuer"] ?? "lms.Api";
         var audience = _configuration["Jwt:Audience"] ?? "lms.WebMvc";
-        var expiryMinutesStr = _configuration["Jwt:ExpiryMinutes"] ?? "60";
+        var expiryMinutesStr = _configuration["Jwt:AccessTokenExpiryMinutes"] ?? _configuration["Jwt:ExpiryMinutes"] ?? "60";
         if (!double.TryParse(expiryMinutesStr, out double expiryMinutes) || expiryMinutes <= 0)
         {
             expiryMinutes = 60;

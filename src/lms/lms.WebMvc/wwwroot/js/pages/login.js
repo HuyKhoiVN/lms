@@ -35,6 +35,12 @@
       return;
     }
 
+    if (Lms.auth && Lms.auth.hasRefreshToken && Lms.auth.hasRefreshToken() && Lms.auth.refreshSession) {
+      Lms.auth.refreshSession().done(function (session) {
+        window.location.href = getRedirectUrl(session);
+      });
+    }
+
     $("#loginForm").on("submit", function (event) {
       event.preventDefault();
       clearErrors();

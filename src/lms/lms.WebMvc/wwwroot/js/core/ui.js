@@ -182,7 +182,7 @@
     }
   }
 
-  function init() {
+  function initShell() {
     if (Lms.auth && Lms.auth.guardRoute && !Lms.auth.guardRoute()) {
       return;
     }
@@ -216,6 +216,15 @@
           Lms.auth.logout();
         }
       });
+  }
+
+  function init() {
+    if (Lms.auth && Lms.auth.ensureSession) {
+      Lms.auth.ensureSession().always(initShell);
+      return;
+    }
+
+    initShell();
   }
 
   Lms.ui = {

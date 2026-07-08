@@ -47,7 +47,7 @@
   }
 
   function getApiOrigin() {
-    return String(Lms.config && Lms.config.apiBaseUrl || "").replace(/\/api\/v1\/?$/i, "");
+    return Lms.apiClient && Lms.apiClient.buildApiOrigin ? Lms.apiClient.buildApiOrigin() : "";
   }
 
   function resolveAssetUrl(url) {

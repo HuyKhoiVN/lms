@@ -288,8 +288,11 @@
   function downloadFile(url, fileNameFallback) {
     const token = Lms.auth && Lms.auth.getAccessToken ? Lms.auth.getAccessToken() : null;
 
-    return fetch(url, {
-      headers: token ? { Authorization: "Bearer " + token } : {}
+    const readyWait = Lms.backendReady && Lms.backendReady.wait ? Lms.backendReady.wait() : $.Deferred().resolve().promise();
+    return readyWait.then(function () {
+      return fetch(url, {
+        headers: token ? { Authorization: "Bearer " + token } : {}
+      });
     }).then(function (response) {
       if (!response.ok) {
         throw new Error("Không thể tải file báo cáo.");
@@ -346,8 +349,7 @@
 
     $("[data-report-action='export-excel']").on("click", function () {
       downloadFile((Lms.apiClient.request ? (function () {
-        const base = Lms.config.apiBaseUrl.replace(/\/$/, "");
-        return base + "/reports/export/excel?" + buildQuery({ reportType: "exam-summary" });
+        return Lms.apiClient.buildUrl("reports/export/excel?" + buildQuery({ reportType: "exam-summary" }));
       })() : ""), "report.csv").catch(function (error) {
         showToast("error", "Xuất Excel thất bại", error.message || "Không thể tải file báo cáo.");
       });
@@ -355,8 +357,7 @@
 
     $("[data-report-action='export-pdf']").on("click", function () {
       downloadFile((function () {
-        const base = Lms.config.apiBaseUrl.replace(/\/$/, "");
-        return base + "/reports/export/pdf?" + buildQuery({ reportType: "exam-summary" });
+        return Lms.apiClient.buildUrl("reports/export/pdf?" + buildQuery({ reportType: "exam-summary" }));
       })(), "report.pdf").catch(function (error) {
         showToast("error", "Xuất PDF thất bại", error.message || "Không thể tải file báo cáo.");
       });

@@ -289,9 +289,7 @@
   }
 
   function buildApiUrl(path) {
-    const normalizedPath = String(path || "").replace(/^\/+/, "");
-    const apiBaseUrl = (Lms.config && Lms.config.apiBaseUrl) || "";
-    return apiBaseUrl.replace(/\/$/, "") + "/" + normalizedPath.replace(/^api\//i, "");
+    return Lms.apiClient && Lms.apiClient.buildUrl ? Lms.apiClient.buildUrl(path) : "";
   }
 
   function downloadCertificate(certificate) {
@@ -300,9 +298,12 @@
     }
 
     const accessToken = Lms.auth && Lms.auth.getAccessToken ? Lms.auth.getAccessToken() : null;
-    fetch(buildApiUrl(certificate.downloadUrl), {
-      method: "GET",
-      headers: accessToken ? { Authorization: "Bearer " + accessToken } : {}
+    const readyWait = Lms.backendReady && Lms.backendReady.wait ? Lms.backendReady.wait() : $.Deferred().resolve().promise();
+    readyWait.then(function () {
+      return fetch(buildApiUrl(certificate.downloadUrl), {
+        method: "GET",
+        headers: accessToken ? { Authorization: "Bearer " + accessToken } : {}
+      });
     }).then(function (response) {
       if (response.status === 401 && Lms.auth && Lms.auth.handleUnauthorized) {
         Lms.auth.handleUnauthorized();

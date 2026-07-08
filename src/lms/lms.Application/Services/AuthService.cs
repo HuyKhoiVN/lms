@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using lms.Application.DTOs.Common;
 using lms.Application.DTOs.Identity;
 using lms.Application.Interfaces.Repositories;
@@ -17,6 +18,7 @@ public class AuthService : IAuthService
     private readonly IPasswordHasherService _passwordHasher;
     private readonly ITokenService _tokenService;
     private readonly IAuditLogService _auditLogService;
+    private readonly IConfiguration _configuration;
 
     public AuthService(
         IUserRepository userRepository,
@@ -24,7 +26,8 @@ public class AuthService : IAuthService
         IRefreshTokenRepository refreshTokenRepository,
         IPasswordHasherService passwordHasher,
         ITokenService tokenService,
-        IAuditLogService auditLogService)
+        IAuditLogService auditLogService,
+        IConfiguration configuration)
     {
         _userRepository = userRepository;
         _userRoleRepository = userRoleRepository;
@@ -32,6 +35,18 @@ public class AuthService : IAuthService
         _passwordHasher = passwordHasher;
         _tokenService = tokenService;
         _auditLogService = auditLogService;
+        _configuration = configuration;
+    }
+
+    private DateTime GetRefreshTokenExpiry()
+    {
+        var expiryDays = _configuration.GetValue("Jwt:RefreshTokenExpiryDays", 1);
+        if (expiryDays <= 0)
+        {
+            expiryDays = 1;
+        }
+
+        return DateTime.UtcNow.AddDays(expiryDays);
     }
 
     public async Task<ApiResponse<LoginResponse>> LoginAsync(LoginRequest request)
@@ -79,7 +94,7 @@ public class AuthService : IAuthService
         {
             UserId = user.Id,
             Token = refreshTokenValue,
-            Expires = DateTime.UtcNow.AddDays(7),
+            Expires = GetRefreshTokenExpiry(),
             Created = DateTime.UtcNow
         };
         await _refreshTokenRepository.AddAsync(refreshToken);
@@ -148,7 +163,7 @@ public class AuthService : IAuthService
         {
             UserId = user.Id,
             Token = newRefreshTokenValue,
-            Expires = DateTime.UtcNow.AddDays(7),
+            Expires = GetRefreshTokenExpiry(),
             Created = DateTime.UtcNow
         };
         await _refreshTokenRepository.AddAsync(newRefreshToken);
