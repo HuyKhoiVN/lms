@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using lms.Application.DTOs.Common;
+using lms.Application.DTOs.Exams;
 using lms.Application.DTOs.ExamAttempts;
 using lms.Application.Interfaces.Repositories;
 using lms.Application.Interfaces.Services;
@@ -29,6 +30,7 @@ public sealed class ExamAttemptService : IExamAttemptService
     private readonly IExamRepository _examRepo;
     private readonly IExamQuestionRepository _examQuestionRepo;
     private readonly IQuestionRepository _questionRepo;
+    private readonly IQuestionCategoryRepository _categoryRepo;
     private readonly IAnswerOptionRepository _answerOptionRepo;
     private readonly IExamAccessService _accessService;
     private readonly IResultService _resultService;
@@ -43,6 +45,7 @@ public sealed class ExamAttemptService : IExamAttemptService
         IExamRepository examRepo,
         IExamQuestionRepository examQuestionRepo,
         IQuestionRepository questionRepo,
+        IQuestionCategoryRepository categoryRepo,
         IAnswerOptionRepository answerOptionRepo,
         IExamAccessService accessService,
         IResultService resultService,
@@ -56,6 +59,7 @@ public sealed class ExamAttemptService : IExamAttemptService
         _examRepo = examRepo;
         _examQuestionRepo = examQuestionRepo;
         _questionRepo = questionRepo;
+        _categoryRepo = categoryRepo;
         _answerOptionRepo = answerOptionRepo;
         _accessService = accessService;
         _resultService = resultService;
@@ -142,6 +146,10 @@ public sealed class ExamAttemptService : IExamAttemptService
         {
             AttemptId = attempt.Id, ExamId = attempt.ExamId,
             ExamName = exam?.Name ?? "", DurationMinutes = durationMinutes,
+            PassScore = exam?.PassScore ?? 0m,
+            ReviewMode = exam?.ReviewMode,
+            ReviewPolicy = GetReviewPolicy(exam?.ReviewMode),
+            QuestionCount = questions.Count,
             StartedAt = AsUtc(attempt.StartedAt ?? DateTime.UtcNow),
             Status = attempt.Status ?? "", Questions = questions, SavedAnswers = saved
         });
@@ -366,6 +374,10 @@ public sealed class ExamAttemptService : IExamAttemptService
         {
             AttemptId = attempt.Id, ExamId = exam.Id, ExamName = exam.Name,
             DurationMinutes = ResolveDurationMinutes(attempt, exam),
+            PassScore = exam.PassScore,
+            ReviewMode = exam.ReviewMode,
+            ReviewPolicy = GetReviewPolicy(exam.ReviewMode),
+            QuestionCount = questions.Count,
             StartedAt = AsUtc(attempt.StartedAt ?? DateTime.UtcNow),
             Questions = questions
         };
@@ -376,13 +388,29 @@ public sealed class ExamAttemptService : IExamAttemptService
         var qSnaps = await _qsRepo.GetByAttemptIdAsync(attemptId);
         var questionScore = CalculateScorePerQuestion(qSnaps.Count);
         var result = new List<AttemptQuestionResponse>(qSnaps.Count);
+        var categories = new Dictionary<int, string>();
         foreach (var qs in qSnaps)
         {
             var aSnaps = await _asRepo.GetByAttemptAndQuestionAsync(attemptId, qs.QuestionId);
+            var question = await _questionRepo.GetByIdAsync(qs.QuestionId);
+            string? categoryName = null;
+            if (question is not null)
+            {
+                if (!categories.TryGetValue(question.CategoryId, out categoryName))
+                {
+                    var category = await _categoryRepo.GetByIdAsync(question.CategoryId);
+                    categoryName = category?.Name;
+                    categories[question.CategoryId] = categoryName ?? string.Empty;
+                }
+            }
+
             result.Add(new AttemptQuestionResponse
             {
                 QuestionId = qs.QuestionId, Content = qs.Content,
-                QuestionType = qs.QuestionType, Score = questionScore, Order = qs.Order,
+                QuestionType = qs.QuestionType,
+                Difficulty = question?.Difficulty,
+                Category = categoryName,
+                Score = questionScore, Order = qs.Order,
                 Options = aSnaps.Select(a => new AttemptAnswerOptionResponse
                 {
                     AnswerOptionId = a.AnswerOptionId, Content = a.Content, Order = a.Order
@@ -401,6 +429,17 @@ public sealed class ExamAttemptService : IExamAttemptService
                 QuestionId = g.Key,
                 SelectedOptionIds = g.Select(a => a.AnswerOptionId).ToList()
             }).ToList();
+    }
+
+    private static string GetReviewPolicy(string? reviewMode)
+    {
+        return reviewMode switch
+        {
+            ExamReviewMode.FullReview => "Xem toàn bộ sau khi nộp",
+            ExamReviewMode.AnswerOnly => "Xem đáp án sau khi nộp",
+            ExamReviewMode.NoReview => "Không cho xem lại",
+            _ => "Chỉ xem kết quả sau khi nộp"
+        };
     }
 
     /// <summary>

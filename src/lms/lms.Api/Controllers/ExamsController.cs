@@ -42,7 +42,9 @@ public class ExamsController : ControllerBase
     [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetById(int id)
     {
-        var r = await _svc.GetByIdAsync(id);
+        var role = _currentUser.Role;
+        int? studentId = role == "Student" ? _currentUser.UserId : null;
+        var r = await _svc.GetByIdAsync(id, studentId);
         return r.Success ? Ok(r) : NotFound(r);
     }
 

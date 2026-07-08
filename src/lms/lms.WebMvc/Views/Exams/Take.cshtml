@@ -1,95 +1,209 @@
-﻿@{
+@{
     ViewData["Title"] = "Làm bài thi";
     var examId = ViewData["ExamId"] ?? 0;
 }
 
-<section class="lms-workspace-page student-exam-taking-page" data-exam-taking-id="@examId" aria-label="Làm bài thi">
-    <header class="student-exam-taking-header student-exam-taking-reveal" data-exam-taking-reveal>
-        <div class="student-exam-taking-header-copy">
-            <nav class="page-breadcrumb" aria-label="Breadcrumb">
+<section class="lms-workspace-page student-exam-taking-page exam-session-page" data-exam-taking-id="@examId" aria-label="Làm bài thi">
+    <header class="student-exam-taking-header exam-session-hero student-exam-taking-reveal" data-exam-taking-reveal>
+        <div class="exam-session-hero-copy">
+            <nav class="page-breadcrumb exam-session-breadcrumb" aria-label="Breadcrumb">
                 <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="exams.takePage.breadcrumbHome">Trang chủ</a>
                 <span>/</span>
                 <a asp-area="" asp-controller="Exams" asp-action="Index" data-i18n="exams.takePage.breadcrumbExams">Bài thi</a>
                 <span>/</span>
                 <span data-i18n="exams.takePage.breadcrumbCurrent">Đang làm bài</span>
             </nav>
-            <p class="lms-workspace-kicker">Phiên làm bài</p>
+
+            <div class="exam-session-title-row">
+                <p class="lms-workspace-kicker exam-session-kicker">EXAM SESSION</p>
+                <span class="exam-session-status-pill" data-exam-taking-status>Đang làm bài</span>
+            </div>
+
             <h1 data-exam-taking-title data-i18n="exams.takePage.title">Đang làm bài</h1>
             <p class="lms-workspace-description" data-exam-taking-subtitle data-i18n="exams.takePage.subtitle">Đang tải bài thi...</p>
+
+            <div class="exam-session-meta" aria-label="Thông tin bài thi">
+                <span class="exam-session-meta-item is-blue">
+                    <i data-exam-icon="clock" aria-hidden="true"></i>
+                    <strong data-exam-taking-meta="duration">-- phút</strong>
+                </span>
+                <span class="exam-session-meta-item is-green">
+                    <i data-exam-icon="circle-help" aria-hidden="true"></i>
+                    <strong data-exam-taking-meta="questions">-- câu</strong>
+                </span>
+                <span class="exam-session-meta-item is-orange">
+                    <i data-exam-icon="target" aria-hidden="true"></i>
+                    <strong data-exam-taking-meta="passScore">Điểm đạt --/100</strong>
+                </span>
+                <span class="exam-session-meta-item is-purple">
+                    <i data-exam-icon="eye" aria-hidden="true"></i>
+                    <strong data-exam-taking-meta="review">Chính sách xem lại</strong>
+                </span>
+            </div>
         </div>
 
-        <div class="student-exam-taking-timer" data-exam-timer-state="normal">
-            <span data-i18n="exams.takePage.timerLabel">Thời gian còn lại</span>
-            <strong data-exam-taking-timer>--:--</strong>
-            <div class="student-exam-taking-timer-progress" aria-hidden="true">
-                <span data-exam-taking-timer-progress></span>
+        <div class="exam-session-hero-panel" aria-hidden="true">
+            <svg class="exam-session-illustration" viewBox="0 0 360 220" role="img" aria-label="Minh họa làm bài thi">
+                <defs>
+                    <linearGradient id="examSessionScreen" x1="0" x2="1" y1="0" y2="1">
+                        <stop offset="0" stop-color="#EEF2FF" />
+                        <stop offset="1" stop-color="#DBEAFE" />
+                    </linearGradient>
+                </defs>
+                <ellipse cx="178" cy="194" rx="142" ry="15" fill="#EEF2FF" />
+                <rect x="92" y="42" width="150" height="112" rx="15" fill="#1E293B" />
+                <rect x="103" y="54" width="128" height="88" rx="8" fill="url(#examSessionScreen)" />
+                <rect x="76" y="154" width="184" height="12" rx="6" fill="#CBD5E1" />
+                <rect x="126" y="74" width="72" height="8" rx="4" fill="#A5B4FC" />
+                <rect x="126" y="98" width="86" height="8" rx="4" fill="#BFDBFE" />
+                <rect x="126" y="122" width="58" height="8" rx="4" fill="#C7D2FE" />
+                <circle cx="113" cy="78" r="8" fill="#22C55E" opacity=".18" />
+                <path d="M109 78l3 3 6-7" fill="none" stroke="#22C55E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="113" cy="102" r="8" fill="#6366F1" opacity=".16" />
+                <path d="M110 102h6M113 99v6" fill="none" stroke="#6366F1" stroke-width="2.5" stroke-linecap="round" />
+                <circle cx="113" cy="126" r="8" fill="#3B82F6" opacity=".16" />
+                <path d="M109 126h8" fill="none" stroke="#3B82F6" stroke-width="2.5" stroke-linecap="round" />
+                <circle cx="270" cy="142" r="38" fill="#FFFFFF" stroke="#6366F1" stroke-width="6" />
+                <path d="M270 116v25l14 10" fill="none" stroke="#3B82F6" stroke-width="5" stroke-linecap="round" />
+                <path d="M250 103h40" stroke="#6366F1" stroke-width="7" stroke-linecap="round" />
+                <path d="M56 168c2-26 12-42 30-49 0 24-10 41-30 49z" fill="#22C55E" opacity=".72" />
+                <path d="M66 170c-10-22-9-39 4-52 9 22 8 40-4 52z" fill="#86EFAC" />
+                <rect x="48" y="168" width="36" height="20" rx="9" fill="#E0F2FE" />
+            </svg>
+
+            <div class="student-exam-taking-timer exam-session-timer-card" data-exam-timer-state="normal">
+                <span data-i18n="exams.takePage.timerLabel">Thời gian còn lại</span>
+                <strong data-exam-taking-timer>--:--</strong>
+                <div class="student-exam-taking-timer-progress" aria-hidden="true">
+                    <span data-exam-taking-timer-progress></span>
+                </div>
             </div>
         </div>
     </header>
 
-    <section class="student-exam-taking-layout">
-        <aside class="student-exam-taking-side">
-            <article class="lms-workspace-card student-exam-taking-card student-exam-taking-reveal" data-exam-taking-reveal>
-                <div class="lms-workspace-section-head">
-                    <div>
-                        <p class="lms-workspace-kicker">Điều hướng</p>
-                        <h2 data-i18n="exams.takePage.cardTitleNavigator">Danh sách câu hỏi</h2>
-                    </div>
-                    <span class="student-exam-progress-chip" data-exam-taking-progress>--</span>
-                </div>
-
-                <div class="student-exam-question-grid" id="examQuestionNavigator"></div>
-            </article>
-
-            <article class="lms-workspace-card student-exam-taking-card student-exam-taking-reveal" data-exam-taking-reveal>
-                <div class="lms-workspace-section-head">
-                    <div>
-                        <p class="lms-workspace-kicker">Chú thích</p>
-                        <h2>Trạng thái</h2>
-                    </div>
-                </div>
-
-                <div class="student-exam-status-list">
-                    <div>
-                        <span class="student-exam-question-nav-item active" aria-hidden="true">1</span>
-                        <span>Câu đang xem</span>
-                    </div>
-                    <div>
-                        <span class="student-exam-question-nav-item answered" aria-hidden="true">2</span>
-                        <span>Đã trả lời</span>
-                    </div>
-                    <div>
-                        <span class="student-exam-question-nav-item marked" aria-hidden="true">3</span>
-                        <span>Đã đánh dấu</span>
-                    </div>
-                </div>
-            </article>
-        </aside>
-
-        <main class="lms-workspace-card student-exam-question-shell student-exam-taking-reveal" data-exam-taking-reveal>
-            <div class="lms-workspace-section-head">
+    <section class="student-exam-taking-layout exam-session-layout">
+        <main class="lms-workspace-card student-exam-question-shell exam-session-question-card student-exam-taking-reveal" data-exam-taking-reveal>
+            <div class="exam-session-question-head">
                 <div>
-                    <p class="lms-workspace-kicker">Câu hỏi</p>
                     <h2 data-exam-question-heading data-i18n="exams.takePage.cardTitleQuestion">Câu hỏi</h2>
-                    <p class="lms-workspace-description" data-exam-question-meta>--</p>
+                    <div class="exam-session-question-progress" aria-hidden="true">
+                        <span data-exam-question-progress></span>
+                    </div>
                 </div>
-                <button class="app-button app-button-secondary student-exam-mark-button" type="button" data-exam-taking-action="mark" data-i18n="exams.takePage.buttonMark">Đánh dấu</button>
+                <button class="exam-session-mark-button" type="button" data-exam-taking-action="mark">
+                    <i data-exam-icon="bookmark" aria-hidden="true"></i>
+                    <span data-i18n="exams.takePage.buttonMark">Đánh dấu</span>
+                </button>
             </div>
 
-            <div class="student-exam-question-content">
+            <div class="exam-session-question-meta" data-exam-question-meta>--</div>
+
+            <div class="student-exam-question-content exam-session-question-content">
                 <p data-exam-question-content data-i18n="exams.takePage.loadingQuestion">Đang tải câu hỏi...</p>
-                <div class="student-exam-answer-list" id="examAnswerList"></div>
+                <div class="student-exam-answer-list exam-session-answer-list" id="examAnswerList"></div>
             </div>
 
-            <div class="student-exam-action-row">
+            <div class="student-exam-action-row exam-session-card-actions">
                 <button class="app-button app-button-secondary" type="button" data-exam-taking-action="prev" data-i18n="exams.takePage.buttonPrev">Câu trước</button>
                 <div class="student-exam-footer-actions">
                     <button class="app-button app-button-secondary" type="button" data-exam-taking-action="next" data-i18n="exams.takePage.buttonNext">Câu sau</button>
-                    <button class="app-button app-button-primary" type="button" data-exam-taking-action="submit" data-i18n="exams.takePage.buttonSubmit">Nộp bài</button>
                 </div>
             </div>
         </main>
+
+        <aside class="student-exam-taking-side exam-session-side">
+            <article class="lms-workspace-card student-exam-taking-card exam-session-nav-card student-exam-taking-reveal" data-exam-taking-reveal>
+                <div class="exam-session-tabs" role="tablist" aria-label="Thông tin phiên thi">
+                    <button class="is-active" type="button" role="tab" aria-selected="true" data-exam-taking-tab="questions">Danh sách câu hỏi</button>
+                    <button type="button" role="tab" aria-selected="false" data-exam-taking-tab="info">Thông tin bài thi</button>
+                </div>
+
+                <div class="exam-session-tab-panel is-active" data-exam-taking-panel="questions">
+                    <div class="exam-session-legend" aria-label="Chú thích trạng thái câu hỏi">
+                        <span class="is-answered"><i></i>Đã trả lời</span>
+                        <span class="is-current"><i></i>Đang xem</span>
+                        <span class="is-empty"><i></i>Chưa trả lời</span>
+                        <span class="is-marked"><i></i>Đã đánh dấu</span>
+                    </div>
+
+                    <span class="student-exam-progress-chip exam-session-progress-chip" data-exam-taking-progress>--</span>
+                    <div class="student-exam-question-grid exam-session-question-grid" id="examQuestionNavigator"></div>
+
+                    <div class="exam-session-side-illustration" aria-hidden="true">
+                        <svg viewBox="0 0 180 150">
+                            <rect x="50" y="30" width="66" height="86" rx="14" fill="#EEF2FF" />
+                            <rect x="62" y="43" width="42" height="7" rx="3.5" fill="#A5B4FC" />
+                            <rect x="62" y="61" width="30" height="7" rx="3.5" fill="#BFDBFE" />
+                            <rect x="62" y="79" width="38" height="7" rx="3.5" fill="#C7D2FE" />
+                            <path d="M75 108h28" stroke="#22C55E" stroke-width="6" stroke-linecap="round" />
+                            <circle cx="114" cy="85" r="26" fill="#FFFFFF" stroke="#1E293B" stroke-width="6" />
+                            <path d="M132 103l20 20" stroke="#1E293B" stroke-width="7" stroke-linecap="round" />
+                        </svg>
+                        <strong>Kiểm tra lại câu hỏi</strong>
+                        <span>Đảm bảo bạn đã trả lời tất cả câu hỏi trước khi nộp bài.</span>
+                    </div>
+                </div>
+
+                <div class="exam-session-tab-panel" data-exam-taking-panel="info" hidden>
+                    <dl class="exam-session-info-list">
+                        <div><dt>Thời lượng</dt><dd data-exam-taking-meta="duration">-- phút</dd></div>
+                        <div><dt>Số câu hỏi</dt><dd data-exam-taking-meta="questions">-- câu</dd></div>
+                        <div><dt>Điểm đạt</dt><dd data-exam-taking-meta="passScore">Điểm đạt --/100</dd></div>
+                        <div><dt>Chính sách xem lại</dt><dd data-exam-taking-meta="review">Chính sách xem lại</dd></div>
+                        <div><dt>Trạng thái</dt><dd data-exam-taking-status>Đang làm bài</dd></div>
+                    </dl>
+                </div>
+
+                <div class="exam-session-nav-submit">
+                    <button class="app-button app-button-primary" type="button" data-exam-taking-action="submit">
+                        <i data-exam-icon="send" aria-hidden="true"></i>
+                        <span data-i18n="exams.takePage.buttonSubmit">Nộp bài</span>
+                    </button>
+                </div>
+            </article>
+        </aside>
     </section>
+
+    <section class="exam-session-notice-card student-exam-taking-reveal" data-exam-taking-reveal aria-label="Lưu ý khi làm bài">
+        <div class="exam-session-notice-icon">
+            <i data-exam-icon="shield" aria-hidden="true"></i>
+        </div>
+        <div class="exam-session-notice-content">
+            <h2>Lưu ý khi làm bài</h2>
+            <div class="exam-session-notice-grid">
+                <article class="is-red">
+                    <i data-exam-icon="rotate" aria-hidden="true"></i>
+                    <div><strong>Không tải lại trang</strong><span>Tránh mất kết quả và bị thoát khỏi trình duyệt.</span></div>
+                </article>
+                <article class="is-green">
+                    <i data-exam-icon="send" aria-hidden="true"></i>
+                    <div><strong>Bấm nộp bài để hoàn tất bài thi</strong><span>Bài thi chỉ được lưu khi bạn nộp bài.</span></div>
+                </article>
+                <article class="is-blue">
+                    <i data-exam-icon="browser" aria-hidden="true"></i>
+                    <div><strong>Không mở tab/ứng dụng khác</strong><span>Giữ nguyên cửa sổ làm bài đến khi nộp.</span></div>
+                </article>
+                <article class="is-orange">
+                    <i data-exam-icon="warning" aria-hidden="true"></i>
+                    <div><strong>Hệ thống có thể ghi nhận gian lận</strong><span>Vui lòng làm bài nghiêm túc.</span></div>
+                </article>
+                <article class="is-purple">
+                    <i data-exam-icon="eye" aria-hidden="true"></i>
+                    <div><strong>Đáp án và kết quả sẽ hiển thị sau khi bạn nộp bài</strong><span data-exam-taking-meta="review">Bạn có thể xem lại theo chính sách của bài thi.</span></div>
+                </article>
+            </div>
+        </div>
+    </section>
+
+    <nav class="exam-session-floating-footer" aria-label="Điều hướng câu hỏi">
+        <button type="button" data-exam-taking-action="prev" aria-label="Câu trước">
+            <i data-exam-icon="chevron-left" aria-hidden="true"></i>
+        </button>
+        <strong data-exam-taking-floating-progress>Câu 1 / 1</strong>
+        <button type="button" data-exam-taking-action="next" aria-label="Câu sau">
+            <i data-exam-icon="chevron-right" aria-hidden="true"></i>
+        </button>
+    </nav>
 </section>
 
 @section Scripts {

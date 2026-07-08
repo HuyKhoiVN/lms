@@ -38,6 +38,31 @@
     }
   }
 
+  const iconSvg = {
+    clock: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>',
+    "circle-help": '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M9.6 9a2.7 2.7 0 0 1 5.1 1.2c0 1.8-2.7 2-2.7 3.8"></path><path d="M12 17h.01"></path></svg>',
+    target: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle></svg>',
+    eye: '<svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>',
+    bookmark: '<svg viewBox="0 0 24 24"><path d="M6 4h12v16l-6-3-6 3V4z"></path></svg>',
+    shield: '<svg viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3 8.5-7 10-4-1.5-7-5-7-10V6l7-3z"></path><path d="M9 12l2 2 4-5"></path></svg>',
+    rotate: '<svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-3-6.7"></path><path d="M21 4v6h-6"></path></svg>',
+    send: '<svg viewBox="0 0 24 24"><path d="M22 2L11 13"></path><path d="M22 2l-7 20-4-9-9-4 20-7z"></path></svg>',
+    browser: '<svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"></rect><path d="M3 9h18"></path><path d="M7 7h.01M10 7h.01"></path></svg>',
+    warning: '<svg viewBox="0 0 24 24"><path d="M12 3l10 18H2L12 3z"></path><path d="M12 9v5"></path><path d="M12 17h.01"></path></svg>',
+    "chevron-left": '<svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"></path></svg>',
+    "chevron-right": '<svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"></path></svg>'
+  };
+
+  function renderStaticIcons() {
+    $("[data-exam-icon]").each(function () {
+      const $icon = $(this);
+      const name = $icon.data("exam-icon");
+      if (!$icon.attr("data-exam-icon-ready") && iconSvg[name]) {
+        $icon.html(iconSvg[name]).attr("data-exam-icon-ready", "true");
+      }
+    });
+  }
+
   function getResponsePayload(response) {
     return Array.isArray(response) ? response[0] : response;
   }
@@ -76,6 +101,8 @@
       id: Number(question.questionId),
       content: question.content || "",
       questionType: question.questionType || "SingleChoice",
+      difficulty: question.difficulty || "",
+      category: question.category || "",
       score: Number(question.score || 0),
       order: Number(question.order || 0),
       options: Array.isArray(question.options) ? question.options.map(function (option) {
@@ -194,7 +221,7 @@
 
       $navigator.append(
         '<button class="student-exam-question-nav-item' + active + answered + marked + '" type="button" data-exam-question-index="' + index + '">' +
-          (index + 1) +
+          '<span>' + (index + 1) + "</span>" +
         "</button>"
       );
     });
@@ -203,6 +230,34 @@
       return isAnswered(question.id);
     }).length;
     $("[data-exam-taking-progress]").text(t("exams.takePage.progressText", { answered: answeredCount, total: state.questions.length }, answeredCount + "/" + state.questions.length + " da tra loi"));
+    $("[data-exam-taking-floating-progress]").text("Câu " + (state.currentIndex + 1) + " / " + Math.max(state.questions.length, 1));
+  }
+
+  function formatNumber(value) {
+    const number = Number(value || 0);
+    return Number.isInteger(number) ? String(number) : String(number.toFixed(2)).replace(/\.?0+$/, "");
+  }
+
+  function getDifficultyLabel(value) {
+    const normalized = String(value || "").toLowerCase();
+    if (normalized === "easy") return "Dễ";
+    if (normalized === "medium") return "Trung bình";
+    if (normalized === "hard") return "Khó";
+    return value || "";
+  }
+
+  function renderExamMeta() {
+    if (!state.exam) {
+      return;
+    }
+
+    const questionCount = Number(state.exam.questionCount || state.questions.length || 0);
+    const reviewPolicy = state.exam.reviewPolicy || t("exams.takePage.reviewPolicy", null, "Chính sách xem lại");
+    $("[data-exam-taking-status]").text(t("exams.takePage.statusInProgress", null, "Đang làm bài"));
+    $("[data-exam-taking-meta='duration']").text(formatNumber(state.durationMinutes) + " phút");
+    $("[data-exam-taking-meta='questions']").text(questionCount + " câu");
+    $("[data-exam-taking-meta='passScore']").text("Điểm đạt " + formatNumber(state.exam.passScore) + "/100");
+    $("[data-exam-taking-meta='review']").text(reviewPolicy);
   }
 
   function renderQuestion() {
@@ -216,28 +271,43 @@
 
     const inputType = question.questionType === "MultipleChoice" ? "checkbox" : "radio";
     const selected = state.answers[question.id] || [];
+    const progressRatio = state.questions.length ? ((state.currentIndex + 1) / state.questions.length) * 100 : 0;
 
-    $("[data-exam-question-heading]").text(t("exams.takePage.questionHeading", { index: state.currentIndex + 1 }, "Cau hoi " + (state.currentIndex + 1)));
-    $("[data-exam-question-meta]").text(t("exams.takePage.questionMeta", { score: question.score }, question.score + " diem"));
+    $("[data-exam-question-heading]").text("Câu hỏi " + (state.currentIndex + 1) + " / " + state.questions.length);
+    $("[data-exam-question-progress]").css("width", Math.max(0, Math.min(100, progressRatio)) + "%");
+    const metaItems = [];
+    if (question.difficulty) {
+      metaItems.push('<span class="is-amber">' + escapeHtml(getDifficultyLabel(question.difficulty)) + "</span>");
+    }
+    if (question.category) {
+      metaItems.push('<span class="is-blue">' + escapeHtml(question.category) + "</span>");
+    }
+    metaItems.push('<span class="is-green">' + escapeHtml(formatNumber(question.score)) + " điểm</span>");
+    $("[data-exam-question-meta]").html(metaItems.join(""));
     $("[data-exam-question-content]").text(question.content);
 
     const $answers = $("#examAnswerList").empty();
 
-    question.options.forEach(function (answer) {
+    question.options.forEach(function (answer, index) {
       const checked = selected.includes(answer.id);
+      const letter = String.fromCharCode(65 + index);
 
       $answers.append(
         '<label class="student-exam-answer-option' + (checked ? " selected" : "") + '">' +
           '<input type="' + inputType + '" name="examAnswer" value="' + answer.id + '"' + (checked ? " checked" : "") + " />" +
-          "<span>" + escapeHtml(answer.content) + "</span>" +
+          '<span class="exam-session-answer-letter">' + letter + "</span>" +
+          '<span class="exam-session-answer-text">' + escapeHtml(answer.content) + "</span>" +
         "</label>"
       );
     });
 
-    $("[data-exam-taking-action='prev']").prop("disabled", state.currentIndex === 0).text(t("exams.takePage.buttonPrev", null, "Cau truoc"));
-    $("[data-exam-taking-action='next']").prop("disabled", state.currentIndex >= state.questions.length - 1).text(t("exams.takePage.buttonNext", null, "Cau sau"));
-    $("[data-exam-taking-action='submit']").text(t("exams.takePage.buttonSubmit", null, "Nop bai"));
-    $("[data-exam-taking-action='mark']").toggleClass("active", state.marked.includes(question.id)).text(t("exams.takePage.buttonMark", null, "Danh dau"));
+    $("[data-exam-taking-action='prev']").prop("disabled", state.currentIndex === 0);
+    $("[data-exam-taking-action='next']").prop("disabled", state.currentIndex >= state.questions.length - 1);
+    $("[data-exam-taking-action='prev'].app-button").text(t("exams.takePage.buttonPrev", null, "Câu trước"));
+    $("[data-exam-taking-action='next'].app-button").text(t("exams.takePage.buttonNext", null, "Câu sau"));
+    $(".exam-session-nav-submit [data-exam-taking-action='submit'] span").text(t("exams.takePage.buttonSubmit", null, "Nộp bài"));
+    $("[data-exam-taking-action='mark']").toggleClass("active", state.marked.includes(question.id)).find("span").text(t("exams.takePage.buttonMark", null, "Đánh dấu"));
+    renderStaticIcons();
   }
 
   function getUnansweredQuestions() {
@@ -404,6 +474,7 @@
 
     $("[data-exam-taking-title]").text(state.exam.name);
     $("[data-exam-taking-subtitle]").text(t("exams.takePage.readySubtitle", null, "Tra loi cac cau hoi va nop bai khi hoan thanh."));
+    renderExamMeta();
     renderTimer();
     renderNavigator();
     renderQuestion();
@@ -476,6 +547,14 @@
       autosave(false).always(showSubmitConfirm);
     });
 
+    $(document).on("click", "[data-exam-taking-tab]", function () {
+      const tab = $(this).data("exam-taking-tab");
+      $("[data-exam-taking-tab]").removeClass("is-active").attr("aria-selected", "false");
+      $(this).addClass("is-active").attr("aria-selected", "true");
+      $("[data-exam-taking-panel]").removeClass("is-active").attr("hidden", true);
+      $("[data-exam-taking-panel='" + tab + "']").addClass("is-active").removeAttr("hidden");
+    });
+
     $(document).on("lms:i18n:changed", render);
   }
 
@@ -485,7 +564,12 @@
       state.attemptId = Number(data.attemptId);
       state.exam = {
         id: Number(data.examId),
-        name: data.examName || ""
+        name: data.examName || "",
+        passScore: Number(data.passScore || 0),
+        reviewMode: data.reviewMode || "",
+        reviewPolicy: data.reviewPolicy || "",
+        questionCount: Number(data.questionCount || 0),
+        status: data.status || ""
       };
       state.durationMinutes = resolveDurationMinutes(data);
       state.startedAt = normalizeUtcDateString(data.startedAt) || state.startedAt;
@@ -508,7 +592,12 @@
       state.attemptId = Number(data.attemptId);
       state.exam = {
         id: Number(data.examId),
-        name: data.examName || ""
+        name: data.examName || "",
+        passScore: Number(data.passScore || 0),
+        reviewMode: data.reviewMode || "",
+        reviewPolicy: data.reviewPolicy || "",
+        questionCount: Number(data.questionCount || 0),
+        status: data.status || ""
       };
       state.durationMinutes = resolveDurationMinutes(data);
       state.startedAt = normalizeUtcDateString(data.startedAt) || state.startedAt;
@@ -520,6 +609,7 @@
   function init() {
     state.examId = Number($("[data-exam-taking-id]").data("exam-taking-id"));
     bindEvents();
+    renderStaticIcons();
     initExamTakingReveal();
 
     if (Lms.i18n && Lms.i18n.ready) {

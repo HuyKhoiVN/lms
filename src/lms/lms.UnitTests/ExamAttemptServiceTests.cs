@@ -188,6 +188,7 @@ public class ExamAttemptServiceTests
             new ExamRepository(context),
             new ExamQuestionRepository(context),
             new QuestionRepository(context),
+            new QuestionCategoryRepository(context),
             new AnswerOptionRepository(context),
             access.Object,
             resultService.Object,

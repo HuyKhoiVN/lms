@@ -61,6 +61,10 @@ public sealed class ExamListItemResponse
     public int DurationMinutes { get; set; }
     public decimal PassScore { get; set; }
     public int? AttemptLimit { get; set; }
+    public int UsedAttemptCount { get; set; }
+    public int? RemainingAttemptCount { get; set; }
+    public bool CanStart { get; set; }
+    public bool HasActiveAttempt { get; set; }
     public bool IsPublished { get; set; }
     public string? ReviewMode { get; set; }
     public int QuestionCount { get; set; }
@@ -79,9 +83,35 @@ public sealed class ExamDetailResponse
     public bool RandomAnswer { get; set; }
     public string? ReviewMode { get; set; }
     public bool IsPublished { get; set; }
+    public string Status { get; set; } = string.Empty;
+    public int QuestionCount { get; set; }
+    public int AttemptCount { get; set; }
+    public int UsedAttemptCount { get; set; }
+    public int? RemainingAttemptCount { get; set; }
+    public bool CanStart { get; set; }
+    public bool HasActiveAttempt { get; set; }
+    public string ReviewPolicy { get; set; } = string.Empty;
+    public string Language { get; set; } = string.Empty;
     public DateTime? CreatedDate { get; set; }
     public List<ExamQuestionResponse> Questions { get; set; } = new();
     public List<ExamRandomRuleResponse> RandomRules { get; set; } = new();
+    public List<ExamInstructionResponse> Instructions { get; set; } = new();
+    public List<ExamRuleResponse> ExamRules { get; set; } = new();
+}
+
+public sealed class ExamInstructionResponse
+{
+    public string Number { get; set; } = string.Empty;
+    public string Icon { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+}
+
+public sealed class ExamRuleResponse
+{
+    public string Icon { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
 }
 
 // ─── ExamQuestion DTOs ─────────────────────────────────────────────────────────

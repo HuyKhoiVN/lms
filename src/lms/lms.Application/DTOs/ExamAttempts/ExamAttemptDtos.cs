@@ -47,6 +47,10 @@ public sealed class StartExamResponse
     public int ExamId { get; set; }
     public string ExamName { get; set; } = string.Empty;
     public int DurationMinutes { get; set; }
+    public decimal PassScore { get; set; }
+    public string? ReviewMode { get; set; }
+    public string ReviewPolicy { get; set; } = string.Empty;
+    public int QuestionCount { get; set; }
     public DateTime StartedAt { get; set; }
     public List<AttemptQuestionResponse> Questions { get; set; } = new();
 }
@@ -61,6 +65,8 @@ public sealed class AttemptQuestionResponse
     public int QuestionId { get; set; }
     public string Content { get; set; } = string.Empty;
     public string QuestionType { get; set; } = string.Empty;
+    public string? Difficulty { get; set; }
+    public string? Category { get; set; }
     public decimal Score { get; set; }
     public int Order { get; set; }
     public List<AttemptAnswerOptionResponse> Options { get; set; } = new();
@@ -80,6 +86,10 @@ public sealed class ExamAttemptTakingResponse
     public int ExamId { get; set; }
     public string ExamName { get; set; } = string.Empty;
     public int DurationMinutes { get; set; }
+    public decimal PassScore { get; set; }
+    public string? ReviewMode { get; set; }
+    public string ReviewPolicy { get; set; } = string.Empty;
+    public int QuestionCount { get; set; }
     public DateTime StartedAt { get; set; }
     public string Status { get; set; } = string.Empty;
     public List<AttemptQuestionResponse> Questions { get; set; } = new();

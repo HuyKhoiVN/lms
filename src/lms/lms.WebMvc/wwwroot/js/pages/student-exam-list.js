@@ -79,6 +79,11 @@
       name: item.name || t("common.exam", null, "Bài thi"),
       durationMinutes: Number(item.durationMinutes || 0),
       passScore: Number(item.passScore || 0),
+      attemptLimit: item.attemptLimit == null ? null : Number(item.attemptLimit || 0),
+      usedAttemptCount: Number(item.usedAttemptCount || 0),
+      remainingAttemptCount: item.remainingAttemptCount == null ? null : Number(item.remainingAttemptCount || 0),
+      canStart: item.canStart !== false && Boolean(item.isPublished),
+      hasActiveAttempt: Boolean(item.hasActiveAttempt),
       questionCount: Number(item.questionCount || 0),
       reviewMode: normalizeReviewMode(item.reviewMode),
       isPublished: Boolean(item.isPublished),
@@ -103,19 +108,27 @@
   }
 
   function getExamState(exam) {
+    if (exam.isPublished && exam.canStart) {
+      return "open";
+    }
     if (exam.latestResult) {
       return "completed";
-    }
-    if (exam.isPublished) {
-      return "open";
     }
     return "locked";
   }
 
   function getStatusLabel(exam) {
     const examState = getExamState(exam);
+    if (examState === "open" && exam.hasActiveAttempt) {
+      return "Đang làm";
+    }
+    if (examState === "open" && exam.latestResult) {
+      return exam.remainingAttemptCount == null
+        ? "Có thể làm lại"
+        : "Còn " + exam.remainingAttemptCount + " lượt";
+    }
     if (examState === "completed") {
-      return "Đã hoàn thành";
+      return "Đã hết lượt";
     }
     if (examState === "open") {
       return t("exams.studentListPage.statusPublished", null, "Đang mở");
@@ -129,20 +142,24 @@
 
   function getAction(exam) {
     const examState = getExamState(exam);
+    if (examState === "open") {
+      return {
+        href: "/Exams/Start/" + exam.id,
+        label: exam.hasActiveAttempt
+          ? "Tiếp tục"
+          : exam.latestResult
+            ? "Làm lại"
+            : t("exams.studentListPage.buttonStart", null, "Bắt đầu"),
+        disabled: false,
+        icon: exam.latestResult ? "bi-arrow-repeat" : "bi-play-circle"
+      };
+    }
     if (examState === "completed" && exam.latestResult) {
       return {
         href: "/Results/Detail/" + exam.latestResult.id,
         label: "Xem kết quả",
         disabled: false,
         icon: "bi-clipboard-data"
-      };
-    }
-    if (exam.isPublished) {
-      return {
-        href: "/Exams/Start/" + exam.id,
-        label: t("exams.studentListPage.buttonStart", null, "Bắt đầu"),
-        disabled: false,
-        icon: "bi-play-circle"
       };
     }
     return {
@@ -188,7 +205,7 @@
 
   function renderMetrics() {
     const total = state.exams.length;
-    const open = state.exams.filter(function (exam) { return exam.isPublished; }).length;
+    const open = state.exams.filter(function (exam) { return exam.isPublished && exam.canStart; }).length;
     const completedExamIds = {};
 
     state.results.forEach(function (result) {
@@ -227,10 +244,12 @@
   }
 
   function renderHeroAction() {
-    const latestAssignedExam = state.exams[0];
+    const latestAssignedExam = state.exams.find(function (exam) {
+      return exam.isPublished && exam.canStart;
+    }) || state.exams[0];
     const $link = $("[data-student-exam-primary-link]");
 
-    if (!latestAssignedExam || !latestAssignedExam.isPublished) {
+    if (!latestAssignedExam || !latestAssignedExam.isPublished || !latestAssignedExam.canStart) {
       $link.addClass("is-disabled").attr("aria-disabled", "true").attr("href", "#");
       return;
     }

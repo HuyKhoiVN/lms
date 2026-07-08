@@ -11,7 +11,7 @@ namespace lms.Application.Interfaces.Services;
 public interface IExamService
 {
     Task<ApiResponse<PagedResult<ExamListItemResponse>>> GetPagedAsync(ExamFilterRequest filter, int? studentUserId);
-    Task<ApiResponse<ExamDetailResponse>> GetByIdAsync(int id);
+    Task<ApiResponse<ExamDetailResponse>> GetByIdAsync(int id, int? studentUserId = null);
     Task<ApiResponse<ExamDetailResponse>> CreateAsync(CreateExamRequest request, int? adminId);
     Task<ApiResponse<ExamDetailResponse>> UpdateAsync(int id, UpdateExamRequest request, int? adminId);
     Task<ApiResponse<object>> DeleteAsync(int id, int? adminId);

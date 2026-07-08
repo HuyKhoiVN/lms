@@ -1,105 +1,125 @@
-﻿@{
-    ViewData["Title"] = "Bắt đầu bài thi";
+@{
+    ViewData["Title"] = "Chuẩn bị bài thi";
     var examId = ViewData["ExamId"] ?? 0;
 }
 
-<section class="lms-workspace-page student-exam-start-page" data-student-start-exam-id="@examId" aria-label="Bắt đầu bài thi">
-    <header class="lms-workspace-header student-exam-start-reveal" data-start-exam-reveal>
-        <div class="lms-workspace-header-main">
-            <nav class="page-breadcrumb" aria-label="Breadcrumb">
-                <a asp-area="" asp-controller="Home" asp-action="Index" data-i18n="exams.startPage.breadcrumbHome">Trang chủ</a>
+<section class="exam-prep-page" data-student-start-exam-id="@examId" aria-label="Chuẩn bị bài thi">
+    <article class="exam-prep-hero exam-prep-reveal" data-start-exam-reveal>
+        <div class="exam-prep-hero-copy">
+            <nav class="exam-prep-breadcrumb" aria-label="Breadcrumb">
+                <a asp-area="" asp-controller="Home" asp-action="Index">Trang chủ</a>
                 <span>/</span>
-                <a asp-area="" asp-controller="Exams" asp-action="Index" data-i18n="exams.startPage.breadcrumbExams">Bài thi</a>
+                <a asp-area="" asp-controller="Exams" asp-action="Index">Bài thi</a>
                 <span>/</span>
-                <span data-i18n="exams.startPage.breadcrumbCurrent">Bắt đầu</span>
+                <span>Chuẩn bị</span>
             </nav>
-            <p class="lms-workspace-kicker">Chuẩn bị làm bài</p>
-            <h1 data-start-exam-title data-i18n="exams.startPage.title">Bắt đầu bài thi</h1>
-            <p class="lms-workspace-description" data-start-exam-subtitle data-i18n="exams.startPage.subtitle">Đang tải thông tin bài thi...</p>
-        </div>
 
-        <div class="student-dashboard-actions">
-            <a class="app-button app-button-secondary" asp-area="" asp-controller="Exams" asp-action="Index" data-i18n="exams.startPage.backToExams">Quay lại danh sách</a>
-            <button class="app-button app-button-primary" type="button" data-start-exam-action="start" data-i18n="exams.startPage.buttonStart">Bắt đầu làm bài</button>
-        </div>
-    </header>
+            <p class="exam-prep-kicker">EXAM PREPARATION <span data-start-exam-status></span></p>
+            <h1 data-start-exam-title>Đang tải bài thi...</h1>
+            <p class="exam-prep-description" data-start-exam-subtitle>Thông tin bài thi sẽ được tải từ hệ thống.</p>
 
-    <section class="student-exam-start-layout">
-        <article class="lms-workspace-card student-exam-start-main student-exam-start-surface student-exam-start-reveal" data-start-exam-reveal>
-            <div class="lms-workspace-section-head">
-                <div>
-                    <p class="lms-workspace-kicker">Tóm tắt bài thi</p>
-                    <h2 data-i18n="exams.startPage.cardTitleSummary">Tổng quan bài thi</h2>
-                </div>
-                <span class="lms-status-success" data-start-exam-status>--</span>
+            <div class="exam-prep-meta" aria-label="Thông tin nhanh">
+                <span><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><strong data-start-exam-meta="duration">--</strong></span>
+                <span aria-hidden="true">•</span>
+                <span><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M9.8 9a2.4 2.4 0 0 1 4.5 1.3c0 1.7-2.3 2-2.3 3.7"></path><path d="M12 17h.01"></path></svg><strong data-start-exam-meta="questions">--</strong></span>
+                <span aria-hidden="true">•</span>
+                <span><svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="5"></circle><circle cx="12" cy="12" r="1"></circle></svg><strong data-start-exam-meta="passScore">--</strong></span>
+                <span aria-hidden="true">•</span>
+                <span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z"></path><circle cx="12" cy="12" r="3"></circle></svg><strong data-start-exam-meta="review">--</strong></span>
             </div>
 
-            <div class="student-exam-start-summary">
-                <div class="student-exam-start-summary-item">
-                    <span data-i18n="exams.startPage.summaryDuration">Thời lượng</span>
-                    <strong data-start-exam-summary="duration">--</strong>
-                </div>
-                <div class="student-exam-start-summary-item">
-                    <span data-i18n="exams.startPage.summaryPassScore">Điểm đạt</span>
-                    <strong data-start-exam-summary="passScore">--</strong>
-                </div>
-                <div class="student-exam-start-summary-item">
-                    <span data-i18n="exams.startPage.summaryQuestions">Số câu hỏi</span>
-                    <strong data-start-exam-summary="questions">--</strong>
-                </div>
-                <div class="student-exam-start-summary-item">
-                    <span data-i18n="exams.startPage.summaryReview">Chính sách xem lại</span>
-                    <strong data-start-exam-summary="review">--</strong>
-                </div>
+            <div class="exam-prep-actions">
+                <a class="exam-prep-button exam-prep-button-secondary" asp-area="" asp-controller="Exams" asp-action="Index">
+                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"></path></svg>
+                    <span>Back</span>
+                </a>
+                <button class="exam-prep-button exam-prep-button-primary" type="button" data-start-exam-action="start">
+                    <span>Start Exam</span>
+                    <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"></path></svg>
+                </button>
             </div>
+        </div>
 
-            <div class="student-exam-start-notice">
-                <h3 data-i18n="exams.startPage.noticeTitle">Trước khi bắt đầu</h3>
-                <p data-i18n="exams.startPage.noticeText">Không có đáp án đúng nào được hiển thị trước khi nộp bài. Câu trả lời của bạn sẽ được lưu cục bộ trong giai đoạn thử nghiệm UI này.</p>
+        <div class="exam-prep-illustration" aria-hidden="true">
+            <svg viewBox="0 0 560 360" role="img" focusable="false">
+                <defs>
+                    <linearGradient id="examPrepScreen" x1="0" x2="1" y1="0" y2="1">
+                        <stop offset="0" stop-color="#FFFFFF" />
+                        <stop offset="1" stop-color="#F4F6FF" />
+                    </linearGradient>
+                </defs>
+                <path d="M44 286c48 34 388 34 462 0" fill="none" stroke="#E5E9F6" stroke-width="18" stroke-linecap="round" />
+                <rect x="128" y="58" width="284" height="192" rx="18" fill="#26324D" />
+                <rect x="146" y="78" width="248" height="144" rx="10" fill="url(#examPrepScreen)" />
+                <rect x="188" y="264" width="160" height="16" rx="8" fill="#D9DEF2" />
+                <rect x="228" y="246" width="80" height="22" rx="8" fill="#AEB8DE" />
+                <circle cx="190" cy="116" r="16" fill="#EEF0FF" stroke="#5B5FEF" stroke-width="4" />
+                <path d="m181 116 7 7 13-17" fill="none" stroke="#5B5FEF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="224" y="105" width="112" height="8" rx="4" fill="#DCE2FA" />
+                <rect x="224" y="125" width="76" height="8" rx="4" fill="#E8ECFB" />
+                <circle cx="190" cy="166" r="16" fill="#EEF0FF" stroke="#5B5FEF" stroke-width="4" />
+                <path d="m181 166 7 7 13-17" fill="none" stroke="#5B5FEF" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                <rect x="224" y="155" width="124" height="8" rx="4" fill="#DCE2FA" />
+                <rect x="224" y="175" width="92" height="8" rx="4" fill="#E8ECFB" />
+                <rect x="54" y="142" width="84" height="96" rx="18" fill="#FFFFFF" stroke="#DDE3F7" stroke-width="2" />
+                <path d="M76 128v30M116 128v30" stroke="#5B5FEF" stroke-width="8" stroke-linecap="round" />
+                <path d="M74 176h44M74 200h44M74 224h26" stroke="#DCE2FA" stroke-width="10" stroke-linecap="round" />
+                <circle cx="430" cy="218" r="62" fill="#FFFFFF" stroke="#5B5FEF" stroke-width="10" />
+                <path d="M430 176v42l24 22" fill="none" stroke="#5B5FEF" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M404 140h52M418 126h24" stroke="#5B5FEF" stroke-width="10" stroke-linecap="round" />
+                <rect x="472" y="176" width="28" height="16" rx="8" fill="#5B5FEF" />
+                <path d="M486 126c-2 44 44 50 42 104-42 6-72-22-42-104Z" fill="#6FCF97" />
+                <path d="M506 148c-28 34-10 66-50 82" fill="none" stroke="#44A66E" stroke-width="5" stroke-linecap="round" />
+                <rect x="472" y="238" width="62" height="42" rx="14" fill="#DCEEE6" />
+            </svg>
+        </div>
+    </article>
+
+    <section class="exam-prep-grid exam-prep-grid-main">
+        <article class="exam-prep-card exam-prep-timeline-card exam-prep-reveal" data-start-exam-reveal>
+            <h2>Chuẩn bị trước khi làm bài</h2>
+            <div class="exam-prep-timeline" data-start-exam-timeline>
+                <div class="app-loading"><span class="app-spinner" aria-hidden="true"></span><span>Đang tải hướng dẫn...</span></div>
             </div>
         </article>
 
-        <aside class="student-exam-start-side">
-            <article class="lms-workspace-card student-exam-start-widget student-exam-start-reveal" data-start-exam-reveal>
-                <div class="lms-workspace-section-head">
-                    <div>
-                        <p class="lms-workspace-kicker">Quy định</p>
-                        <h2 data-i18n="exams.startPage.rulesTitle">Quy định</h2>
-                    </div>
-                </div>
+        <article class="exam-prep-card exam-prep-info-card exam-prep-reveal" data-start-exam-reveal>
+            <h2>Thông tin bài thi</h2>
+            <dl class="exam-prep-info-list">
+                <div><dt><span data-exam-prep-icon="clock"></span>Thời lượng</dt><dd data-start-exam-overview="duration">--</dd></div>
+                <div><dt><span data-exam-prep-icon="question"></span>Số câu hỏi</dt><dd data-start-exam-overview="questions">--</dd></div>
+                <div><dt><span data-exam-prep-icon="target"></span>Điểm đạt</dt><dd data-start-exam-overview="passScore">--</dd></div>
+                <div><dt><span data-exam-prep-icon="eye"></span>Chính sách xem lại</dt><dd data-start-exam-overview="review">--</dd></div>
+                <div><dt><span data-exam-prep-icon="refresh"></span>Lần làm bài</dt><dd data-start-exam-overview="attempts">--</dd></div>
+                <div><dt><span data-exam-prep-icon="info"></span>Trạng thái</dt><dd><span class="exam-prep-status-pill" data-start-exam-overview="status">--</span></dd></div>
+            </dl>
+        </article>
+    </section>
 
-                <div class="student-exam-rule-list" id="startExamRules">
-                    <div class="app-loading">
-                        <span class="app-spinner" aria-hidden="true"></span>
-                        <span data-i18n="exams.startPage.loadingRules">Đang tải quy định...</span>
-                    </div>
-                </div>
-            </article>
+    <section class="exam-prep-grid exam-prep-grid-lower">
+        <article class="exam-prep-card exam-prep-rules-card exam-prep-reveal" data-start-exam-reveal>
+            <h2>Quy định làm bài</h2>
+            <div class="exam-prep-rule-list" id="startExamRules">
+                <div class="app-loading"><span class="app-spinner" aria-hidden="true"></span><span>Đang tải quy định...</span></div>
+            </div>
+        </article>
 
-            <article class="lms-workspace-card student-exam-start-widget student-exam-start-reveal" data-start-exam-reveal>
-                <div class="lms-workspace-section-head">
-                    <div>
-                        <p class="lms-workspace-kicker">Sẵn sàng</p>
-                        <h2>Sẵn sàng</h2>
-                    </div>
-                </div>
+        <article class="exam-prep-card exam-prep-ready-panel exam-prep-reveal" data-start-exam-reveal>
+            <h2>Bạn đã sẵn sàng?</h2>
+            <ul class="exam-prep-checklist">
+                <li><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"></path></svg><span>Tôi đã đọc và hiểu quy định làm bài</span></li>
+                <li><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"></path></svg><span>Thiết bị hoạt động bình thường</span></li>
+                <li><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"></path></svg><span>Internet ổn định</span></li>
+                <li><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"></path></svg><span>Tôi có đủ thời gian để hoàn thành bài thi</span></li>
+                <li><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m5 12 4 4 10-10"></path></svg><span>Tôi sẵn sàng bắt đầu</span></li>
+            </ul>
 
-                <dl class="student-exam-readiness">
-                    <div>
-                        <dt>Trạng thái bài thi</dt>
-                        <dd data-start-exam-readiness-status>--</dd>
-                    </div>
-                    <div>
-                        <dt>Chế độ xem lại</dt>
-                        <dd data-start-exam-readiness-review>--</dd>
-                    </div>
-                    <div>
-                        <dt>Hành động</dt>
-                        <dd data-start-exam-readiness-action">Bạn có thể bắt đầu khi đã sẵn sàng.</dd>
-                    </div>
-                </dl>
-            </article>
-        </aside>
+            <button class="exam-prep-button exam-prep-button-primary" type="button" data-start-exam-action="start">
+                <span>Bắt đầu làm bài</span>
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m8 5 11 7-11 7Z"></path></svg>
+            </button>
+            <p class="exam-prep-ready-caption"><svg aria-hidden="true" viewBox="0 0 24 24"><rect x="5" y="10" width="14" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg> Sau khi bắt đầu, thời gian sẽ được tính.</p>
+        </article>
     </section>
 </section>
 

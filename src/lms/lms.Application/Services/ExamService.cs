@@ -26,6 +26,7 @@ public sealed class ExamService : IExamService
     private readonly IExamRandomRuleRepository _randomRuleRepo;
     private readonly IQuestionRepository _questionRepo;
     private readonly IQuestionCategoryRepository _categoryRepo;
+    private readonly IExamAttemptRepository _attemptRepo;
     private readonly IAuditLogService _audit;
 
     public ExamService(
@@ -34,6 +35,7 @@ public sealed class ExamService : IExamService
         IExamRandomRuleRepository randomRuleRepo,
         IQuestionRepository questionRepo,
         IQuestionCategoryRepository categoryRepo,
+        IExamAttemptRepository attemptRepo,
         IAuditLogService audit)
     {
         _examRepo = examRepo;
@@ -41,6 +43,7 @@ public sealed class ExamService : IExamService
         _randomRuleRepo = randomRuleRepo;
         _questionRepo = questionRepo;
         _categoryRepo = categoryRepo;
+        _attemptRepo = attemptRepo;
         _audit = audit;
     }
 
@@ -70,11 +73,16 @@ public sealed class ExamService : IExamService
         foreach (var e in exams)
         {
             var qCount = await _examQuestionRepo.GetCountByExamIdAsync(e.Id);
+            var attemptStats = await GetAttemptStatsAsync(e, studentUserId);
             items.Add(new ExamListItemResponse
             {
                 Id = e.Id, Code = e.Code, Name = e.Name,
                 DurationMinutes = e.DurationMinutes, PassScore = e.PassScore,
                 AttemptLimit = e.AttemptLimit, IsPublished = e.IsPublished,
+                UsedAttemptCount = attemptStats.UsedCount,
+                RemainingAttemptCount = attemptStats.RemainingCount,
+                CanStart = attemptStats.CanStart,
+                HasActiveAttempt = attemptStats.HasActiveAttempt,
                 ReviewMode = e.ReviewMode, QuestionCount = qCount
             });
         }
@@ -83,11 +91,11 @@ public sealed class ExamService : IExamService
             new PagedResult<ExamListItemResponse>(items, total, page, size));
     }
 
-    public async Task<ApiResponse<ExamDetailResponse>> GetByIdAsync(int id)
+    public async Task<ApiResponse<ExamDetailResponse>> GetByIdAsync(int id, int? studentUserId = null)
     {
         var exam = await _examRepo.GetByIdAsync(id);
         if (exam is null) return ApiResponse<ExamDetailResponse>.FailureResult("Không tìm thấy bài thi.");
-        return ApiResponse<ExamDetailResponse>.SuccessResult(await BuildDetailAsync(exam));
+        return ApiResponse<ExamDetailResponse>.SuccessResult(await BuildDetailAsync(exam, studentUserId));
     }
 
     // ─── CRUD ──────────────────────────────────────────────────────────────────
@@ -295,10 +303,72 @@ public sealed class ExamService : IExamService
         return null;
     }
 
-    private async Task<ExamDetailResponse> BuildDetailAsync(Exam e)
+    private static string GetReviewPolicy(string? reviewMode)
+    {
+        return reviewMode switch
+        {
+            ExamReviewMode.FullReview => "Xem toàn bộ sau khi nộp",
+            ExamReviewMode.AnswerOnly => "Xem đáp án sau khi nộp",
+            ExamReviewMode.NoReview => "Không cho xem lại",
+            _ => "Chỉ xem kết quả sau khi nộp"
+        };
+    }
+
+    private static string GetStatus(Exam exam)
+    {
+        return exam.IsPublished ? "Sẵn sàng" : "Bản nháp";
+    }
+
+    private static List<ExamInstructionResponse> BuildInstructions()
+    {
+        return new List<ExamInstructionResponse>
+        {
+            new() { Number = "01", Icon = "book-open", Title = "Đọc hướng dẫn", Description = "Xem phạm vi bài thi và quy định trước khi bắt đầu." },
+            new() { Number = "02", Icon = "monitor", Title = "Chuẩn bị thiết bị", Description = "Sử dụng thiết bị, trình duyệt và kết nối internet ổn định." },
+            new() { Number = "03", Icon = "play", Title = "Bắt đầu làm bài", Description = "Thời gian sẽ được tính ngay khi bạn bắt đầu." },
+            new() { Number = "04", Icon = "send", Title = "Nộp câu trả lời", Description = "Nộp bài trước khi đồng hồ đếm ngược kết thúc." },
+            new() { Number = "05", Icon = "eye", Title = "Xem kết quả", Description = "Quyền xem lại phụ thuộc vào chính sách của bài thi." }
+        };
+    }
+
+    private static List<ExamRuleResponse> BuildExamRules(Exam exam)
+    {
+        return new List<ExamRuleResponse>
+        {
+            new() { Icon = "refresh-cw-off", Title = "Không tải lại trang", Description = "Không tải lại hoặc đóng trình duyệt trong khi làm bài." },
+            new() { Icon = "wifi", Title = "Internet ổn định", Description = "Giữ kết nối internet ổn định cho đến khi nộp bài." },
+            new() { Icon = "timer", Title = "Thời gian bắt đầu ngay", Description = $"Đồng hồ {exam.DurationMinutes} phút bắt đầu sau khi bấm Start Exam." },
+            new() { Icon = "send", Title = "Nộp trước khi hết giờ", Description = "Nộp câu trả lời trước khi đồng hồ kết thúc." },
+            new() { Icon = "eye", Title = "Chính sách xem lại", Description = GetReviewPolicy(exam.ReviewMode) + "." },
+            new() { Icon = "shield-alert", Title = "Ghi nhận chống gian lận", Description = "Hoạt động bất thường trong bài thi có thể được ghi nhận để kiểm tra." }
+        };
+    }
+
+    private async Task<ExamAttemptStats> GetAttemptStatsAsync(Exam exam, int? studentUserId)
+    {
+        if (!studentUserId.HasValue)
+        {
+            return new ExamAttemptStats(0, exam.AttemptLimit, exam.IsPublished, false);
+        }
+
+        var usedCount = await _attemptRepo.GetAttemptCountAsync(studentUserId.Value, exam.Id);
+        var active = await _attemptRepo.GetActiveByUserAndExamAsync(studentUserId.Value, exam.Id);
+        int? remainingCount = exam.AttemptLimit.HasValue
+            ? Math.Max(exam.AttemptLimit.Value - usedCount, 0)
+            : null;
+        var canStart = exam.IsPublished
+            && (active is not null || !exam.AttemptLimit.HasValue || usedCount < exam.AttemptLimit.Value);
+
+        return new ExamAttemptStats(usedCount, remainingCount, canStart, active is not null);
+    }
+
+    private async Task<ExamDetailResponse> BuildDetailAsync(Exam e, int? studentUserId = null)
     {
         var examQuestions = await _examQuestionRepo.GetByExamIdAsync(e.Id);
         var randomRules = await _randomRuleRepo.GetByExamIdAsync(e.Id);
+        var questionCount = examQuestions.Count + randomRules.Sum(r => r.QuestionCount);
+        var reviewPolicy = GetReviewPolicy(e.ReviewMode);
+        var attemptStats = await GetAttemptStatsAsync(e, studentUserId);
 
         var qResponses = new List<ExamQuestionResponse>(examQuestions.Count);
         foreach (var eq in examQuestions)
@@ -318,13 +388,30 @@ public sealed class ExamService : IExamService
             DurationMinutes = e.DurationMinutes, PassScore = e.PassScore,
             AttemptLimit = e.AttemptLimit, RandomQuestion = e.RandomQuestion,
             RandomAnswer = e.RandomAnswer, ReviewMode = e.ReviewMode,
-            IsPublished = e.IsPublished, CreatedDate = e.CreatedDate,
+            IsPublished = e.IsPublished, Status = GetStatus(e),
+            QuestionCount = questionCount,
+            AttemptCount = e.AttemptLimit ?? 1,
+            UsedAttemptCount = attemptStats.UsedCount,
+            RemainingAttemptCount = attemptStats.RemainingCount,
+            CanStart = attemptStats.CanStart,
+            HasActiveAttempt = attemptStats.HasActiveAttempt,
+            ReviewPolicy = reviewPolicy,
+            Language = "Tiếng Việt",
+            CreatedDate = e.CreatedDate,
             Questions = qResponses,
             RandomRules = randomRules.Select(r => new ExamRandomRuleResponse
             {
                 Id = r.Id, CategoryId = r.CategoryId, Difficulty = r.Difficulty,
                 QuestionCount = r.QuestionCount, ScorePerQuestion = r.ScorePerQuestion
-            }).ToList()
+            }).ToList(),
+            Instructions = BuildInstructions(),
+            ExamRules = BuildExamRules(e)
         };
     }
+
+    private sealed record ExamAttemptStats(
+        int UsedCount,
+        int? RemainingCount,
+        bool CanStart,
+        bool HasActiveAttempt);
 }
